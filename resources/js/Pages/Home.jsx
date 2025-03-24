@@ -1,11 +1,12 @@
 import React from "react";
 import { Link } from "@inertiajs/react";
+import VerifikacijaForm from "./Verifikacija"
 
 const Home = () => {
   return (
-    <div>
-      <h1>Hello world</h1>
-      {/* <Link href="/login">Go to Login</Link> */}
+    <div className="bg-red-600">
+      {/* <h1>Hello world</h1> */}
+      <VerifikacijaForm/>
     </div>
   );
 };
