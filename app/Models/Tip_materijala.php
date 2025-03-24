@@ -34,8 +34,9 @@ class Tip_materijala extends Model
     protected $fillable = ['naziv'];
 
     /**
-     * Vraca sve departmane iz tabele Departmani
+     * Vraca sve redove iz tabele 
      */
+
     public static function getTipMaterijala()
     {
         return self::all();
