@@ -30,9 +30,10 @@
 <body>
     <div class="container">
         <h2>Verifikacija naloga</h2>
-        <p>Zdravo, {{ $ime }}</p>
+        <p>Zdravo, </p>
         <p>Molimo vas da kliknete na dugme ispod kako biste verifikovali svoj nalog.</p>
-        <a href="{{ $verifikacijaUrl }}" class="btn">Verifikuj nalog</a>
+        <p>Ova verifikacija važi godinu dana.</p>
+        <a href="#" class="btn">Verifikuj nalog</a>
         <p>Hvala!</p>
     </div>
 </body>

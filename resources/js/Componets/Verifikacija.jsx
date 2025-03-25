@@ -15,17 +15,13 @@ export default function VerifikacijaForm() {
         setMessage("");
 
         try {
-            // Axios POST poziv
-            const response = await axios.post("/verifikuj-korisnika", {
+            const response = await axios.post("/verifikacija", {
                 email
-            });
-
-            // Prikazivanje poruke sa servera
+            });          
             setMessage(response.data.message);
         } catch (error) {
             setMessage("Došlo je do greške. Pokušajte ponovo.");
         }
-
         setLoading(false);
     };
 
@@ -40,6 +36,7 @@ export default function VerifikacijaForm() {
                 className="border p-2 w-full rounded mb-4"
             />
             <button
+                id="VerifikujDugme"
                 onClick={handleVerification}
                 disabled={loading}
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full"

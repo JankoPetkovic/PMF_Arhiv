@@ -16,10 +16,9 @@ class VerifikacijaKorisnika extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct($korisnik, $token)
+    public function __construct()
     {
-        $this->korisnik = $korisnik;
-        $this->token = $token;
+        //
     }
 
     /**
@@ -38,7 +37,7 @@ class VerifikacijaKorisnika extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            view: 'verifikacija',
         );
     }
 
@@ -52,13 +51,13 @@ class VerifikacijaKorisnika extends Mailable
         return [];
     }
 
-    public function build()
-    {
-        return $this->subject('Verifikacija naloga')
-                    ->view('emails.verifikacija')
-                    ->with([
-                        'ime' => $this->korisnik->email,
-                        'verifikacijaUrl' => url("/verifikacija/$this->token"),
-                    ]);
-    }
+    // public function build()
+    // {
+    //     return $this->subject('Verifikacija naloga')
+    //                 ->view('emails.verifikacija')
+    //                 ->with([
+    //                     'ime' => $this->korisnik->email,
+    //                     'verifikacijaUrl' => url("/verifikacija/$this->token"),
+    //                 ]);
+    // }
 }

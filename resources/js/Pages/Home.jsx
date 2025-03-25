@@ -1,12 +1,13 @@
 import React from "react";
-import { Link } from "@inertiajs/react";
-import VerifikacijaForm from "./Verifikacija"
+import VerifikacijaForm from "../Componets/Verifikacija"
+import Departmani from "../Componets/Departmani"
 
 const Home = () => {
   return (
-    <div className="bg-red-600">
-      {/* <h1>Hello world</h1> */}
-      <VerifikacijaForm/>
+    <div className="bg-zinc-200">
+      {/* <VerifikacijaForm/> */}
+      
+      <Departmani/>
     </div>
   );
 };
