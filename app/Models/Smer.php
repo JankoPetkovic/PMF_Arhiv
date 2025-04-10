@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Smer extends Model
 {
@@ -34,11 +35,11 @@ class Smer extends Model
     protected $fillable = ['naziv_smera', 'departman_id', 'nivo_studija_id'];
 
     /**
-     * Vraca sve smerove iz tabele smer
+     * Relacija sa smerovima
      */
-    public static function getSmer()
+    public function smerovi(): HasMany
     {
-        return self::all();
+        return $this->hasMany(Smer::class, 'departman_id', 'departman_id');
     }
 
 
@@ -47,7 +48,7 @@ class Smer extends Model
         return $this->belongsTo(Departman::class, 'departman_id');
     }
 
-    public function getNivoStudija()
+    public function NivoStudija()
     {
         return $this->belongsTo(Nivo_studija::class, 'nivo_studija_id');
     }

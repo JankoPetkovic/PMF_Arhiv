@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use HasFactory;
 
 class Departman extends Model
@@ -34,11 +35,11 @@ class Departman extends Model
      */
     protected $fillable = ['naziv'];
 
-    /**
-     * Vraca sve departmane iz tabele Departmani
+     /**
+     * Relacija sa smerovima
      */
-    public static function getDepartmani()
+    public function smerovi(): HasMany
     {
-        return self::all();
+        return $this->hasMany(Smer::class, 'departman_id', 'departman_id');
     }
 }

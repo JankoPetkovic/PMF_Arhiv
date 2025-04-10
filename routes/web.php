@@ -8,13 +8,12 @@ use Illuminate\Http\Request;
 
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\DepartmanController;
+use App\Http\Controllers\MaterijalController;
 
 
 
-Route::get('/', function () {
-    return inertia("Home");
-});
+Route::get('/', [HomeController::class, 'index']);
 
-Route::get('/getDepartmani',[DepartmanController::class, 'sviDepartmani']);
+Route::get('/smer-{id}', [MaterijalController::class, 'get_predmeti']);
 
 Route::post('/verifikacija', [HomeController::class, 'verifikuj']);

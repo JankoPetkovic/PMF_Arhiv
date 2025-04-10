@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Database\Eloquent\Relations\HasMany;
 class Nivo_studija extends Model
 {
     /**
@@ -34,10 +34,10 @@ class Nivo_studija extends Model
     protected $fillable = ['nivo_studija'];
 
     /**
-     * Vraca sve departmane iz tabele Departmani
+     * Relacija sa smerovima
      */
-    public static function getNivoiStudija()
+    public function smerovi(): HasMany
     {
-        return self::all();
+        return $this->hasMany(Smer::class, 'nivo_studija_id', 'nivo_studija_id');
     }
 }

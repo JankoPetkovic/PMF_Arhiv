@@ -1,20 +1,72 @@
-import React from "react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { Link } from '@inertiajs/react';
+export default function Departmani({smerovi})
+{
+  const [activeDropdown, setActiveDropdown] = useState(null);
 
+  const toggleDropdown = (index) => {
+    if (activeDropdown === index) {
+      setActiveDropdown(null);
+    } else {
+      setActiveDropdown(index);
+    }
+  };
 
-export default function Departmani()
-{     
-    const sviDepartmani = ["Biologija i Ekologija", "Geografija", "Matematika", "Fizika", "Racunarske nauke", "Hemija" ]
+  const [openNivoi, setOpenNivoi] = useState({});
 
-    return(
-        <>
+  const toggleNivo = (nivo) => {
+    setOpenNivoi((prev) => ({
+      ...prev,
+      [nivo]: !prev[nivo],
+    }));
+  };
+
+    
+  return (
+    <>
+      <div className="flex border-2 rounded-xl h-20 gap-7 items-center justify-center">
+
+        {smerovi.map(departman => (
+          <div key={departman.departman_id} className="relative">
+            <button 
+              className="p-7 hover:bg-blue-100 relative rounded-md"  
+              onClick={() => toggleDropdown(departman.departman_id)}
+              onMouseEnter={() => setActiveDropdown(departman.departman_id)}
+            >
+              {departman.departman_naziv}
+            </button>
             
-            <div className="flex border-1 justify-center h-24">
-                <img src="/images/pmf_logo.svg"/>
-                {sviDepartmani.map((ime,indeks)=>(
-                    <button className="p-3 hover:bg-blue-100" key={indeks}>{ime}</button>
+            {activeDropdown === departman.departman_id && (
+              <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                <ul className="py-1" onMouseLeave={() => setActiveDropdown(null)}>
+                {Object.entries(departman.nivo_studija).map(([nivo, smerovi]) => (
+                <li key={nivo}>
+                    <button className="p-2 hover:bg-gray-200"
+                    onClick={() => toggleNivo(nivo)}>
+                    {nivo}
+                    </button>
+                    {openNivoi[nivo] && (
+                    <ul className="ml-4 mt-2 list-disc text-gray-700 p-2 ">
+                        {smerovi.map((smer) => (
+                        <li key={smer.id} className="hover:bg-gray-200">
+                            <Link
+                                href={`/smer-${smer.id}`}
+                                className="text-blue-500 hover:underline"
+                                >{smer.naziv}
+                            </Link>
+                        </li>
+                        ))}
+                    </ul>
+                    )}
+                </li>
                 ))}
-            </div>
-        </>
-    )
-}
+                </ul>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </>
+  );
+};
+
