@@ -1,6 +1,6 @@
-import VerifikacijaForm from "../Componets/Verifikacija"
-import Departmani from "../Componets/Departmani"
-import Navbar from "../Componets/Tools/Navbar";
+import VerifikacijaForm from "../Komponente/Verifikacija"
+import Departmani from "../Komponente/Departmani"
+import Navbar from "../Komponente/Alati/Navbar";
 
 const Home = ({ smerovi }) => {
 

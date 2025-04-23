@@ -17,7 +17,6 @@ export default function Checkbox({id, naziv, onChange}) {
                 id={id} 
                 checked={isChecked}
                 onChange={handleChange}
-                className="predmetCheckbox"
             />
             <label htmlFor={id} className="ml-2">{naziv}</label>
         </>

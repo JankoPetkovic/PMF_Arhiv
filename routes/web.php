@@ -16,4 +16,6 @@ Route::get('/', [HomeController::class, 'index']);
 
 Route::get('/smer-{id}', [MaterijalController::class, 'get_predmeti']);
 
+Route::post('/materijali', [MaterijalController::class, 'get_materijal']);
+
 Route::post('/verifikacija', [HomeController::class, 'verifikuj']);

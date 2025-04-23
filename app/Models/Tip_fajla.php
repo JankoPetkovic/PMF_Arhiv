@@ -4,21 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Fajl extends Model
+class Tip_fajla extends Model
 {
     /**
      * Tabela koja predstavalja model
      * 
      * @var string
      */
-    protected $table = 'fajl';
+    protected $table = 'tip_fajla';
 
     /**
      * Primarni kljuc u tabeli
      * 
      * @var string
      */
-    protected $primaryKey = 'fajl_id';
+    protected $primaryKey = 'tip_fajla_id';
 
 
     /**
@@ -31,13 +31,14 @@ class Fajl extends Model
     /**
      * Kolone u koje je dozvoljen upis
      */
-    protected $fillable = ['putanja_fajla', 'tip_fajla'];
+    protected $fillable = ['naziv'];
 
     /**
      * Vraca sve departmane iz tabele Departmani
      */
-    public static function getFajl()
+    public static function getTipFajla($id)
     {
-        return self::all();
+        return self::where('id_tipa_fajla', $id);
     }
+
 }
