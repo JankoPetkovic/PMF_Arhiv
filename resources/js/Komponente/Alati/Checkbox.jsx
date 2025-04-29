@@ -18,7 +18,7 @@ export default function Checkbox({id, naziv, onChange}) {
                 checked={isChecked}
                 onChange={handleChange}
             />
-            <label htmlFor={id} className="ml-2">{naziv}</label>
+            <label htmlFor={id} className="ml-2 cursor-pointer">{naziv}</label>
         </>
     )
 }

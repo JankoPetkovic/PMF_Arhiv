@@ -3,7 +3,7 @@ import axios from 'axios';
 import Checkbox from "../Komponente/Alati/Checkbox";
 import Navbar from "../Komponente/Alati/Navbar";
 import Radio from "../Komponente/Alati/Radio";
-import Kartica from '../Komponente/Kartica';
+import KarticePredmeta from '../Komponente/KarticePredmeta';
 
 
 export default function Materijal({predmeti, smer, tipovi_materijala})
@@ -12,9 +12,6 @@ export default function Materijal({predmeti, smer, tipovi_materijala})
     const [selektovaniPredmeti, setSelektovaniPredmeti] = useState([]);
     const [selektovaniTipovi, setSelektovaniTipovi] = useState([]);
     const [materijali, setMaterijali] = useState([]);
-
-    console.log(materijali);
-    
 
     useEffect(() => {
         setSelektovaniPredmeti([]);
@@ -112,32 +109,30 @@ export default function Materijal({predmeti, smer, tipovi_materijala})
                    </div>
                 </div>
                 <div className='flex'>
-                    <ul className="ml-10 mt-10">
-                        {predmeti.map(predmet => (
-                            predmet.godina === selektovanaGodina && 
-                            <li className="p-2" key={predmet.predmet_id}>
-                            <Checkbox 
-                                key={predmet.predmet_id} 
-                                id={predmet.predmet_id} 
-                                naziv={predmet.naziv} 
-                                onChange={checkboxPredmetPromena}
+                    <div className='w-[350px] shrink-0'>
+                        <ul className="ml-10 mt-10">
+                            {predmeti.map(predmet => (
+                                predmet.godina === selektovanaGodina && 
+                                <li className="p-2" key={predmet.predmet_id}>
+                                <Checkbox 
+                                    key={predmet.predmet_id} 
+                                    id={predmet.predmet_id} 
+                                    naziv={predmet.naziv} 
+                                    onChange={checkboxPredmetPromena}
+                                />
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                    <div className="p-4 w-full">
+                        {Object.entries(materijali).map(([nazivPredmeta, materijaliPredmeta]) => (
+                            <KarticePredmeta
+                            key={nazivPredmeta}
+                            predmet={nazivPredmeta}
+                            materijali={materijaliPredmeta}
                             />
-                            </li>
                         ))}
-                    </ul>
-{/* 
-                    <Kartica tipFajla={'pdf'} putanja={'Test1.pdf'}/>
-                    <Kartica tipFajla={'png'} putanja={'Test2.png'}/> */}
-                    {/* <div>
-                    {materijali && Object.values(materijali).map(materijal => (
-                    <div key={materijal.materijal_id}>
-                                <img src="pmf_logo.svg" alt={materijal.naziv} />
-                                <p>{materijal.naziv}</p>
-                                <p>{materijal.tip_fajla}</p>
-                                <p>{materijal.email}</p>
-                            </div>
-                        ))}
-                    </div> */}
+                    </div>
                 </div>
             </div>
         </>

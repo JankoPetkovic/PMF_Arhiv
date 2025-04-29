@@ -33,8 +33,9 @@ class MaterijalController extends Controller
 
         $materijali = [];
          foreach($predmeti as $predmet)
-            {
-                $materijali[$predmet] = Materijal::getMaterijalPoTipu($predmet,$tipovi_materijala);
+            {   
+                $naziv_predmeta = Predmet::getNazivPredmeta($predmet);
+                $materijali[$naziv_predmeta] = Materijal::getMaterijalPoTipu($predmet,$tipovi_materijala);
             }
 
         return response()->json($materijali);

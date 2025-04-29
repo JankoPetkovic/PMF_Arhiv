@@ -25,11 +25,10 @@ export default function Departmani({smerovi})
   return (
     <>
       <div className="flex border-2 rounded-xl h-20 gap-7 items-center justify-center">
-
         {smerovi.map(departman => (
           <div key={departman.departman_id} className="relative">
             <button 
-              className="p-7 hover:bg-blue-100 relative rounded-md"  
+              className="p-7 hover:bg-blue-100 relative rounded-md cursor-pointer"  
               onClick={() => toggleDropdown(departman.departman_id)}
               onMouseEnter={() => setActiveDropdown(departman.departman_id)}
             >
@@ -41,7 +40,7 @@ export default function Departmani({smerovi})
                 <ul className="py-1" onMouseLeave={() => setActiveDropdown(null)}>
                 {Object.entries(departman.nivo_studija).map(([nivo, smerovi]) => (
                 <li key={nivo}>
-                    <button className="p-2 hover:bg-gray-200"
+                    <button className="p-2 hover:bg-gray-200 cursor-pointer"
                     onClick={() => toggleNivo(nivo)}>
                     {nivo}
                     </button>

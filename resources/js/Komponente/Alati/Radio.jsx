@@ -10,11 +10,11 @@ export default function Radio({id, naziv, radioGrupa, cekiran, onChange})
                 id={id} 
                 name={radioGrupa}
                 value={naziv}
-                className="godinaRadio"
+                className="godinaRadio outline-none"
                 checked={cekiran}
                 onChange={onChange}
             />
-            <label htmlFor={id} className="ml-2">{naziv}</label>
+            <label htmlFor={id} className="ml-2 cursor-pointer">{naziv}</label>
         </div>
     </>
     )
