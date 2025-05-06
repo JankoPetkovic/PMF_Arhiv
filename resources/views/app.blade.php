@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Blanket Arhiv</title>
+    <title>PMF-Arhiv</title>
     @viteReactRefresh
     @vite(['resources/js/app.jsx'])
 </head>

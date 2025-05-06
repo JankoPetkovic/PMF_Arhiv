@@ -109,7 +109,7 @@ export default function Materijal({predmeti, smer, tipovi_materijala})
                    </div>
                 </div>
                 <div className='flex'>
-                    <div className='w-[350px] shrink-0'>
+                    <div className='w-[360px] shrink-0'>
                         <ul className="ml-10 mt-10">
                             {predmeti.map(predmet => (
                                 predmet.godina === selektovanaGodina && 
@@ -130,6 +130,7 @@ export default function Materijal({predmeti, smer, tipovi_materijala})
                             key={nazivPredmeta}
                             predmet={nazivPredmeta}
                             materijali={materijaliPredmeta}
+                            smer={smer}
                             />
                         ))}
                     </div>

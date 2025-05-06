@@ -1,8 +1,17 @@
 import Kartica from '../Komponente/Kartica';
 
 
-export default function KarticePredmeta({predmet, materijali})
-{
+export default function KarticePredmeta({predmet, materijali, smer})
+{   
+    let putanja = (
+        smer.departman +
+        '/' + smer.nivo_studija +
+        '/' + smer.naziv_smera +
+        '/' + predmet
+    )
+    .toLowerCase()
+    .replaceAll(' ', '_');
+
     console.log(materijali);
     
     return(
@@ -16,7 +25,9 @@ export default function KarticePredmeta({predmet, materijali})
                     <Kartica 
                     key={m.materijal_id} 
                     tipFajla={m.tip_fajla} 
-                    putanja={m.naziv.concat(`.${m.tip_fajla}`)} 
+                    putanja={putanja + '/' + m.naziv + '.' + m.tip_fajla}
+                    naziv={m.naziv + '.' + m.tip_fajla}
+                    uploudovao={materijali.email}
                     />
                 ))
                 )}

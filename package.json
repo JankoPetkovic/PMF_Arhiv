@@ -16,8 +16,11 @@
         "vite": "^6.0.11"
     },
     "dependencies": {
+        "@emotion/react": "^11.14.0",
+        "@emotion/styled": "^11.14.0",
         "@inertiajs/inertia": "^0.11.1",
         "@inertiajs/react": "^2.0.4",
+        "@mui/material": "^7.0.2",
         "@vitejs/plugin-react": "^4.3.4",
         "lucide-react": "^0.487.0",
         "react": "^19.0.0",

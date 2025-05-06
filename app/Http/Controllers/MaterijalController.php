@@ -17,7 +17,13 @@ class MaterijalController extends Controller
     {
         $predmeti = Predmet::where('smer_id', $id)->get();
         $tipovi_materijala = Tip_materijala::all();
-        $smer = Smer::where('smer_id', $id)->get();
+        $siroviSmer = Smer::with('departman', 'nivoStudija')->findOrFail($id);
+
+        $smer = [
+            'departman' => $siroviSmer->departman->naziv,
+            'naziv_smera' => $siroviSmer->naziv_smera,
+            'nivo_studija' => $siroviSmer->nivoStudija->nivo_studija,
+        ];
 
         return Inertia::render('Materijal', [
             'smer' => $smer,

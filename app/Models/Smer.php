@@ -43,12 +43,12 @@ class Smer extends Model
     }
 
 
-    public function getDepartman()
+    public function departman()
     {
         return $this->belongsTo(Departman::class, 'departman_id');
     }
 
-    public function NivoStudija()
+    public function nivoStudija()
     {
         return $this->belongsTo(Nivo_studija::class, 'nivo_studija_id');
     }
