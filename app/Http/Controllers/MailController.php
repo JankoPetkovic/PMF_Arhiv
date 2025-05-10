@@ -22,4 +22,20 @@ class MailController extends Controller
             return response()->json(['message' => 'Došlo je do greške pri slanju mejla. Pokušajte ponovo.'], 500);
         }
     }
+
+    public function prijavi(Request $request){
+        
+        $request->validate([
+            'email' => 'required|max:255',
+            'opis_prijave'
+        ]);
+
+        try {
+            Mail::to($request->email)->send(new VerifikacijaKorisnika());
+
+            return response()->json(['message' => 'Mejl je poslat. Proveri tvoje e-sanduče.'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Došlo je do greške pri slanju mejla. Pokušajte ponovo.'], 500);
+        }
+    }
 }

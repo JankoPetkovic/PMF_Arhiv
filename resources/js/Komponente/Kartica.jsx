@@ -4,9 +4,10 @@ import { Tooltip } from '@mui/material';
 import { useState } from "react";
 import PrijaviMaterijal from "./Alati/PrijaviMaterijal";
 
-export default function Kartica({tipFajla, putanja, naziv, uploudovao})
+export default function Kartica({tipFajla, materijalId, putanja, naziv, uploudovao})
 {
     const [prijava, podesiPrijavu] = useState(false)
+    const [selektovanMaterijal, selektujMaterijal] = useState(null)
 
     function zatvoriPrijavu() {
         podesiPrijavu(false);
@@ -29,7 +30,10 @@ export default function Kartica({tipFajla, putanja, naziv, uploudovao})
         <div className="border rounded-xl p-2 flex flex-col items-center justify-center h-32 w-32 text-center">
             <div className="flex justify-start w-full">
                 <Tooltip title="Prijavi">
-                    <PiWarningCircleBold size={20} className="text-red-800 cursor-pointer" onClick={()=>podesiPrijavu(true)}/>
+                    <PiWarningCircleBold size={20} className="text-red-800 cursor-pointer" onClick={()=>{
+                        podesiPrijavu(true)
+                        selektujMaterijal(materijalId)
+                    }}/>
                 </Tooltip>
             </div>
             <div className="flex items-center justify-center mb-2 h-16 w-16">
@@ -49,7 +53,7 @@ export default function Kartica({tipFajla, putanja, naziv, uploudovao})
                     />
                 </Tooltip>
             </div>
-            {prijava && <PrijaviMaterijal podesiPrijavu={zatvoriPrijavu}/>}
+            {prijava && <PrijaviMaterijal podesiPrijavu={zatvoriPrijavu} materijalId={selektovanMaterijal}/>}
         </div>
     );
 }

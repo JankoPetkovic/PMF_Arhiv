@@ -24,6 +24,7 @@ export default function KarticePredmeta({predmet, materijali, smer})
                 materijali.map((m) => (
                     <Kartica 
                     key={m.materijal_id} 
+                    materijalId = {m.materijal_id} 
                     tipFajla={m.tip_fajla} 
                     putanja={putanja + '/' + m.naziv + '.' + m.tip_fajla}
                     naziv={m.naziv + '.' + m.tip_fajla}

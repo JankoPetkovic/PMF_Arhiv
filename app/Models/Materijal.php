@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use App\Models\Tip_Fajla;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -74,7 +75,7 @@ class Materijal extends Model
 
     public function tipFajla()
     {
-        return $this->belongsTo(Tip_Fajla::class, 'tip_fajla_id');
+        return $this->belongsTo(Tip_fajla::class, 'tip_fajla_id');
     }
 
     public function tipMaterijala()
