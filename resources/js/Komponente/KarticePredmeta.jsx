@@ -12,8 +12,6 @@ export default function KarticePredmeta({predmet, materijali, smer})
     .toLowerCase()
     .replaceAll(' ', '_');
 
-    console.log(materijali);
-    
     return(
         <div className="mb-6">
             <h2 className="text-xl font-bold mb-2">{predmet}</h2>
@@ -28,7 +26,7 @@ export default function KarticePredmeta({predmet, materijali, smer})
                     tipFajla={m.tip_fajla} 
                     putanja={putanja + '/' + m.naziv + '.' + m.tip_fajla}
                     naziv={m.naziv + '.' + m.tip_fajla}
-                    uploudovao={materijali.email}
+                    uploudovao={m.email}
                     />
                 ))
                 )}

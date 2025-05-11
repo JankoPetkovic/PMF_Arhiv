@@ -3,6 +3,7 @@ import { PiWarningCircleBold } from "react-icons/pi";
 import { Tooltip } from '@mui/material';
 import { useState } from "react";
 import PrijaviMaterijal from "./Alati/PrijaviMaterijal";
+import { FaRegUserCircle } from "react-icons/fa";
 
 export default function Kartica({tipFajla, materijalId, putanja, naziv, uploudovao})
 {
@@ -28,12 +29,15 @@ export default function Kartica({tipFajla, materijalId, putanja, naziv, uploudov
   
     return(
         <div className="border rounded-xl p-2 flex flex-col items-center justify-center h-32 w-32 text-center">
-            <div className="flex justify-start w-full">
+            <div className="flex justify-between w-full">
                 <Tooltip title="Prijavi">
                     <PiWarningCircleBold size={20} className="text-red-800 cursor-pointer" onClick={()=>{
                         podesiPrijavu(true)
                         selektujMaterijal(materijalId)
                     }}/>
+                </Tooltip>
+                <Tooltip title={uploudovao}>
+                    <FaRegUserCircle size={20}/>
                 </Tooltip>
             </div>
             <div className="flex items-center justify-center mb-2 h-16 w-16">
