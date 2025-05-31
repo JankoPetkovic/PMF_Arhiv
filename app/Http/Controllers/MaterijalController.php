@@ -46,4 +46,14 @@ class MaterijalController extends Controller
 
         return response()->json($materijali);
     }
+
+    public function storeMaterijal(Request $request){
+        $predmet = $request->input('predmet');
+        $podTipMaterijala = $request->input('podTipMaterijala');
+        $korisnickiMejl = $request->input('korisnickiMejl');
+        $skolskaGodina = $request->input('skolskaGodina');
+        $fajl = $request->file('fajl');
+
+        dd($predmet, $podTipMaterijala, $korisnickiMejl, $skolskaGodina, $fajl);
+    }
 }
