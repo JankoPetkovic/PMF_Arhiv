@@ -32,7 +32,7 @@ class Materijal extends Model
     /**
      * Kolone u koje je dozvoljen upis
      */
-    protected $fillable = ['naziv', 'predmet_id', 'datum_dodavanja', 'datum_materijala', 'tip_materijala_id', 'fajl_id', 'korisnik_id'];
+    protected $fillable = ['naziv', 'predmet_id','podtip_materijala_id', 'skolska_godina', 'korisnik_id', 'datum_dodavanja'];
 
     /**
      * Vraca sve materijale iz tabele Materijal
@@ -60,6 +60,18 @@ class Materijal extends Model
             'datum_materijala' => $m->datum_materijala,
             ];
         });
+    }
+
+    public static function kreirajMaterijal($naziv, $predmetId, $podTipMaterijalaId, $skolskaGodina, $korisnikId){
+        self::create([
+            'naziv' => $naziv,
+            'predmet_id' => $predmetId,
+            'podtip_materijala_id' => $podTipMaterijalaId,
+            'skolska_godina' => $skolskaGodina,
+            'korisnik_id' => $korisnikId
+        ]);
+
+        return true;
     }
 
     public function predmet()
