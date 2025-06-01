@@ -1,6 +1,6 @@
 import { generisiSkolskeGodine } from "../PomocniAlati/SkolskeGodine";
 import CustomSelect from "../Komponente/Alati/CustomSelect";
-import FajlUploader from "../Komponente/Alati/FajlUploader"
+import FajlUploader from "../Komponente/Alati/FajlUploader";
 import axios from "axios";
 import { useState, useEffect, useRef } from "react";
 import { Tooltip } from "@mui/material";
@@ -9,72 +9,102 @@ import { IoCloudUpload } from "react-icons/io5";
 import { MdOutlineModeEdit } from "react-icons/md";
 import { CiCircleInfo } from "react-icons/ci";
 export default function ObjavaMaterijala() {
-
     const dostupneSkolskeGodine = generisiSkolskeGodine();
 
     const zaustaviPrviRender = useRef(false);
-    const [pocetneInformacije, podesiPocetneInformacije] = useState({
+
+    const [dostupneInformacije, podesiDostupneInformacije] = useState({
         dostupniDepartmani: [],
         dostupniNivoiStudija: [],
         dostupniTipoviMaterijala: [],
+        dostupniSmerovi: [],
+        dostupniPredmeti: [],
+        dostupneGodine: [],
+        dostupniPodTipoviMaterijala: [],
     });
-    const [dostpuniSmerovi, podesiDostupneSmerove] = useState("");
-    const [dostupniPredmeti, podesiDostupnePredmete] = useState("");
-    const [dostupneGodine, podesiDostupneGodine] = useState("");
-    const [dostupniPodTipoviMaterijala, podesiDostupnePodTipoviMaterijala] = useState("");
 
-    const [izabraniDepartman, podesiIzabraniDepartman] = useState("");
-    const [izabraniNivoStudija, podesiIzabraniNivoStudija] = useState("");
-    const [izabraniSmer, podesiIzabraniSmer] = useState("");
-    const [izabraniPredmet, podesiIzabraniPredmet] = useState("");
-    const [izabranaGodina, podesiIzabranuGodinu] = useState("");
-    const [izabraniTipMaterijala, podesiIzabraniTipMaterijala] = useState("");
-    const [izabraniPodTipMaterijala, podesiIzabranPodiTipMaterijala] = useState("");
-    const [izabranaAkademskaGodina, podesiIzabranuAkademskuGodinu] = useState(dostupneSkolskeGodine[dostupneSkolskeGodine.length-1]);
-    const [izabraniFajl, podesiIzabraniFajl] = useState("")
+    const [izabraneInformacije, podesiIzabraneInformacije] = useState({
+        izabraniDepartman: [],
+        izabraniNivoStudija: [],
+        izabraniSmer: [],
+        izabraniPredmet: [],
+        izabranaGodina: [],
+        izabraniTipMaterijala: [],
+        izabraniPodTipMaterijala: [],
+        izabranaAkademskaGodina:
+            dostupneSkolskeGodine[dostupneSkolskeGodine.length - 1],
+        izabraniFajl: [],
+    });
 
     const [unetaMailAdresa, podesiUnetuMailAdresu] = useState("");
-    const [validnaMejlAdresa, podesiValidnuMejlAdresu] = useState('')
+    const [validnaMejlAdresa, podesiValidnuMejlAdresu] = useState("");
 
-    const [zakljucaniSelectPredmeta, podesiZakljucaniSelectPredmeta] = useState(true);
-    const [zakljucaniSelectSmerova, podesiZakljucaniSelectSmerova] = useState(true);
-    const [zakljucaniSelectPodTipaMaterijala, podesiZakljucaniSelectPodTipaMaterijala] = useState(true);
+    const [zakljucaniSelectPredmeta, podesiZakljucaniSelectPredmeta] =
+        useState(true);
+    const [zakljucaniSelectSmerova, podesiZakljucaniSelectSmerova] =
+        useState(true);
+    const [
+        zakljucaniSelectPodTipaMaterijala,
+        podesiZakljucaniSelectPodTipaMaterijala,
+    ] = useState(true);
 
     const [korak, podesiKorak] = useState(1);
     const ukupanBrKoraka = 4;
+
+    const azurirajPoljeDostupneInformacije = (nazivPolja, vrednost) => {
+        podesiDostupneInformacije((prosli) => ({
+            ...prosli,
+            [nazivPolja]: vrednost,
+        }));
+    };
+
+    const azurirajPoljeIzabraneInformacije = (nazivPolja, vrednost) => {
+        podesiIzabraneInformacije((prosli) => ({
+            ...prosli,
+            [nazivPolja]: vrednost,
+        }));
+    };
 
     useEffect(() => {
         const getPocetneInformacije = async () => {
             const response = await axios
                 .get("/objavi-materijal")
                 .then((response) => {
-                    podesiPocetneInformacije((prosli) => ({
-                        ...prosli,
-                        dostupniDepartmani: response.data.dostupniDepartmani,
-                        dostupniNivoiStudija:
-                            response.data.dostupniNivoiStudija,
-                        dostupniTipoviMaterijala:
-                            response.data.dostupniTipoviMaterijala,
-                    }));
+                    azurirajPoljeDostupneInformacije(
+                        "dostupniDepartmani",
+                        response.data.dostupniDepartmani
+                    );
+                    azurirajPoljeDostupneInformacije(
+                        "dostupniNivoiStudija",
+                        response.data.dostupniNivoiStudija
+                    );
+                    azurirajPoljeDostupneInformacije(
+                        "dostupniTipoviMaterijala",
+                        response.data.dostupniTipoviMaterijala
+                    );
                 });
         };
         getPocetneInformacije();
     }, []);
 
     useEffect(() => {
-        podesiDostupneSmerove("");
-        podesiIzabraniSmer("");
-        podesiDostupneGodine("");
-        podesiIzabranuGodinu("");
-        if (izabraniDepartman && izabraniNivoStudija) {
+        azurirajPoljeDostupneInformacije("dostupniSmerovi", []);
+        azurirajPoljeDostupneInformacije("dostupneGodine", []);
+
+        azurirajPoljeIzabraneInformacije("izabraniSmer", [])
+        azurirajPoljeIzabraneInformacije("izabranaGodina", [])
+        if (
+            izabraneInformacije.izabraniDepartman &&
+            izabraneInformacije.izabraniNivoStudija
+        ) {
             podesiZakljucaniSelectSmerova(false);
-            if (izabraniNivoStudija.nivo_studija_id === 2) {
-                podesiDostupneGodine([
+            if (izabraneInformacije.izabraniNivoStudija.nivo_studija_id === 2) {
+                azurirajPoljeDostupneInformacije("dostupneGodine", [
                     { naziv: "1. Godina", vrednost: 1 },
                     { naziv: "2. Godina", vrednost: 2 },
                 ]);
             } else {
-                podesiDostupneGodine([
+                azurirajPoljeDostupneInformacije("dostupneGodine", [
                     { naziv: "1. Godina", vrednost: 1 },
                     { naziv: "2. Godina", vrednost: 2 },
                     { naziv: "3. Godina", vrednost: 3 },
@@ -83,75 +113,102 @@ export default function ObjavaMaterijala() {
 
             const response = axios
                 .post("/get-smerovi", {
-                    departman: izabraniDepartman,
-                    nivoStudija: izabraniNivoStudija,
+                    departman: izabraneInformacije.izabraniDepartman,
+                    nivoStudija: izabraneInformacije.izabraniNivoStudija,
                 })
                 .then((response) => {
-                    podesiDostupneSmerove(response.data);
+                    azurirajPoljeDostupneInformacije(
+                        "dostupniSmerovi",
+                        response.data
+                    );
                 });
         }
-    }, [izabraniDepartman, izabraniNivoStudija]);
+    }, [
+        izabraneInformacije.izabraniDepartman,
+        izabraneInformacije.izabraniNivoStudija,
+    ]);
 
     useEffect(() => {
         if (!zaustaviPrviRender.current) {
             zaustaviPrviRender.current = true;
             return;
         }
-        podesiDostupnePredmete("");
-        podesiIzabraniPredmet("");
-        if (izabraniSmer && izabranaGodina) {
+        azurirajPoljeDostupneInformacije("dostupniPredmeti", []);
+        azurirajPoljeDostupneInformacije("izabraniSmer", []);
+        if (
+            izabraneInformacije.izabraniSmer &&
+            izabraneInformacije.izabranaGodina
+        ) {
             const response = axios
                 .post("/get-predmeti", {
-                    smerID: izabraniSmer,
-                    godina: izabranaGodina,
+                    smerID: izabraneInformacije.izabraniSmer,
+                    godina: izabraneInformacije.izabranaGodina,
                 })
                 .then((response) => {
-                    podesiDostupnePredmete(response.data);
+                    azurirajPoljeDostupneInformacije(
+                        "dostupniPredmeti",
+                        response.data
+                    );
                     podesiZakljucaniSelectPredmeta(false);
                 });
         }
-    }, [izabraniSmer, izabranaGodina]);
+    }, [izabraneInformacije.izabraniSmer, izabraneInformacije.izabranaGodina]);
 
     useEffect(() => {
-        if (izabraniTipMaterijala) {
-            const response = axios.post("/get-podTipovi", {
-                tipMaterijala: izabraniTipMaterijala,
-            })
-            .then((response) => {
-                podesiDostupnePodTipoviMaterijala(response.data);
-                podesiZakljucaniSelectPodTipaMaterijala(false);
-            });
+        azurirajPoljeDostupneInformacije("dostupniPodTipoviMaterijala", []);
+        if (izabraneInformacije.izabraniTipMaterijala) {
+            const response = axios
+                .post("/get-podTipovi", {
+                    tipMaterijala: izabraneInformacije.izabraniTipMaterijala,
+                })
+                .then((response) => {
+                    azurirajPoljeDostupneInformacije(
+                        "dostupniPodTipoviMaterijala",
+                        response.data
+                    );
+                    podesiZakljucaniSelectPodTipaMaterijala(false);
+                });
         }
-    }, [izabraniTipMaterijala]);
-
-    useEffect(()=>{
-        // console.log(izabraniFajl);
-    },[izabraniFajl])
+    }, [izabraneInformacije.izabraniTipMaterijala]);
 
     const obradiMejlAdresu = () => {
         const validanMejl = /^[\w.-]+@pmf\.edu\.rs$/i.test(unetaMailAdresa);
-        if(!validanMejl){
+        if (!validanMejl) {
             alert("Mejl nije validan");
             podesiValidnuMejlAdresu(false);
-        }else{
-            podesiValidnuMejlAdresu(unetaMailAdresa)
+        } else {
+            podesiValidnuMejlAdresu(unetaMailAdresa);
         }
-    }
-
-    // console.log(dostupniPodTipoviMaterijala);
+    };
 
     const obradiKrajForme = () => {
-        obradiMejlAdresu()
-        if(validnaMejlAdresa && izabraniPredmet && izabraniPodTipMaterijala && izabranaAkademskaGodina && izabraniFajl){
-            const response = axios.post('/kreiraj-materijal',{
-            predmet: izabraniPredmet,
-            podTipMaterijala: izabraniPodTipMaterijala,
-            korisnickiMejl: validnaMejlAdresa,
-            skolskaGodina: izabranaAkademskaGodina.naziv,
-            fajl: izabraniFajl
-        })}
-        
-    }
+        obradiMejlAdresu();
+        if (
+            validnaMejlAdresa &&
+            izabraneInformacije.izabraniPredmet &&
+            izabraneInformacije.izabraniPodTipMaterijala &&
+            izabraneInformacije.izabranaAkademskaGodina &&
+            izabraneInformacije.izabraniFajl
+        ) {
+            const formData = new FormData();
+            formData.append("predmet", izabraneInformacije.izabraniPredmet);
+            formData.append(
+                "podTipMaterijala",
+                izabraneInformacije.izabraniPodTipMaterijala
+            );
+            formData.append(
+                "korisnickiMejl",
+                validnaMejlAdresa
+            );
+            formData.append(
+                "skolskaGodina",
+                izabraneInformacije.izabranaAkademskaGodina.naziv
+            );
+            formData.append("fajl", izabraneInformacije.izabraniFajl);
+
+            const response = axios.post("/kreiraj-materijal", formData);
+        }
+    };
 
     const sledeciKorak = () =>
         podesiKorak((prethodniKorak) =>
@@ -159,7 +216,9 @@ export default function ObjavaMaterijala() {
         );
     const prosliKorak = () =>
         podesiKorak((prethodniKorak) => Math.max(prethodniKorak - 1, 1));
-    const krajForme = () => {obradiKrajForme()};
+    const krajForme = () => {
+        obradiKrajForme();
+    };
 
     return (
         <div className="flex items-center justify-center">
@@ -169,21 +228,31 @@ export default function ObjavaMaterijala() {
                         <div className="flex justify-center gap-10">
                             <CustomSelect
                                 klase={"w-80"}
-                                opcije={pocetneInformacije.dostupniDepartmani}
-                                vrednost={izabraniDepartman}
-                                podesiSelektovaneOpcije={
-                                    podesiIzabraniDepartman
-                                }
+                                opcije={dostupneInformacije.dostupniDepartmani}
+                                vrednost={izabraneInformacije.izabraniDepartman}
+                                podesiSelektovaneOpcije={(vrednost) => {
+                                    azurirajPoljeIzabraneInformacije(
+                                        "izabraniDepartman",
+                                        vrednost
+                                    );
+                                }}
                                 obaveznoPolje={true}
                                 labela={"Izaberi Departman"}
                             />
                             <CustomSelect
                                 klase={"w-80"}
-                                opcije={pocetneInformacije.dostupniNivoiStudija}
-                                vrednost={izabraniNivoStudija}
-                                podesiSelektovaneOpcije={
-                                    podesiIzabraniNivoStudija
+                                opcije={
+                                    dostupneInformacije.dostupniNivoiStudija
                                 }
+                                vrednost={
+                                    izabraneInformacije.izabraniNivoStudija
+                                }
+                                podesiSelektovaneOpcije={(vrednost) => {
+                                    azurirajPoljeIzabraneInformacije(
+                                        "izabraniNivoStudija",
+                                        vrednost
+                                    );
+                                }}
                                 obaveznoPolje={true}
                                 labela={"Izaberi Nivo Studija"}
                             />
@@ -193,9 +262,14 @@ export default function ObjavaMaterijala() {
                         <div className="flex justify-center gap-10">
                             <CustomSelect
                                 klase={"w-80"}
-                                opcije={dostpuniSmerovi}
-                                vrednost={izabraniSmer}
-                                podesiSelektovaneOpcije={podesiIzabraniSmer}
+                                opcije={dostupneInformacije.dostupniSmerovi}
+                                vrednost={izabraneInformacije.izabraniSmer}
+                                podesiSelektovaneOpcije={(vrednost) => {
+                                    azurirajPoljeIzabraneInformacije(
+                                        "izabraniSmer",
+                                        vrednost
+                                    );
+                                }}
                                 obaveznoPolje={true}
                                 labela={"Izaberi Smer"}
                                 zakljucana={zakljucaniSelectSmerova}
@@ -205,9 +279,14 @@ export default function ObjavaMaterijala() {
                             />
                             <CustomSelect
                                 klase={"w-80"}
-                                opcije={dostupneGodine}
-                                vrednost={izabranaGodina}
-                                podesiSelektovaneOpcije={podesiIzabranuGodinu}
+                                opcije={dostupneInformacije.dostupneGodine}
+                                vrednost={izabraneInformacije.izabranaGodina}
+                                podesiSelektovaneOpcije={(vrednost) => {
+                                    azurirajPoljeIzabraneInformacije(
+                                        "izabranaGodina",
+                                        vrednost
+                                    );
+                                }}
                                 obaveznoPolje={true}
                                 labela={"Izaberi Godinu"}
                                 zakljucana={zakljucaniSelectSmerova}
@@ -217,9 +296,14 @@ export default function ObjavaMaterijala() {
                             />
                             <CustomSelect
                                 klase={"w-80"}
-                                opcije={dostupniPredmeti}
-                                vrednost={izabraniPredmet}
-                                podesiSelektovaneOpcije={podesiIzabraniPredmet}
+                                opcije={dostupneInformacije.dostupniPredmeti}
+                                vrednost={izabraneInformacije.izabraniPredmet}
+                                podesiSelektovaneOpcije={(vrednost) => {
+                                    azurirajPoljeIzabraneInformacije(
+                                        "izabraniPredmet",
+                                        vrednost
+                                    );
+                                }}
                                 obaveznoPolje={true}
                                 labela={"Izaberi Predmet"}
                                 zakljucana={zakljucaniSelectPredmeta}
@@ -231,17 +315,35 @@ export default function ObjavaMaterijala() {
                         <div className="flex justify-center gap-10">
                             <CustomSelect
                                 klase={"w-80"}
-                                opcije={pocetneInformacije.dostupniTipoviMaterijala}
-                                vrednost={izabraniTipMaterijala}
-                                podesiSelektovaneOpcije={podesiIzabraniTipMaterijala}
+                                opcije={
+                                    dostupneInformacije.dostupniTipoviMaterijala
+                                }
+                                vrednost={
+                                    izabraneInformacije.izabraniTipMaterijala
+                                }
+                                podesiSelektovaneOpcije={(vrednost) => {
+                                    azurirajPoljeIzabraneInformacije(
+                                        "izabraniTipMaterijala",
+                                        vrednost
+                                    );
+                                }}
                                 obaveznoPolje={true}
                                 labela={"Izaberi Tip Materijala"}
                             />
                             <CustomSelect
                                 klase={"w-80"}
-                                opcije={dostupniPodTipoviMaterijala}
-                                vrednost={izabraniPodTipMaterijala}
-                                podesiSelektovaneOpcije={podesiIzabranPodiTipMaterijala}
+                                opcije={
+                                    dostupneInformacije.dostupniPodTipoviMaterijala
+                                }
+                                vrednost={
+                                    izabraneInformacije.izabraniPodTipMaterijala
+                                }
+                                podesiSelektovaneOpcije={(vrednost) => {
+                                    azurirajPoljeIzabraneInformacije(
+                                        "izabraniPodTipMaterijala",
+                                        vrednost
+                                    );
+                                }}
                                 obaveznoPolje={true}
                                 labela={"Izaberi Podtip Materijala"}
                                 zakljucana={zakljucaniSelectPodTipaMaterijala}
@@ -250,10 +352,15 @@ export default function ObjavaMaterijala() {
                             <CustomSelect
                                 klase={"w-80"}
                                 opcije={dostupneSkolskeGodine}
-                                vrednost={izabranaAkademskaGodina}
-                                podesiSelektovaneOpcije={
-                                    podesiIzabranuAkademskuGodinu
+                                vrednost={
+                                    izabraneInformacije.izabranaAkademskaGodina
                                 }
+                                podesiSelektovaneOpcije={(vrednost) => {
+                                    azurirajPoljeIzabraneInformacije(
+                                        "izabranaAkademskaGodina",
+                                        vrednost
+                                    );
+                                }}
                                 obaveznoPolje={true}
                                 labela={"Izaberi Akademsku Godinu"}
                             />
@@ -261,8 +368,10 @@ export default function ObjavaMaterijala() {
                     )}
                     {korak === 4 && (
                         <div className="flex justify-center gap-10 items-center">
-                           <div className="flex items-center gap-2">
-                                <label htmlFor="email">Unesite PMF mail adresu:</label>
+                            <div className="flex items-center gap-2">
+                                <label htmlFor="email">
+                                    Unesite PMF mail adresu:
+                                </label>
                                 <input
                                     type="email"
                                     id="email"
@@ -273,21 +382,46 @@ export default function ObjavaMaterijala() {
                                     className="border border-gray-400 rounded p-2 w-60"
                                     placeholder="ime.prezime@pmf.edu.rs"
                                 />
-                                <Tooltip title={'Objavljivanje materijala je moguće samo nakon verifikacije'}>
-                                    <CiCircleInfo size={28}/>
+                                <Tooltip
+                                    title={
+                                        "Objavljivanje materijala je moguće samo nakon verifikacije"
+                                    }
+                                >
+                                    <CiCircleInfo size={28} />
                                 </Tooltip>
-                           </div>
-                           <FajlUploader podesiFajl={podesiIzabraniFajl}/>
-                           {izabraniFajl && (
+                            </div>
+                            <FajlUploader
+                                podesiFajl={(vrednost) => {
+                                    azurirajPoljeIzabraneInformacije(
+                                        "izabraniFajl",
+                                        vrednost
+                                    );
+                                }}
+                            />
+                            {izabraneInformacije.izabraniFajl && (
                                 <div className="text-sm flex items-center gap-2">
                                     <label htmlFor=""> Ime fajla:</label>
-                                    <Tooltip title={'Izmeni ime materijala'} arrow>
-                                        <input type="text" value={izabraniFajl.name} className="border border-gray-400 p-2 rounded-sm" onChange={(e) =>
-                                            podesiIzabraniFajl((prosli) => ({
-                                            ...prosli,
-                                            name: e.target.value,
-                                            }))
-                                        }/>
+                                    <Tooltip
+                                        title={"Izmeni ime materijala"}
+                                        arrow
+                                    >
+                                        <input
+                                            type="text"
+                                            value={
+                                                izabraneInformacije.izabraniFajl
+                                                    .name
+                                            }
+                                            className="border border-gray-400 p-2 rounded-sm"
+                                            onChange={(e) =>
+                                                azurirajPoljeIzabraneInformacije(
+                                                    "izabraniFajl",
+                                                    (prosli) => ({
+                                                        ...prosli,
+                                                        name: e.target.value,
+                                                    })
+                                                )
+                                            }
+                                        />
                                     </Tooltip>
                                     {/* <p>Izabrani fajl: <strong>{izabraniFajl.name}</strong></p>
                                     <p>Veličina: {formatirajVelicinu(izabraniFajl.size)}</p> */}

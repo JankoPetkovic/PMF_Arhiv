@@ -13,8 +13,7 @@ use App\Models\Smer;
 
 class MaterijalController extends Controller
 {
-    public function get_predmeti($id)
-    {
+    public function get_predmeti($id){
         $predmeti = Predmet::where('smer_id', $id)->get();
         $tipovi_materijala = Tip_materijala::all();
         $siroviSmer = Smer::with('departman', 'nivoStudija')->findOrFail($id);
@@ -32,8 +31,7 @@ class MaterijalController extends Controller
         ]);
     }
 
-    public function get_materijal(Request $request)
-    {
+    public function get_materijal(Request $request){
         $predmeti = $request->predmeti;
         $tipovi_materijala = $request->tipovi;
 
@@ -47,13 +45,21 @@ class MaterijalController extends Controller
         return response()->json($materijali);
     }
 
-    public function storeMaterijal(Request $request){
-        $predmet = $request->input('predmet');
-        $podTipMaterijala = $request->input('podTipMaterijala');
-        $korisnickiMejl = $request->input('korisnickiMejl');
-        $skolskaGodina = $request->input('skolskaGodina');
-        $fajl = $request->file('fajl');
+   public function storeMaterijal(Request $request){
+        $request->validate([
+            'fajl' => 'required|file|max:10240',
+            'predmet' => 'required',
+            'podTipMaterijala' => 'required',
+            'korisnickiMejl' => 'required|email',
+            'skolskaGodina' => 'required',
+        ]);
 
-        dd($predmet, $podTipMaterijala, $korisnickiMejl, $skolskaGodina, $fajl);
+        // $fajlPath = $request->file('fajl')->store('uploads', 'public');
+
+        // return response()->json([
+        //     'message' => 'Fajl uspešno sačuvan',
+        //     'putanja' => $fajlPath,
+        // ]);
     }
+
 }
