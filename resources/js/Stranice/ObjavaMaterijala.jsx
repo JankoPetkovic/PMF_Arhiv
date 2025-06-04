@@ -6,7 +6,6 @@ import { useState, useEffect, useRef } from "react";
 import { Tooltip } from "@mui/material";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { IoCloudUpload } from "react-icons/io5";
-import { MdOutlineModeEdit } from "react-icons/md";
 import { CiCircleInfo } from "react-icons/ci";
 export default function ObjavaMaterijala() {
     const dostupneSkolskeGodine = generisiSkolskeGodine();
@@ -182,7 +181,6 @@ export default function ObjavaMaterijala() {
     };
 
     const obradiKrajForme = () => {
-        console.log(izabraneInformacije);
         obradiMejlAdresu();
         if (
             validnaMejlAdresa &&
