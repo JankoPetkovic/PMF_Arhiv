@@ -1,4 +1,7 @@
 import React, { useState, useRef } from 'react';
+import { Tooltip } from "@mui/material";
+import { FaUpload } from "react-icons/fa";
+
 
 export default function FajlUploader({podesiFajl}){
   const inputRef = useRef();
@@ -22,13 +25,19 @@ export default function FajlUploader({podesiFajl}){
         style={{ display: 'none' }}
       />
 
-      <button
+      {/* <button
         type="button"
         onClick={obradiKlik}
         className="p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
       >
         Pretraži fajl
-      </button>
+      </button> */}
+
+      <Tooltip title="Izaberi fajl" arrow>
+        <div className='border-2 rounded-lg p-2 border-emerald-500 cursor-pointer' onClick={obradiKlik}>
+          <FaUpload className='cursor-pointer text-emerald-500' size={30} />
+        </div>
+      </Tooltip>
 
       
     </div>

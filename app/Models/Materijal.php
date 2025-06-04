@@ -4,6 +4,7 @@ namespace App\Models;
 use App\Models\Tip_Fajla;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Materijal extends Model
 {
@@ -23,16 +24,18 @@ class Materijal extends Model
 
 
     /**
-     * Iskljucivanje created_at i updated_at kolone
+     * Kontrola created_at i updated_at kolone
      * 
      * @var bool
      */
-    public $timestamps = false;
+    public $timestamps = true;
+    const CREATED_AT = 'datum_dodavanja';
+    const UPDATED_AT = NULL;
 
     /**
      * Kolone u koje je dozvoljen upis
      */
-    protected $fillable = ['naziv', 'predmet_id','podtip_materijala_id', 'skolska_godina', 'korisnik_id', 'datum_dodavanja'];
+    protected $fillable = ['naziv', 'predmet_id','podtip_materijala_id', 'skolska_godina', 'korisnik_id', 'datum_dodavanja', 'putanja_fajla'];
 
     /**
      * Vraca sve materijale iz tabele Materijal
@@ -62,16 +65,32 @@ class Materijal extends Model
         });
     }
 
-    public static function kreirajMaterijal($naziv, $predmetId, $podTipMaterijalaId, $skolskaGodina, $korisnikId){
-        self::create([
-            'naziv' => $naziv,
-            'predmet_id' => $predmetId,
-            'podtip_materijala_id' => $podTipMaterijalaId,
-            'skolska_godina' => $skolskaGodina,
-            'korisnik_id' => $korisnikId
+    public static function kreirajMaterijal($fajl, $departman, $nivoStudija, $smer, $godina, $predmet, $tipMaterijala, $podTipMaterijala, $akademskaGodina, $korisnikId){
+        $nazivFajla = $fajl->getClientOriginalName();
+        $putanja = "{$departman['naziv']}/{$nivoStudija['nivo_studija']}/{$smer['naziv_smera']}/{$godina['naziv']}/{$predmet['naziv']}/{$tipMaterijala['naziv']}/{$podTipMaterijala['naziv']}/{$akademskaGodina}";
+        $putanja = strtolower(preg_replace('/\s+/', '_', $putanja));
+
+        if (!Storage::disk('public')->exists($putanja)) {
+            Storage::disk('public')->makeDirectory($putanja, 0755, true);
+        }
+
+        $materijal = self::create([
+            'naziv' => $nazivFajla,
+            'predmet_id' => $predmet['predmet_id'],
+            'podtip_materijala_id' => $podTipMaterijala['podtip_materijala_id'],
+            'skolska_godina' => $akademskaGodina,
+            'korisnik_id' => $korisnikId,
+            'putanja_fajla' => ''
         ]);
 
-        return true;
+        $imeFajla = $materijal->materijal_id . '_' . $nazivFajla;
+
+        $putanjaFajla = Storage::disk('public')->putFileAs($putanja, $fajl, $imeFajla);
+
+        $materijal->putanja_fajla = $putanjaFajla;
+        $materijal->save();
+
+        return $putanjaFajla;
     }
 
     public function predmet()

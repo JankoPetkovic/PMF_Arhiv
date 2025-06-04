@@ -221,10 +221,10 @@ export default function ObjavaMaterijala() {
 
     return (
         <div className="flex items-center justify-center">
-            <div className="w-[1200px] border border-gray-400 rounded-lg p-4">
+            <div className="w-[600px] border border-gray-400 rounded-lg p-4">
                 <div className="flex justify-center">
                     {korak === 1 && (
-                        <div className="flex justify-center gap-10">
+                        <div className="flex flex-col justify-center gap-6">
                             <CustomSelect
                                 klase={"w-80"}
                                 opcije={dostupneInformacije.dostupniDepartmani}
@@ -258,7 +258,7 @@ export default function ObjavaMaterijala() {
                         </div>
                     )}
                     {korak === 2 && (
-                        <div className="flex justify-center gap-10">
+                        <div className="flex flex-col justify-center gap-6">
                             <CustomSelect
                                 klase={"w-80"}
                                 opcije={dostupneInformacije.dostupniSmerovi}
@@ -311,7 +311,7 @@ export default function ObjavaMaterijala() {
                         </div>
                     )}
                     {korak === 3 && (
-                        <div className="flex justify-center gap-10">
+                        <div className="flex flex-col justify-center gap-6">
                             <CustomSelect
                                 klase={"w-80"}
                                 opcije={
@@ -366,7 +366,7 @@ export default function ObjavaMaterijala() {
                         </div>
                     )}
                     {korak === 4 && (
-                        <div className="flex justify-center gap-10 items-center">
+                        <div className="flex flex-col justify-center gap-6 items-center">
                             <div className="flex items-center gap-2">
                                 <label htmlFor="email">
                                     Unesite PMF mail adresu:

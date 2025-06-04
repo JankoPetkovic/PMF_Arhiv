@@ -68,6 +68,7 @@ class MaterijalController extends Controller
         $tipMaterijala = json_decode($request->input('tipMaterijala'), true);
         $podTipMaterijala = json_decode($request->input('podTipMaterijala'), true);
         $akademskaGodina = $request->input('akademskaGodina');
+        $akademskaGodina = str_replace('/', '-',$akademskaGodina);
         $korisnickiMejl = $request->input('korisnickiMejl');
         $fajl = $request->file('fajl');
 
@@ -77,21 +78,30 @@ class MaterijalController extends Controller
             Korisnik::create([
                 'email' => $korisnickiMejl
             ]);
+
+            //pa treba da se posalje mejl verifikacije i onda funkcija za kreiranje odozdo
         }
         // else if(!$korisnik->verifikovan){
-        //     // treba da se verifukije pa ubaci u bazu
+        //     // treba da se posalje mejl verifikacije i onda funkcija za kreiranje odozdo
         // }
         else{
-            $kreiranMaterijal = Materijal::kreirajMaterijal($fajl->getClientOriginalName(), $predmet['predmet_id'], $podTipMaterijala['podtip_materijala_id'],  $akademskaGodina, $korisnik->korisnik_id);
+            $putanjaKreiranogMaterijala = Materijal::kreirajMaterijal(
+                $fajl,$departman, $nivoStudija, $smer, $godina, $predmet, $tipMaterijala, $podTipMaterijala, $akademskaGodina, $korisnik->korisnik_id);
+            return response()->json([
+                'message' => 'Fajl uspešno sačuvan.',
+                'putanja' => $putanjaKreiranogMaterijala,
+                
+            ], 200);
         }
 
-        dd($kreiranMaterijal);
-        // $fajlPath = $request->file('fajl')->store('uploads', 'public');
+        
 
-        // return response()->json([
-        //     'message' => 'Fajl uspešno sačuvan',
-        //     'putanja' => $fajlPath,
-        // ]);
+        
+       
+        
+
+
+        
     }
 
 }
