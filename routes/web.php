@@ -36,13 +36,3 @@ Route::post('/prijavaMaterijala', function (Request $request) {
 
     return response()->json(['message' => 'Email sent successfully!']);
 });
-
-Route::get('/test-db-env', function () {
-    return response()->json([
-        'host' => env('DB_HOST'),
-        'database' => env('DB_DATABASE'),
-        'username' => env('DB_USERNAME'),
-        'password' => env('DB_PASSWORD'),
-        'port' => env('DB_PORT'),
-    ]);
-});
