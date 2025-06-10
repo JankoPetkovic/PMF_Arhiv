@@ -21,7 +21,6 @@ Route::post('kreiraj-materijal', [MaterijalController::class, 'storeMaterijal'])
 Route::post('/materijali', [MaterijalController::class, 'get_materijal']);
 
 Route::get('/objavi-materijal', [ObjaviMaterijal::class, 'objaviMaterijalHome']);
-
 Route::post('/get-smerovi', [ObjaviMaterijal::class, 'getSmerovi']);
 Route::post('/get-predmeti', [ObjaviMaterijal::class, 'getPredmeti']);
 Route::post('/get-podTipovi', [ObjaviMaterijal::class, 'getPodTipoviMaterijala']);
@@ -36,4 +35,14 @@ Route::post('/prijavaMaterijala', function (Request $request) {
     Mail::to('janko.petkovic@pmf-arhiv.com')->send(new PrijaviMaterijal($posiljaoc, $materijalId, $opisPrijave));
 
     return response()->json(['message' => 'Email sent successfully!']);
+});
+
+Route::get('/test-db-env', function () {
+    return response()->json([
+        'host' => env('DB_HOST'),
+        'database' => env('DB_DATABASE'),
+        'username' => env('DB_USERNAME'),
+        'password' => env('DB_PASSWORD'),
+        'port' => env('DB_PORT'),
+    ]);
 });
