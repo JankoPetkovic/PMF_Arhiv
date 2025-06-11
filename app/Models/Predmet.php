@@ -34,20 +34,7 @@ class Predmet extends Model
      */
     protected $fillable = ['naziv', 'godina', 'smer_id'];
 
-    /**
-     * Vraca sve predmete iz tabele Predmet
-     */
-    public static function getPredmet()
-    {
-        return self::all();
-    }
-
-    public static function getNazivPredmeta($id){
-        return self::find($id)->naziv;
-    }
-
-
-    public function getSmer()
+    public function smer()
     {
         return $this->belongsTo(Smer::class, 'smer_id');
     }

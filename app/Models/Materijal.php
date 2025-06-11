@@ -1,7 +1,9 @@
 <?php
 
 namespace App\Models;
-use App\Models\Tip_Fajla;
+use App\Models\Korisnik;
+use App\Models\podTipMaterijala;
+use App\Models\Predmet;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
@@ -37,30 +39,41 @@ class Materijal extends Model
      */
     protected $fillable = ['naziv', 'predmet_id','podtip_materijala_id', 'skolska_godina', 'korisnik_id', 'datum_dodavanja', 'putanja_fajla'];
 
+    public function podTipMaterijala(){
+        return $this->belongsTo(PodTipMaterijala::class, 'podtip_materijala_id', 'podtip_materijala_id');
+    }
+
+    public function predmet(){
+        return $this->belongsTo(Predmet::class, 'predmet_id', 'predmet_id');
+    }
+
+    public function korisnik(){
+        return $this->belongsTo(Korisnik::class, 'korisnik_id');
+    }
+
     /**
      * Vraca sve materijale iz tabele Materijal
      */
-    public static function getMaterijalPoTipu($predmet,$tipovi_materijala)
+    public static function getMaterijalPoPodTipu($predmet,$podtipoviMaterijala)
     {
-        $query = self::with(['tipFajla', 'tipMaterijala', 'korisnik', 'predmet'])
+        $query = self::with(['korisnik', 'predmet'])
         ->where('predmet_id', $predmet);
 
-        if (!empty($tipovi_materijala)) {
-        $query->whereIn('tip_materijala_id', $tipovi_materijala);
+        if (!empty($podtipoviMaterijala)) {
+        $query->whereIn('podtip_materijala_id', $podtipoviMaterijala);
         }
 
        $materijali = $query->get();
-
         return $materijali->map(function ($m) {
         return [
             'materijal_id' => $m->materijal_id,
             'naziv' => $m->naziv,
-            'tip_fajla' => $m->tipFajla->naziv ?? null,
-            'tip_materijala' => $m->tipMaterijala->naziv ?? null,
+            'tip_materijala' => $m->podTipMaterijala->naziv ?? null,
             'email' => $m->korisnik->email ?? null,
-            'predmet_id' => $m->predmet_id,
-            'datum_dodavanja' => $m->datum_dodavanja,
-            'datum_materijala' => $m->datum_materijala,
+            'predmet_id' => $m->predmet->naziv,
+            'datumDodavanja' => $m->datum_dodavanja,
+            'skolskaGodina' => $m->skolska_godina,
+            'putanja'=>$m->putanja_fajla,
             ];
         });
     }
@@ -93,29 +106,7 @@ class Materijal extends Model
         return $putanjaFajla;
     }
 
-    public function predmet()
-    {
-        return $this->belongsTo(Predmet::class, 'predmet_id');
 
-    }
 
-    public function getTipMaterijala()
-    {
-        return $this->belongsTo(Tip_materijala::class, 'tip_materijala_id');
-    }
-
-    public function tipFajla()
-    {
-        return $this->belongsTo(Tip_fajla::class, 'tip_fajla_id');
-    }
-
-    public function tipMaterijala()
-    {
-        return $this->belongsTo(Tip_materijala::class, 'tip_fajla_id');
-    }
-
-    public function korisnik()
-    {
-        return $this->belongsTo(Korisnik::class, 'korisnik_id');
-    }
+   
 }

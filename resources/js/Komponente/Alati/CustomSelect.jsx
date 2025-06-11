@@ -1,19 +1,17 @@
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
-import CircularProgress from "@mui/material/CircularProgress";
-import Fragment from "react";
 import { Tooltip } from "@mui/material";
 export default function CustomSelect({
     klase,
     opcije,
-    multiSelect = false,
+    viseOpcija = false,
     vrednost,
     podesiSelektovaneOpcije,
     obaveznoPolje = false,
     velicina = "medium",
     labela,
     zakljucana = false,
-    tooltipTekst =''
+    tooltipTekst ='',
 }) {
     const selektujHandle = (event, vrednosti) => {
         if (vrednosti === null) {
@@ -48,7 +46,7 @@ export default function CustomSelect({
                     ""
                 }
                 value={vrednost || null}
-                multiple={multiSelect}
+                multiple={viseOpcija}
                 onChange={selektujHandle}
                 size={velicina}
                 renderInput={(parametri) => (
@@ -74,7 +72,7 @@ export default function CustomSelect({
                     ""
                 }
                 value={vrednost || null}
-                multiple={multiSelect}
+                multiple={viseOpcija}
                 onChange={selektujHandle}
                 size={velicina}
                 renderInput={(parametri) => (

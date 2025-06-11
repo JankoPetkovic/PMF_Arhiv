@@ -7,7 +7,7 @@ import { Tooltip } from "@mui/material";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { IoCloudUpload } from "react-icons/io5";
 import { CiCircleInfo } from "react-icons/ci";
-export default function ObjavaMaterijala() {
+export default function ObjavaMaterijala({podesiPrikazDialoga}) {
     const dostupneSkolskeGodine = generisiSkolskeGodine();
 
     const zaustaviPrviRender = useRef(false);
@@ -66,20 +66,20 @@ export default function ObjavaMaterijala() {
 
     useEffect(() => {
         const getPocetneInformacije = async () => {
-            const response = await axios
+            const odgovor = await axios
                 .get("/objavi-materijal")
-                .then((response) => {
+                .then((odgovor) => {
                     azurirajPoljeDostupneInformacije(
                         "dostupniDepartmani",
-                        response.data.dostupniDepartmani
+                        odgovor.data.dostupniDepartmani
                     );
                     azurirajPoljeDostupneInformacije(
                         "dostupniNivoiStudija",
-                        response.data.dostupniNivoiStudija
+                        odgovor.data.dostupniNivoiStudija
                     );
                     azurirajPoljeDostupneInformacije(
                         "dostupniTipoviMaterijala",
-                        response.data.dostupniTipoviMaterijala
+                        odgovor.data.dostupniTipoviMaterijala
                     );
                 });
         };
@@ -110,15 +110,15 @@ export default function ObjavaMaterijala() {
                 ]);
             }
 
-            const response = axios
+            const odgovor = axios
                 .post("/get-smerovi", {
                     departman: izabraneInformacije.izabraniDepartman,
                     nivoStudija: izabraneInformacije.izabraniNivoStudija,
                 })
-                .then((response) => {
+                .then((odgovor) => {
                     azurirajPoljeDostupneInformacije(
                         "dostupniSmerovi",
-                        response.data
+                        odgovor.data
                     );
                 });
         }
@@ -138,15 +138,15 @@ export default function ObjavaMaterijala() {
             izabraneInformacije.izabraniSmer &&
             izabraneInformacije.izabranaGodina
         ) {
-            const response = axios
+            const odgovor = axios
                 .post("/get-predmeti", {
                     smerID: izabraneInformacije.izabraniSmer,
                     godina: izabraneInformacije.izabranaGodina,
                 })
-                .then((response) => {
+                .then((odgovor) => {
                     azurirajPoljeDostupneInformacije(
                         "dostupniPredmeti",
-                        response.data
+                        odgovor.data
                     );
                     podesiZakljucaniSelectPredmeta(false);
                 });
@@ -156,34 +156,30 @@ export default function ObjavaMaterijala() {
     useEffect(() => {
         azurirajPoljeDostupneInformacije("dostupniPodTipoviMaterijala", '');
         if (izabraneInformacije.izabraniTipMaterijala) {
-            const response = axios
+            const odgovor = axios
                 .post("/get-podTipovi", {
                     tipMaterijala: izabraneInformacije.izabraniTipMaterijala,
                 })
-                .then((response) => {
+                .then((odgovor) => {
                     azurirajPoljeDostupneInformacije(
                         "dostupniPodTipoviMaterijala",
-                        response.data
+                        odgovor.data
                     );
                     podesiZakljucaniSelectPodTipaMaterijala(false);
                 });
         }
     }, [izabraneInformacije.izabraniTipMaterijala]);
 
-    const obradiMejlAdresu = () => {
-        const validanMejl = /^[\w.-]+@pmf\.edu\.rs$/i.test(unetaMailAdresa);
-        if (!validanMejl) {
-            alert("Mejl nije validan");
-            podesiValidnuMejlAdresu(false);
-        } else {
-            podesiValidnuMejlAdresu(unetaMailAdresa);
-        }
-    };
 
     const obradiKrajForme = () => {
-        obradiMejlAdresu();
+        const validanMejl = /^[\w.-]+@pmf\.edu\.rs$/i.test(unetaMailAdresa);
+
+        if (!validanMejl) {
+            alert("Mejl nije validan");
+            return;
+        }
+
         if (
-            validnaMejlAdresa &&
             izabraneInformacije.izabraniPredmet &&
             izabraneInformacije.izabraniPodTipMaterijala &&
             izabraneInformacije.izabranaAkademskaGodina &&
@@ -196,16 +192,16 @@ export default function ObjavaMaterijala() {
             podaciForme.append("godina", JSON.stringify(izabraneInformacije.izabranaGodina));
             podaciForme.append("predmet", JSON.stringify(izabraneInformacije.izabraniPredmet));
             podaciForme.append("tipMaterijala", JSON.stringify(izabraneInformacije.izabraniTipMaterijala));
-            podaciForme.append("podTipMaterijala",JSON.stringify(izabraneInformacije.izabraniPodTipMaterijala));
+            podaciForme.append("podTipMaterijala", JSON.stringify(izabraneInformacije.izabraniPodTipMaterijala));
             podaciForme.append("akademskaGodina", izabraneInformacije.izabranaAkademskaGodina.naziv);
-            podaciForme.append("korisnickiMejl", validnaMejlAdresa);
+            podaciForme.append("korisnickiMejl", unetaMailAdresa); 
             podaciForme.append("fajl", izabraneInformacije.izabraniFajl);
 
-            
-            
-            const response = axios.post("/kreiraj-materijal", podaciForme);
+            axios.post("/kreiraj-materijal", podaciForme);
+            podesiPrikazDialoga(false);
         }
     };
+
 
     const sledeciKorak = () =>
         podesiKorak((prethodniKorak) =>

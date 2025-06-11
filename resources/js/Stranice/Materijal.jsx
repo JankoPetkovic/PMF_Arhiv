@@ -1,141 +1,165 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import Checkbox from "../Komponente/Alati/Checkbox";
 import Navbar from "../Komponente/Alati/Navbar";
 import Radio from "../Komponente/Alati/Radio";
 import KarticePredmeta from '../Komponente/KarticePredmeta';
+import CustomSelect from '../Komponente/Alati/CustomSelect';
 
 
 export default function Materijal({predmeti, smer, tipovi_materijala})
 {
-    const [selektovanaGodina, setSelektovanuGodinu] = useState(1); 
-    const [selektovaniPredmeti, setSelektovaniPredmeti] = useState([]);
-    const [selektovaniTipovi, setSelektovaniTipovi] = useState([]);
-    const [materijali, setMaterijali] = useState([]);
+    const [dostupneGodine, podesiDostupneGodine] = useState('');
+    const [dostupniPodTipoviMaterijala, podesiDostupnePodTipoveMaterijala] = useState('');
+    
+    const [dostupniMaterijali, podesiDostupneMaterijale] = useState([]);
 
-    useEffect(() => {
-        setSelektovaniPredmeti([]);
-    }, [selektovanaGodina]);
+    const [izabranaGodina, podesiIzabranuGodinu] = useState({naziv: "1.godina", vrednost: 1});
+    const [dostupniPredmeti, podesiDostupnePredmete] = useState(predmeti.filter(objekat => objekat.godina === izabranaGodina.vrednost))
+
+    const [izabraniPredmeti, podesiIzabranePredmete] = useState('');
+    const [izabraniTipoviMaterijala, podesiIzabraneTipoveMaterijala] = useState('');
+    const [izabraniPodTipoviMaterijala, podesiIzabranePodTipoveMaterijala] = useState('');
+
+    const [zakljucajPodTipoveMaterijala, podesiZakljucavanjePodMaterijala] = useState(true)
+
+    const zaustaviPrviRenderTipovi = useRef(true);
+    const zaustaviPrviRenderPodTipovi = useRef(true);
+    const zaustaviPrviRenderMaterijal = useRef(true);
 
     useEffect(()=>{
-        getMaterijal(selektovaniPredmeti, selektovaniTipovi)
-    }, [selektovaniPredmeti, selektovaniTipovi])
-
-    const checkboxPredmetPromena = (checked, id)=>
-    {
-        setSelektovaniPredmeti(prev=> {
-            if(checked)
-            {
-                return [...prev, id];
-            }
-            else 
-            {
-                return prev.filter(postojeciId => postojeciId !== id)
-            }
-        })
-    }
-    
-    const checkboxTipPromena = (checked, id)=>
-        {
-            setSelektovaniTipovi(prev=> {
-                if(checked)
-                {
-                    return [...prev, id];
-                }
-                else 
-                {
-                    return prev.filter(postojeciId => postojeciId !== id)
-                }
-            })
+        if(smer.nivo_studija_id === 2){
+            podesiDostupneGodine([
+                {naziv: "1.godina", vrednost: 1},
+                {naziv: "2.godina", vrednost: 2}
+            ])
+        }else{
+           podesiDostupneGodine([
+                {naziv: "1.godina", vrednost: 1},
+                {naziv: "2.godina", vrednost: 2},
+                {naziv: "3.godina", vrednost: 3}
+            ]) 
         }
+    }, [])
+
+    useEffect(()=>{
+        podesiIzabranePredmete('');
+        podesiDostupnePredmete(predmeti.filter(objekat => objekat.godina === izabranaGodina.vrednost))
+    }, [izabranaGodina])
+
+    useEffect(()=>{
+        if(zaustaviPrviRenderTipovi.current){
+            zaustaviPrviRenderTipovi.current = false
+            return
+        }
+        if(!izabraniPodTipoviMaterijala){
+            podesiZakljucavanjePodMaterijala(true)
+        }
+        async function prezumiPodTipoveMaterijala(){
+            try{
+                const odgovor = await axios.post('/get-podTipovi',{
+                    tipMaterijala: izabraniTipoviMaterijala
+                }).then((odgovor)=>{
+                    podesiDostupnePodTipoveMaterijala(odgovor.data)
+                })
+            } catch(greska){
+                console.error('Greška prilikom slanja zahteva:', greska);
+            }
+        }
+        prezumiPodTipoveMaterijala()
+        podesiIzabranePodTipoveMaterijala('');
+    }, [izabraniTipoviMaterijala])
+
+    useEffect(()=>{
+        if(zaustaviPrviRenderPodTipovi.current){
+            zaustaviPrviRenderPodTipovi.current = false
+            return
+        }
+        if(dostupniPodTipoviMaterijala && dostupniPodTipoviMaterijala.length > 0){
+            podesiZakljucavanjePodMaterijala(false)
+        }
+    }, [dostupniPodTipoviMaterijala])
 
 
-    async function getMaterijal(selektovaniPredmeti, selektovaniTipovi)
-    {
-        try {
-            const response = await axios.post('/materijali', {
-                predmeti: selektovaniPredmeti,
-                tipovi: selektovaniTipovi
-            });
-
-            setMaterijali(response.data);
-        } catch (error) {
-            console.error('Greška prilikom slanja zahteva:', error);
+    useEffect(()=>{
+        async function preuzmiMaterijale() {
+            try {
+                const odgovor = await axios.post('/materijali', {
+                    predmeti: izabraniPredmeti,
+                    podTipovi: izabraniPodTipoviMaterijala
+                });
+                podesiDostupneMaterijale(odgovor.data);                   
+            } catch (error) {
+                console.error('Greška prilikom slanja zahteva:', error);
+            }
+        }
+        if(zaustaviPrviRenderMaterijal.current){
+            zaustaviPrviRenderMaterijal.current = false
+            return
         }
         
-    }
-
-    
+        if(izabraniPredmeti && izabraniPodTipoviMaterijala){
+            preuzmiMaterijale();
+        }
+    }, [izabraniPredmeti, izabraniPodTipoviMaterijala])
 
     return(
-        <>
-            <div>
-                <Navbar/>
-                <div className="flex justify-center mt-5">
-                    <p>Izaberite godinu i tip materijala</p>
+        <div>
+            <Navbar/>
+            <div className='flex gap-6'>
+                <div className="flex flex-col gap-6 mt-5 ml-5 border rounded-sm p-4 w-68">
+                <p className='border-gray-300 border p-2 rounded-sm'>Izaberite Filtere:</p>
+                <div className="flex gap-2">
+                    <CustomSelect 
+                        klase={"w-60"}
+                        labela={"Izaberite godinu"}
+                        opcije={dostupneGodine}
+                        vrednost={izabranaGodina}
+                        podesiSelektovaneOpcije = {podesiIzabranuGodinu}
+                    />
                 </div>
-                <div className="flex gap-2 mt-2 justify-center">
-                   <div className="flex gap-2 mt-2 justify-center">
-                        <Radio id={"prva_godina"} 
-                        naziv={"1.godina"} 
-                        radioGrupa={"izbor_godine"}
-                        cekiran={selektovanaGodina === 1}
-                        onChange={() => setSelektovanuGodinu(1)}
-                        />
-                        <Radio id={"druga_godina"} 
-                        naziv={"2.godina"} 
-                        radioGrupa={"izbor_godine"}
-                        cekiran={selektovanaGodina === 2}
-                        onChange={() => setSelektovanuGodinu(2)}
-                        />
-                        <Radio id={"treca_godina"} 
-                        naziv={"3.godina"} 
-                        radioGrupa={"izbor_godine"}
-                        cekiran={selektovanaGodina === 3}
-                        onChange={() => setSelektovanuGodinu(3)}
-                        />
-                   </div>
-                   <div className="flex gap-2 mt-2 justify-center p-3 border-1 rounded-xl">
-                        {tipovi_materijala.map(tip => (
-                           <div key={tip.tip_materijala_id}>
-                            <Checkbox 
-                                key={tip.tip_materijala_id}
-                                id={tip.tip_materijala_id}
-                                naziv={tip.naziv}
-                                onChange={checkboxTipPromena}
-                            />
-                           </div>
-                        ))}
-                   </div>
+                <div className="flex gap-2">
+                    <CustomSelect
+                        klase={"w-60"}
+                        labela={"Izaberite tip materijala"}
+                        opcije={tipovi_materijala}
+                        vrednost={izabraniTipoviMaterijala}
+                        podesiSelektovaneOpcije={podesiIzabraneTipoveMaterijala}
+                        viseOpcija={false}
+                    />
                 </div>
+                <div className="flex gap-2">
+                    <CustomSelect
+                        klase={"w-60"}
+                        labela={"Izaberite podtip materijala"}
+                        opcije={dostupniPodTipoviMaterijala}
+                        vrednost={izabraniPodTipoviMaterijala}
+                        podesiSelektovaneOpcije={podesiIzabranePodTipoveMaterijala}
+                        zakljucana ={zakljucajPodTipoveMaterijala}
+                        tooltipTekst='Izaberite tip materijala'
+                        />
+                </div>
+                <div className="flex gap-2">
+                    <CustomSelect
+                        klase={"w-60"}
+                        labela={"Izaberite predmet"}
+                        opcije={dostupniPredmeti}
+                        vrednost={izabraniPredmeti}
+                        podesiSelektovaneOpcije={podesiIzabranePredmete}
+                    />
+                </div>
+            </div>
                 <div className='flex'>
-                    <div className='w-[360px] shrink-0'>
-                        <ul className="ml-10 mt-10">
-                            {predmeti.map(predmet => (
-                                predmet.godina === selektovanaGodina && 
-                                <li className="p-2" key={predmet.predmet_id}>
-                                <Checkbox 
-                                    key={predmet.predmet_id} 
-                                    id={predmet.predmet_id} 
-                                    naziv={predmet.naziv} 
-                                    onChange={checkboxPredmetPromena}
-                                />
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
                     <div className="p-4 w-full">
-                        {Object.entries(materijali).map(([nazivPredmeta, materijaliPredmeta]) => (
-                            <KarticePredmeta
-                            key={nazivPredmeta}
-                            predmet={nazivPredmeta}
-                            materijali={materijaliPredmeta}
+                    {izabraniPredmeti &&  <KarticePredmeta
+                            key={izabraniPredmeti.predmet_id}
+                            predmet={izabraniPredmeti.naziv}
+                            materijali={dostupniMaterijali}
                             smer={smer}
-                            />
-                        ))}
+                        />}
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     )
 }

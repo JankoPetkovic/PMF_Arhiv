@@ -1,16 +1,12 @@
+import { useEffect } from 'react';
 import Kartica from '../Komponente/Kartica';
 
 
 export default function KarticePredmeta({predmet, materijali, smer})
 {   
-    let putanja = (
-        smer.departman +
-        '/' + smer.nivo_studija +
-        '/' + smer.naziv_smera +
-        '/' + predmet
-    )
-    .toLowerCase()
-    .replaceAll(' ', '_');
+    useEffect(()=>{
+        // console.log(materijali);
+    }, [])
 
     return(
         <div className="mb-6">
@@ -23,9 +19,8 @@ export default function KarticePredmeta({predmet, materijali, smer})
                     <Kartica 
                     key={m.materijal_id} 
                     materijalId = {m.materijal_id} 
-                    tipFajla={m.tip_fajla} 
-                    putanja={putanja + '/' + m.naziv + '.' + m.tip_fajla}
-                    naziv={m.naziv + '.' + m.tip_fajla}
+                    putanja={m.putanja}
+                    naziv={m.naziv}
                     uploudovao={m.email}
                     />
                 ))

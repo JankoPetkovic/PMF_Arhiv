@@ -45,7 +45,7 @@ export default function BurgerMenu() {
             <div className='flex gap-2 items-center text-lg hover:text-gray-600 cursor-pointer'><BiSupport size={25}/>Prijavi problem</div>
         </div>
       </div>
-      <Dialog naslov={'Objavi Materijal'} prikaziDialog={prikaziDialog} podesiPrikaziDialog={podesiPrikazDialoga} sadrzaj={<ObjavaMaterijala/>}/>
+      <Dialog naslov={'Objavi Materijal'} prikaziDialog={prikaziDialog} podesiPrikaziDialog={podesiPrikazDialoga} sadrzaj={<ObjavaMaterijala podesiPrikazDialoga={podesiPrikazDialoga}/>}/>
     </>
   );
 }

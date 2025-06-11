@@ -41,4 +41,8 @@ class Tip_materijala extends Model
     {
         return self::all();
     }
+
+    public function podTipovi(){
+        return $this->hasMany(PodTipMaterijala::class, 'tip_materijala_id', 'tip_materijala_id');
+    }
 }

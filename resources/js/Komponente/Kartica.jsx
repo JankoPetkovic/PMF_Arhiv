@@ -5,7 +5,7 @@ import { useState } from "react";
 import PrijaviMaterijal from "./Alati/PrijaviMaterijal";
 import { FaRegUserCircle } from "react-icons/fa";
 
-export default function Kartica({tipFajla, materijalId, putanja, naziv, uploudovao})
+export default function Kartica({materijalId, putanja, naziv, uploudovao})
 {
     const [prijava, podesiPrijavu] = useState(false)
     const [selektovanMaterijal, selektujMaterijal] = useState(null)
@@ -17,9 +17,18 @@ export default function Kartica({tipFajla, materijalId, putanja, naziv, uploudov
     const preuzmiMaterijal = (putanjaFajla, nazivFajla) => {
         const link = document.createElement('a');
         link.href = `/storage/${putanjaFajla}`;
-        link.download = putanjaFajla;
+        link.download = nazivFajla;
         link.click();
     }   
+
+    const vratiTipFajla = (nazivFajla) => {
+    if (!nazivFajla || typeof nazivFajla !== 'string') return null;
+
+    const delovi = nazivFajla.split('.');
+    if (delovi.length < 2) return null; 
+
+    return delovi.pop().toLowerCase();
+}
 
     const fileIcons = {
         pdf: <FaRegFilePdf size={50} color="red" className="cursor-pointer w-14 h-14 object-contain" />,
@@ -43,7 +52,7 @@ export default function Kartica({tipFajla, materijalId, putanja, naziv, uploudov
             <div className="flex items-center justify-center mb-2 h-16 w-16">
                 <a href={`/storage/${putanja}`} target="_blank" rel="noopener noreferrer">
                 <Tooltip title="Otvori">
-                    {fileIcons[tipFajla] || <span>Unsupported</span>}
+                    {fileIcons[vratiTipFajla(naziv)] || <span>Unsupported</span>}
                 </Tooltip>
                 </a>
             </div>

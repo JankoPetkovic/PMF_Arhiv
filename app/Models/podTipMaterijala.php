@@ -14,4 +14,13 @@ class podTipMaterijala extends Model
     public static function vratiPodTipoveTipa($tipMaterijala){
         return self::where('tip_materijala_id', $tipMaterijala)->get();
     }
+
+    public function tip(){
+        return $this->belongsTo(TipMaterijala::class, 'tip_materijala_id', 'tip_materijala_id');
+    }
+
+    public function materijali(){
+        return $this->hasMany(Materijal::class, 'podtip_materijala_id', 'podtip_materijala_id');
+    }
+
 }

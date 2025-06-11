@@ -23,8 +23,9 @@ class MaterijalController extends Controller
             'departman' => $siroviSmer->departman->naziv,
             'naziv_smera' => $siroviSmer->naziv_smera,
             'nivo_studija' => $siroviSmer->nivoStudija->nivo_studija,
+            'nivo_studija_id' => $siroviSmer->nivoStudija->nivo_studija_id,
         ];
-
+        
         return Inertia::render('Materijal', [
             'smer' => $smer,
             'predmeti' => $predmeti,
@@ -32,22 +33,15 @@ class MaterijalController extends Controller
         ]);
     }
 
-    public function get_materijal(Request $request){
-        $predmeti = $request->predmeti;
-        $tipovi_materijala = $request->tipovi;
-
-        $materijali = [];
-         foreach($predmeti as $predmet)
-            {   
-                $naziv_predmeta = Predmet::getNazivPredmeta($predmet);
-                $materijali[$naziv_predmeta] = Materijal::getMaterijalPoTipu($predmet,$tipovi_materijala);
-            }
-
-        return response()->json($materijali);
+    public function get_materijal(Request $zahtev){
+        $predmet = $zahtev->predmeti;
+        $podTipoviMaterijala = $zahtev->podTipovi;
+        $materijali = Materijal::getMaterijalPoPodTipu($predmet['predmet_id'],$podTipoviMaterijala);
+        return response()->json($materijali, 200);
     }
 
-   public function storeMaterijal(Request $request){
-        $validated = $request->validate([
+   public function storeMaterijal(Request $zahtev){
+        $validated = $zahtev->validate([
             'departman' => ['required', 'string', 'max:100'],
             'nivoStudija' => ['required', 'string', 'max:100'],
             'smer' => ['required', 'string', 'max:100'],
@@ -60,17 +54,17 @@ class MaterijalController extends Controller
             'fajl' => ['required', 'file', 'mimes:pdf,doc,docx,ppt,pptx,zip', 'max:10240'], // max 10MB
         ]);
 
-        $departman = json_decode($request->input('departman'), true);
-        $nivoStudija = json_decode($request->input('nivoStudija'), true);
-        $smer = json_decode($request->input('smer'), true);
-        $godina = json_decode($request->input('godina'), true);
-        $predmet = json_decode($request->input('predmet'), true);
-        $tipMaterijala = json_decode($request->input('tipMaterijala'), true);
-        $podTipMaterijala = json_decode($request->input('podTipMaterijala'), true);
-        $akademskaGodina = $request->input('akademskaGodina');
+        $departman = json_decode($zahtev->input('departman'), true);
+        $nivoStudija = json_decode($zahtev->input('nivoStudija'), true);
+        $smer = json_decode($zahtev->input('smer'), true);
+        $godina = json_decode($zahtev->input('godina'), true);
+        $predmet = json_decode($zahtev->input('predmet'), true);
+        $tipMaterijala = json_decode($zahtev->input('tipMaterijala'), true);
+        $podTipMaterijala = json_decode($zahtev->input('podTipMaterijala'), true);
+        $akademskaGodina = $zahtev->input('akademskaGodina');
         $akademskaGodina = str_replace('/', '-',$akademskaGodina);
-        $korisnickiMejl = $request->input('korisnickiMejl');
-        $fajl = $request->file('fajl');
+        $korisnickiMejl = $zahtev->input('korisnickiMejl');
+        $fajl = $zahtev->file('fajl');
 
         $korisnik = Korisnik::where('email', $korisnickiMejl)->first();
         
