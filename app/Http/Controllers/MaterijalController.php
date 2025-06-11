@@ -51,7 +51,7 @@ class MaterijalController extends Controller
             'podTipMaterijala' => ['required', 'string', 'max:100'],
             'akademskaGodina' => ['required', 'string'],
             'korisnickiMejl' => ['required', 'email', 'max:255'],
-            'fajl' => ['required', 'file', 'mimes:pdf,doc,docx,ppt,pptx,zip', 'max:10240'], // max 10MB
+            'fajl' => ['required', 'file', 'mimes:pdf,doc,docx,ppt,pptx,zip,txt,odt', 'max:10240'], // max 10MB
         ]);
 
         $departman = json_decode($zahtev->input('departman'), true);
@@ -68,25 +68,21 @@ class MaterijalController extends Controller
 
         $korisnik = Korisnik::where('email', $korisnickiMejl)->first();
         
-        if(!$korisnik){
-            Korisnik::create([
+        if (!$korisnik) {
+            $korisnik = Korisnik::create([
                 'email' => $korisnickiMejl
             ]);
+        }
 
-            //pa treba da se posalje mejl verifikacije i onda funkcija za kreiranje odozdo
-        }
-        // else if(!$korisnik->verifikovan){
-        //     // treba da se posalje mejl verifikacije i onda funkcija za kreiranje odozdo
-        // }
-        else{
-            $putanjaKreiranogMaterijala = Materijal::kreirajMaterijal(
-                $fajl,$departman, $nivoStudija, $smer, $godina, $predmet, $tipMaterijala, $podTipMaterijala, $akademskaGodina, $korisnik->korisnik_id);
-            return response()->json([
-                'message' => 'Fajl uspešno sačuvan.',
-                'putanja' => $putanjaKreiranogMaterijala,
-                
-            ], 200);
-        }
+        $putanjaKreiranogMaterijala = Materijal::kreirajMaterijal(
+            $fajl, $departman, $nivoStudija, $smer, $godina, $predmet, $tipMaterijala, $podTipMaterijala, $akademskaGodina, $korisnik->korisnik_id
+        );
+
+        return response()->json([
+            'message' => 'Fajl uspešno sačuvan.',
+            'putanja' => $putanjaKreiranogMaterijala,
+        ], 200);
+
 
         
 
