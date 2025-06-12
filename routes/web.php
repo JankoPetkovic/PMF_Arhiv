@@ -32,7 +32,7 @@ Route::post('/prijavaMaterijala', function (Request $request) {
     $materijalId = $request->input('materijalId');
     $opisPrijave = $request->input('opisPrijave');
 
-    Mail::to('janko.petkovic@pmf-arhiv.com')->send(new PrijaviMaterijal($posiljaoc, $materijalId, $opisPrijave));
+    Mail::to('jankopetkovic@pmf-arhiv.com')->send(new PrijaviMaterijal($posiljaoc, $materijalId, $opisPrijave));
 
     return response()->json(['message' => 'Email sent successfully!']);
 });
