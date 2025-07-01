@@ -39,7 +39,7 @@ class Korisnik extends Model
     protected $fillable = ['email', 'verifikovan', 'datum_verifikacije'];
 
     protected $casts = [
-        'vreme_verifikacije' => 'datetime',
+        'datum_verifikacije' => 'datetime',
     ];
 
     /**
@@ -80,7 +80,6 @@ class Korisnik extends Model
             Carbon::now()->addMinutes(10),
             ['id' => $this->korisnik_id]
         );
-        dump($link);
         try {
             Mail::to($this->email)->send(new Verifikacija($this->email, $link));
         } catch (\Exception $e) {

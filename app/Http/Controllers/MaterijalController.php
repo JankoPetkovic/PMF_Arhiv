@@ -75,8 +75,8 @@ class MaterijalController extends Controller
 
         if (
             $korisnik->verifikovan && 
-            $korisnik->vreme_verifikacije && 
-            $korisnik->vreme_verifikacije->gt(now()->subMonths(3))
+            $korisnik->datum_verifikacije && 
+            $korisnik->datum_verifikacije->gt(now()->subMonths(3))
         ){
             $putanjaKreiranogMaterijala = Materijal::kreirajMaterijal(
                 $fajl, $departman, $nivoStudija, $smer, $godina, $predmet, $tipMaterijala, $podTipMaterijala, $akademskaGodina, $korisnik->korisnik_id
