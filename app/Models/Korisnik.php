@@ -80,6 +80,7 @@ class Korisnik extends Model
             Carbon::now()->addMinutes(10),
             ['id' => $this->korisnik_id]
         );
+        dump($link);
         try {
             Mail::to($this->email)->send(new Verifikacija($this->email, $link));
         } catch (\Exception $e) {
