@@ -9,17 +9,17 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class VerifikacijaKorisnika extends Mailable
+class Verifikacija extends Mailable
 {
     use Queueable, SerializesModels;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($korisnik, $link)
+    public function __construct($mejlKorisnika, $link)
     {
-        $this->korisnik = $korisnik;
-        $this->link = $link;
+        $this->mejlKorisnika = $mejlKorisnika;
+        $this->link =$link;
     }
 
     /**
@@ -28,7 +28,7 @@ class VerifikacijaKorisnika extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Verifikacija Korisnika',
+            subject: 'Verifikacija',
         );
     }
 
@@ -39,10 +39,11 @@ class VerifikacijaKorisnika extends Mailable
     {
         return new Content(
             view: 'verifikacija',
-            with: [
-                'ime' => $this->korisnik->email,
+            with:[
+                'ime' => $this->mejlKorisnika,
                 'verifikacijaUrl' => $this->link,
-            ]);
+            ]
+        );
     }
 
     /**

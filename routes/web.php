@@ -10,6 +10,9 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\DepartmanController;
 use App\Http\Controllers\MaterijalController;
 use App\Http\Controllers\ObjaviMaterijal;
+use App\Http\Controllers\MailController;
+use Illuminate\Support\Carbon;
+
 use App\Mail\PrijaviMaterijal;
 
 
@@ -25,14 +28,6 @@ Route::post('/get-smerovi', [ObjaviMaterijal::class, 'getSmerovi']);
 Route::post('/get-predmeti', [ObjaviMaterijal::class, 'getPredmeti']);
 Route::post('/get-podTipovi', [ObjaviMaterijal::class, 'getPodTipoviMaterijala']);
 
-Route::post('/verifikacija', [HomeController::class, 'verifikuj']);
-
-Route::post('/prijavaMaterijala', function (Request $request) {
-    $posiljaoc = $request->input('posiljaoc');
-    $materijalId = $request->input('materijalId');
-    $opisPrijave = $request->input('opisPrijave');
-
-    Mail::to('jankopetkovic@pmf-arhiv.com')->send(new PrijaviMaterijal($posiljaoc, $materijalId, $opisPrijave));
-
-    return response()->json(['message' => 'Email sent successfully!']);
-});
+Route::post('/prijavaMaterijala', [MailController::class, 'prijaviMaterijal']);
+Route::post('/verifikujJanka', [MailController::class, 'posaljiVerifikaciju']);
+Route::get('/verifikuj-mejl/{id}',[MailController::class, 'obradiVerifikaciju'])->name('verifikuj.mejl');

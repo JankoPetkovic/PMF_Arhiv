@@ -36,7 +36,6 @@ export default function ObjavaMaterijala({podesiPrikazDialoga}) {
     });
 
     const [unetaMailAdresa, podesiUnetuMailAdresu] = useState("");
-    const [validnaMejlAdresa, podesiValidnuMejlAdresu] = useState("");
 
     const [zakljucaniSelectPredmeta, podesiZakljucaniSelectPredmeta] =
         useState(true);

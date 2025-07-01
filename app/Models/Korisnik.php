@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Carbon;
+use App\Mail\Verifikacija;
 
 class Korisnik extends Model
 {
@@ -34,6 +37,10 @@ class Korisnik extends Model
      * Kolone u koje je dozvoljen upis
      */
     protected $fillable = ['email', 'verifikovan', 'datum_verifikacije'];
+
+    protected $casts = [
+        'vreme_verifikacije' => 'datetime',
+    ];
 
     /**
      * Vraca sve departmane iz tabele Departmani
@@ -67,16 +74,16 @@ class Korisnik extends Model
         return false; 
     }
 
-    public function verifikuj()
-{
-    $token = Str::random(60);
-
-    DB::table('verifikacija_tokeni')->insert([
-        'korisnik_id' => $this->korisnik_id,
-        'token' => $token,
-        'created_at' => now(),
-    ]);
-
-    Mail::to($this->email)->send(new VerifikacijaKorisnika($this, $token));
-}
+    public function verifikuj(){
+        $link = URL::temporarySignedRoute(
+            'verifikuj.mejl',
+            Carbon::now()->addMinutes(10),
+            ['id' => $this->korisnik_id]
+        );
+        try {
+            Mail::to($this->email)->send(new Verifikacija($this->email, $link));
+        } catch (\Exception $e) {
+            echo 'GRESKA pri slanju verifikacije: ' . $e->getMessage();
+        }
+    }
 }
