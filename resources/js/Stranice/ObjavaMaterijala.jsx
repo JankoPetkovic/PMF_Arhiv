@@ -415,10 +415,13 @@ export default function ObjavaMaterijala({podesiPrikazDialoga}) {
                                             }
                                         />
                                     </Tooltip>
-                                    {/* <p>Izabrani fajl: <strong>{izabraniFajl.name}</strong></p>
-                                    <p>Veličina: {formatirajVelicinu(izabraniFajl.size)}</p> */}
                                 </div>
                             )}
+                            <div class="text-center">
+                                <span>Materijal će biti vidljiv nakon verifikacije.</span><br></br>
+                                <span>Po objavi proverite sanduče unete mejl adrese.</span>
+                            </div>
+                            <br></br>
                         </div>
                     )}
                 </div>

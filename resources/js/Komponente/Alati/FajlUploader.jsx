@@ -17,7 +17,7 @@ export default function FajlUploader({podesiFajl}){
   };
 
   return (
-    <div>
+    <div className="cursor-pointer text-emerald-500 hover:scale-110 transition-transform duration-200">
       <input
         type="file"
         ref={inputRef}
