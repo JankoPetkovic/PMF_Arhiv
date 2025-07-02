@@ -56,7 +56,7 @@ class MaterijalController extends Controller
             'podTipMaterijala' => ['required', 'string', 'max:100'],
             'akademskaGodina' => ['required', 'string'],
             'korisnickiMejl' => ['required', 'email', 'max:255'],
-            'fajl' => ['required', 'file', 'mimes:pdf,doc,docx,ppt,pptx,zip,txt,odt', 'max:10240'], // max 10MB
+            'fajl' => ['required', 'file', 'mimes:pdf,doc,docx,ppt,pptx,zip,txt,odt, png, jpeg, jpg ', 'max:10240'], // max 10MB
         ]);
 
         $departman = json_decode($zahtev->input('departman'), true);

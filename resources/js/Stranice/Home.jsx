@@ -1,4 +1,3 @@
-import VerifikacijaForm from "../Komponente/Verifikacija"
 import Departmani from "../Komponente/Departmani"
 import Navbar from "../Komponente/Alati/Navbar";
 

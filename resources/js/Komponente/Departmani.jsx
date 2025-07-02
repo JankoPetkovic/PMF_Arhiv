@@ -28,10 +28,11 @@ export default function Departmani({smerovi})
         {smerovi.map(departman => (
           <div key={departman.departman_id} className="relative">
             <button 
-              className="p-7 hover:bg-blue-100 relative rounded-md cursor-pointer"  
+              className="p-5 hover:bg-blue-100 relative rounded-md cursor-pointer"  
               onClick={() => toggleDropdown(departman.departman_id)}
               onMouseEnter={() => setActiveDropdown(departman.departman_id)}
             >
+              <img src={`/storage/ikonice/${departman.departman_naziv.toLowerCase().replace(/ /g, "_")}` + ".svg"} className="inline-block w-10 h-10 mr-2 align-middle"/>
               {departman.departman_naziv}
             </button>
             
