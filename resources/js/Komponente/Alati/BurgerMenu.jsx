@@ -9,7 +9,6 @@ import ObjavaMaterijala from '../../Stranice/ObjavaMaterijala';
 import axios from 'axios';
 export default function BurgerMenu() {
   const [meniOtvoren, podesiMeni] = useState(false);
-  const [objaviMaterijal, podesiObjaviMaterijal] = useState(false);
   const [prikaziDialog, podesiPrikazDialoga] = useState(false);
 
   // function verifikacijaKorisnika(){
