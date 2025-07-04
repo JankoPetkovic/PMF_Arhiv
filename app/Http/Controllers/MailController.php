@@ -32,27 +32,12 @@ class MailController extends Controller
         return response()->json(['message' => 'Email sent successfully!']);
     }
 
-    public function posaljiVerifikaciju (Request $zahtev){
-        $mejl = $zahtev->input('mejl');
-
-        $link = URL::temporarySignedRoute(
-            'verifikuj.mejl',
-            Carbon::now()->addMinutes(10),
-            ['id' => 9]
-        );
-
-        Mail::to($mejl)->send(new Verifikacija($mejl, $link));
-
-        return response()->json([$mejl, 200]);
-    }
-
     public function obradiVerifikaciju($id){
         if (!request()->hasValidSignature()) {
             abort(403, 'Link nije validan ili je istekao.');
         }
 
         $korisnik = Korisnik::findOrFail($id);
-        $korisnik->verifikovan = true;
         $korisnik->datum_verifikacije = Carbon::now();
         $korisnik->save();
 

@@ -3,19 +3,11 @@ import { RxHamburgerMenu } from "react-icons/rx";
 import { IoMdClose } from "react-icons/io";
 import { FaUpload, FaInfoCircle  } from "react-icons/fa";
 import { BiSupport } from "react-icons/bi";
-import { MdVerified } from "react-icons/md";
 import Dialog from '../Dialog';
 import ObjavaMaterijala from '../../Stranice/ObjavaMaterijala';
-import axios from 'axios';
 export default function BurgerMenu() {
   const [meniOtvoren, podesiMeni] = useState(false);
   const [prikaziDialog, podesiPrikazDialoga] = useState(false);
-
-  // function verifikacijaKorisnika(){
-  //   const odgovor = axios.post('/verifikujJanka',{
-  //     mejl: 'janko.petkovic@pmf.edu.rs'}
-  //   )
-  // }
 
   return (
     <>
@@ -50,7 +42,6 @@ export default function BurgerMenu() {
           </div>
           <div className='flex gap-2 items-center text-lg hover:text-gray-600 cursor-pointer'><FaInfoCircle size={25}/> Informacije</div>
           <div className='flex gap-2 items-center text-lg hover:text-gray-600 cursor-pointer'><BiSupport size={25}/>Prijavi problem</div>
-          {/* <div className='flex gap-2 items-center text-lg hover:text-gray-600 cursor-pointer' onClick={()=>{verifikacijaKorisnika()}}><MdVerified size={25}/>Verifikacija</div> */}
         </div>
       </div>
       <Dialog naslov={'Objavi Materijal'} prikaziDialog={prikaziDialog} podesiPrikaziDialog={podesiPrikazDialoga} sadrzaj={<ObjavaMaterijala podesiPrikazDialoga={podesiPrikazDialoga}/>}/>

@@ -32,7 +32,8 @@ export default function Kartica({materijalId, putanja, naziv, uploudovao})
 
     const fileIcons = {
         pdf: <FaRegFilePdf size={50} color="red" className="cursor-pointer w-14 h-14 object-contain" />,
-        png: <img src={`/storage/${putanja}`} alt="PNG fajl" className="w-14 h-14 object-contain" />
+        png: <img src={`/storage/${putanja}`} alt="PNG fajl" className="w-14 h-14 object-contain" />,
+        jpg: <img src={`/storage/${putanja}`} alt="JPG fajl" className="w-14 h-14 object-contain" />
       };
     
   

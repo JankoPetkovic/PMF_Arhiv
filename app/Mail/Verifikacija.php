@@ -19,7 +19,7 @@ class Verifikacija extends Mailable
     public function __construct($mejlKorisnika, $link)
     {
         $this->mejlKorisnika = $mejlKorisnika;
-        $this->link =$link;
+        $this->link = $link;
     }
 
     /**

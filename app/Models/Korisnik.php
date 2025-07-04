@@ -36,7 +36,7 @@ class Korisnik extends Model
     /**
      * Kolone u koje je dozvoljen upis
      */
-    protected $fillable = ['email', 'verifikovan', 'datum_verifikacije'];
+    protected $fillable = ['email', 'datum_verifikacije'];
 
     protected $casts = [
         'datum_verifikacije' => 'datetime',
@@ -51,28 +51,36 @@ class Korisnik extends Model
     }
 
     /**
-     * Ako je korisnik verifikovan i zadnji put je verifikovan pre vise od godinu dana, verifikovan se postavlja na false i mora da se ponovo verifikuje.
+     * Ako je korisnik verifikovan i zadnji put je verifikovan pre vise od mesec dana, verifikovan se postavlja na false i mora da se ponovo verifikuje.
      * 
      * @var bool
      */
-    public function isVerifikovan()
+    public function statusVerifikacije()
     {
-        $verifikovan = $this->verifikovan;
-        if($verifikovan){
-            $datum_verifikacije= new DateTime($this-> datum_verifikacije);
-            $sad = new DateTime();
-            $razlika = $datum_verifikacije->diff($sad)->y >=1;
-            
-            if($razlika)
-            {
-                $this->verifikovan = 0;
-                $this->save();
-                return false;
-            }
-            return true;
+        $trajanje = (int) env('VERIFIKACIJA_TRAJANJE_MESECI', 1);
+
+        if (!$this->datum_verifikacije) {
+            return [
+                'verifikovan' => false,
+                'statusVerifikacije' => false,
+            ];
         }
-        return false; 
+
+        $datumVerifikacije = $this->datum_verifikacije;
+        $istekVerifikacije = $datumVerifikacije->copy()->addMonths($trajanje);
+        if ($datumVerifikacije->gte(now()->subMonths($trajanje))) {
+            return [
+                'verifikovan' => true,
+                'statusVerifikacije' => $istekVerifikacije->format('d.m.Y'),
+            ];
+        }
+
+        return [
+            'verifikovan' => false,
+            'statusVerifikacije' => $istekVerifikacije->format('d.m.Y'),
+        ];
     }
+
 
     public function verifikuj(){
         $link = URL::temporarySignedRoute(

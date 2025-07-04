@@ -11,6 +11,7 @@ use App\Http\Controllers\DepartmanController;
 use App\Http\Controllers\MaterijalController;
 use App\Http\Controllers\ObjaviMaterijal;
 use App\Http\Controllers\MailController;
+use App\Http\Controllers\KontrolerKorisnika;
 use Illuminate\Support\Carbon;
 
 use App\Mail\PrijaviMaterijal;
@@ -29,5 +30,7 @@ Route::post('/get-predmeti', [ObjaviMaterijal::class, 'getPredmeti']);
 Route::post('/get-podTipovi', [ObjaviMaterijal::class, 'getPodTipoviMaterijala']);
 
 Route::post('/prijavaMaterijala', [MailController::class, 'prijaviMaterijal']);
-Route::post('/verifikujJanka', [MailController::class, 'posaljiVerifikaciju']);
 Route::get('/verifikuj-mejl/{id}',[MailController::class, 'obradiVerifikaciju'])->name('verifikuj.mejl');
+
+Route::get('/status-verifikacije', [KontrolerKorisnika::class, 'statusVerifikacije']);
+Route::post('/verifikuj-korisnika', [KontrolerKorisnika::class, 'verifikujKorisnika']);

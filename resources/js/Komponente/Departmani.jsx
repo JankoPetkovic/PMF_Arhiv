@@ -24,11 +24,11 @@ export default function Departmani({smerovi})
     
   return (
     <>
-      <div className="flex border-2 rounded-xl h-20 gap-7 items-center justify-center">
+      <div className="flex border-2 rounded-xl h-20 gap-7 items-center justify-center shadow-[12px_12px_14px_-1px_rgba(0,_0,_0,_0.1)]">
         {smerovi.map(departman => (
           <div key={departman.departman_id} className="relative">
             <button 
-              className="p-5 hover:bg-blue-100 relative rounded-md cursor-pointer"  
+              className="p-5 hover:bg-blue-100 relative rounded-md cursor-pointer hover:scale-110 transition-transform duration-200"  
               onClick={() => toggleDropdown(departman.departman_id)}
               onMouseEnter={() => setActiveDropdown(departman.departman_id)}
             >
@@ -37,21 +37,21 @@ export default function Departmani({smerovi})
             </button>
             
             {activeDropdown === departman.departman_id && (
-              <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
-                <ul className="py-1" onMouseLeave={() => setActiveDropdown(null)}>
+              <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-[12px_12px_14px_-1px_rgba(0,_0,_0,_0.1)] z-10 ">
+                <ul className="" onMouseLeave={() => setActiveDropdown(null)}>
                 {Object.entries(departman.nivo_studija).map(([nivo, smerovi]) => (
                 <li key={nivo}>
-                    <button className="p-2 hover:bg-gray-200 cursor-pointer"
+                    <button className="p-2 hover:bg-blue-100 cursor-pointer rounded-lg"
                     onClick={() => toggleNivo(nivo)}>
                     {nivo}
                     </button>
                     {openNivoi[nivo] && (
                     <ul className="ml-4 mt-2 list-disc text-gray-700 p-2 ">
                         {smerovi.map((smer) => (
-                        <li key={smer.id} className="hover:bg-gray-200">
+                        <li key={smer.id} className="hover:bg-blue-100 rounded-lg p-1">
                             <Link
                                 href={`/smer-${smer.id}`}
-                                className="text-blue-500 hover:underline"
+                                className="text-blue-500"
                                 >{smer.naziv}
                             </Link>
                         </li>

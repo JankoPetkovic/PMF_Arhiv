@@ -4,6 +4,7 @@ import { createRoot } from "react-dom/client";
 import { createInertiaApp } from "@inertiajs/react";
 import '../css/app.css';
 import { GlobalniProvider } from './Konteksti';
+import { ToastContainer } from 'react-toastify';
 
 createInertiaApp({
   resolve: name => {
@@ -15,6 +16,15 @@ createInertiaApp({
       <React.StrictMode>
         <GlobalniProvider>
           <App {...props} />
+          <ToastContainer   
+                position="bottom-right"
+                autoClose={5000}
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="colored"
+            />
         </GlobalniProvider>
       </React.StrictMode>
     );

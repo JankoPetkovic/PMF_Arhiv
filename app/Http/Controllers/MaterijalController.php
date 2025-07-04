@@ -56,7 +56,7 @@ class MaterijalController extends Controller
             'podTipMaterijala' => ['required', 'string', 'max:100'],
             'akademskaGodina' => ['required', 'string'],
             'korisnickiMejl' => ['required', 'email', 'max:255'],
-            'fajl' => ['required', 'file', 'mimes:pdf,doc,docx,ppt,pptx,zip,txt,odt, png, jpeg, jpg ', 'max:10240'], // max 10MB
+            'fajl' => ['required', 'file', 'mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/zip,text/plain,application/vnd.oasis.opendocument.text,image/png,image/jpeg', 'max:10240'],// max 10MB
         ]);
 
         $departman = json_decode($zahtev->input('departman'), true);
@@ -74,9 +74,8 @@ class MaterijalController extends Controller
         $korisnik = Korisnik::where('email', $korisnickiMejl)->first();
 
         if (
-            $korisnik->verifikovan && 
             $korisnik->datum_verifikacije && 
-            $korisnik->datum_verifikacije->gt(now()->subMonths(3))
+            $korisnik->datum_verifikacije->gt(now()->subMonths(env('VERIFIKACIJA_TRAJANJE_MESECI', 1)))
         ){
             $putanjaKreiranogMaterijala = Materijal::kreirajMaterijal(
                 $fajl, $departman, $nivoStudija, $smer, $godina, $predmet, $tipMaterijala, $podTipMaterijala, $akademskaGodina, $korisnik->korisnik_id
