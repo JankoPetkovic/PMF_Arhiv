@@ -8,6 +8,8 @@ import { FaRegUserCircle } from "react-icons/fa";
 import { MdNavigateNext } from "react-icons/md";
 import { FaShareAlt } from "react-icons/fa";
 import skracenicaNivoaStudija from '../PomocniAlati/skracenicaNivoaStudija';
+import {prikaziToastNotifikaciju} from'../PomocniAlati/ToastNotifikacijaServis';
+import TipToastNotifikacije from'../PomocniAlati/TipToastNotifikacije';
 
 export default function KarticaMaterijala({materijal}){
 
@@ -41,13 +43,13 @@ export default function KarticaMaterijala({materijal}){
             navigator.share({
             title: 'Materijal',
             text: 'Pogledaj ovaj materijal:',
-            url: window.location.origin + '/materijali/' + materijal.materijal_id,
+            url: window.location.origin + `/storage/${materijal.putanja_fajla}`,
             })
             .then(() => console.log('Deljenje uspešno'))
             .catch((error) => console.log('Greška pri deljenju:', error));
         } else {
-            navigator.clipboard.writeText(window.location.origin + '/materijali/' + materijal.materijal_id);
-            alert('Link je kopiran u klipbord!');
+            navigator.clipboard.writeText(window.location.origin + `/storage/${materijal.putanja_fajla}`);
+            prikaziToastNotifikaciju("Link do materijala je kopiran u privremenu memoriju", TipToastNotifikacije.Info)
         }
     }
 
