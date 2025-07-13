@@ -50,7 +50,7 @@ export default function Departmani({smerovi})
                         {smerovi.map((smer) => (
                         <li key={smer.id} className="hover:bg-blue-100 rounded-lg p-1">
                             <Link
-                                href={`/smer-${smer.id}`}
+                                href={`/smerovi/${smer.id}`}
                                 className="text-blue-500"
                                 >{smer.naziv}
                             </Link>

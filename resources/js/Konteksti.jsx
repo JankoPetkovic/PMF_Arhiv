@@ -1,10 +1,16 @@
 // GlobalniKontekst.js
-import { createContext, useContext } from "react";
+import { createContext, useContext, useState } from "react";
 
 const GlobalniKontekst = createContext();
 
 export const GlobalniProvider = ({ children }) => { 
-     const upravljajKlikomVanElemenata = (
+    const [podaci, podesiPodatke] = useState({
+        dostupniDepartmani: '',
+        dostupniNivoiStudija: '',
+        dostupniTipoviMaterijala: ''
+    });
+
+    const upravljajKlikomVanElemenata = (
         referenceElemenata,
         dogadjaj,
         dodatnaKlase = []
@@ -32,7 +38,7 @@ export const GlobalniProvider = ({ children }) => {
 
 
     return (
-        <GlobalniKontekst.Provider value={{ upravljajKlikomVanElemenata }}>
+        <GlobalniKontekst.Provider value={{ podaci, podesiPodatke, upravljajKlikomVanElemenata }}>
             {children} 
         </GlobalniKontekst.Provider>
     );

@@ -1,6 +1,6 @@
 import axios from "axios";
-import { prikaziToastNotifikaciju } from "./ToastNotifikacijaServis";
-import TipToastNotifikacije from "./TipToastNotifikacije";
+import { prikaziToastNotifikaciju } from "../ToastNotifikacijaServis";
+import TipToastNotifikacije from "../TipToastNotifikacije";
 
 export default class ServisKorisnika {
 
@@ -19,7 +19,7 @@ export default class ServisKorisnika {
 
     static async verifikujKorisnika(korisnickiMejl){
         try{
-            const odgovor = await axios.post('/verifikuj-korisnika', {
+            const odgovor = await axios.post('/posalji-verifikaciju', {
                 mejl:korisnickiMejl});
             prikaziToastNotifikaciju('Poslat mejl za verifikaciju', TipToastNotifikacije.Info);
         } catch (greska) {

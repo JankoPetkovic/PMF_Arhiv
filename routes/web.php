@@ -3,34 +3,50 @@
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
-use App\Models\Korisnik;
+use Illuminate\Support\Carbon;
+
 use Illuminate\Http\Request;
 
-use App\Http\Controllers\HomeController;
+use App\Http\Controllers\KontrolerPocetneStranice;
 use App\Http\Controllers\DepartmanController;
 use App\Http\Controllers\MaterijalController;
 use App\Http\Controllers\ObjaviMaterijal;
-use App\Http\Controllers\MailController;
 use App\Http\Controllers\KontrolerKorisnika;
-use Illuminate\Support\Carbon;
+use App\Http\Controllers\KontrolerMaterijala;
+use App\Http\Controllers\KontrolerPredmeta;
+use App\Http\Controllers\KontrolerTipaMaterijala;
+use App\Http\Controllers\KontrolerNivoaStudija;
+use App\Http\Controllers\KontrolerDepartmana;
+use App\Http\Controllers\KontrolerSmerova;
+use App\Http\Controllers\KontrolerPodtipovaMaterijala;
 
-use App\Mail\PrijaviMaterijal;
+//Kontroler pocetne stranice
+Route::get('/', [KontrolerPocetneStranice::class, 'index'])->name('home');
 
-
-
-Route::get('/', [HomeController::class, 'index']);
-
-Route::get('/smer-{id}', [MaterijalController::class, 'get_predmeti']);
-Route::post('kreiraj-materijal', [MaterijalController::class, 'storeMaterijal']);
-Route::post('/materijali', [MaterijalController::class, 'get_materijal']);
-
-Route::get('/objavi-materijal', [ObjaviMaterijal::class, 'objaviMaterijalHome']);
-Route::post('/get-smerovi', [ObjaviMaterijal::class, 'getSmerovi']);
-Route::post('/get-predmeti', [ObjaviMaterijal::class, 'getPredmeti']);
-Route::post('/get-podTipovi', [ObjaviMaterijal::class, 'getPodTipoviMaterijala']);
-
-Route::post('/prijavaMaterijala', [MailController::class, 'prijaviMaterijal']);
-Route::get('/verifikuj-mejl/{id}',[MailController::class, 'obradiVerifikaciju'])->name('verifikuj.mejl');
-
+//Kontroler Korisnika
 Route::get('/status-verifikacije', [KontrolerKorisnika::class, 'statusVerifikacije']);
-Route::post('/verifikuj-korisnika', [KontrolerKorisnika::class, 'verifikujKorisnika']);
+Route::post('/posalji-verifikaciju', [KontrolerKorisnika::class, 'posaljiVerifikaciju']);
+Route::get('/verifikuj-mejl/{id}',[KontrolerKorisnika::class, 'obradiVerifikaciju'])->name('korisnik.verifikuj');
+
+//Kontroler Materijala 
+Route::resource('materijali', KontrolerMaterijala::class)->only(['index', 'store'])->names(['index' => 'materijali.index', 'store' => 'materijali.sacuvaj']);
+Route::post('materijal.prijavi', [KontrolerMaterijala::class, 'prijaviMaterijal']);
+
+//Kontroler Predmeta
+Route::resource('predmeti', KontrolerPredmeta::class);
+
+//Kontroler Tipova materijala
+Route::resource('tipovi-materijala', KontrolerTipaMaterijala::class);
+
+//Kontroler Nivoa studija
+Route::resource('nivo-studija', KontrolerNivoaStudija::class);
+
+//Kontroler departmana
+Route::resource('departmani', KontrolerDepartmana::class);
+
+//Kontroler Smerova
+Route::resource('smerovi', KontrolerSmerova::class);
+
+//Kontroler Podtipova materijala
+Route::resource('podtipovi-materijala', KontrolerPodtipovaMaterijala::class);
+

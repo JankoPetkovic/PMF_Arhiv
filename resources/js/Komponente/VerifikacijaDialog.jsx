@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import ServisKorisnika from "../PomocniAlati/ServisKorisnika";
+import ServisKorisnika from "../PomocniAlati/Servisi/ServisKorisnika";
 import { MdVerified } from "react-icons/md";
 
 export default function VerifikacijaDialog({podesiPrikazDialoga}) {
@@ -7,7 +7,7 @@ export default function VerifikacijaDialog({podesiPrikazDialoga}) {
     const [unetaMailAdresa, podesiUnetuMailAdresu] = useState("");
     const [statusVerifikacije, podesiStatusVerifikacije] = useState({
         verifikovan: false,
-        statusVerifikacije: false
+        statusVerifikacije: undefined
     });
     const [ucitavaSe, podesiUcitaveSe] = useState(false);
     const zaustaviPrviRender = useRef(false);
@@ -34,7 +34,7 @@ export default function VerifikacijaDialog({podesiPrikazDialoga}) {
         } else {
             podesiStatusVerifikacije({
                 verifikovan: false,
-                statusVerifikacije: false
+                statusVerifikacije: undefined
             })
         }
     }, [unetaMailAdresa])
@@ -67,32 +67,42 @@ export default function VerifikacijaDialog({podesiPrikazDialoga}) {
                         Proveravam verifikaciju...
                     </div>
                 ) : (
-                    statusVerifikacije.statusVerifikacije && (
-                        statusVerifikacije.verifikovan ? (
-                            <div className="flex justify-between"> 
-                                <div className="flex gap-2 items-center text-green-600">
-                                    <MdVerified className="text-green-500" size={30} />
-                                    Verifikacija važi do: {statusVerifikacije.statusVerifikacije}
+                    statusVerifikacije.statusVerifikacije !== undefined && (
+                        statusVerifikacije.statusVerifikacije ? (
+                            statusVerifikacije.verifikovan ? (
+                                <div className="flex justify-between"> 
+                                    <div className="flex gap-2 items-center text-green-600">
+                                        <MdVerified className="text-green-500" size={30} />
+                                        Verifikacija važi do: {statusVerifikacije.statusVerifikacije}
+                                    </div>
+                                    <button className="bg-green-500 rounded-lg p-1 text-white cursor-pointer hover:scale-110 transition-transform duration-200" onClick={()=>{produziVerifikaciju()}}>Produži verifikaciju</button>
                                 </div>
-                                <button className="bg-green-500 rounded-lg p-1 text-white cursor-pointer hover:scale-110 transition-transform duration-200" onClick={()=>{produziVerifikaciju()}}>Produži verifikaciju</button>
-                            </div>
-                        ) : ( statusVerifikacije.statusVerifikacije == "Korisnik se ne nalazi u bazi podataka" ? 
+                            ) : ( statusVerifikacije.statusVerifikacije == "Korisnik se ne nalazi u bazi podataka" ? 
+                                <div className="flex justify-between gap-2 items-center"> 
+                                    <div className="flex gap-2 items-center text-gray-600">
+                                        <MdVerified className="text-gray-500" size={30} />
+                                        {statusVerifikacije.statusVerifikacije}
+                                    </div>
+                                    <button className="bg-green-500 rounded-lg p-1 text-white cursor-pointer hover:scale-110 transition-transform duration-200" onClick={()=>{produziVerifikaciju()}}>Verifikuj se</button>
+                                </div>
+                                : 
+                                <div className="flex justify-between gap-2 items-center">
+                                    <div className="flex gap-2 items-center text-red-600">
+                                        <MdVerified className="text-red-500" size={30} />
+                                        Verifikacija je istekla: {statusVerifikacije.statusVerifikacije}
+                                    </div>
+                                    <button className="bg-green-500 rounded-lg p-1 text-white cursor-pointer hover:scale-110 transition-transform duration-200" onClick={()=>{produziVerifikaciju()}}>Produži verifikaciju</button>
+                                </div>
+                                
+                            )
+                        ) : (
                             <div className="flex justify-between gap-2 items-center"> 
                                 <div className="flex gap-2 items-center text-gray-600">
                                     <MdVerified className="text-gray-500" size={30} />
-                                    {statusVerifikacije.statusVerifikacije}
+                                    Korisnik nije verifikovan
                                 </div>
                                 <button className="bg-green-500 rounded-lg p-1 text-white cursor-pointer hover:scale-110 transition-transform duration-200" onClick={()=>{produziVerifikaciju()}}>Verifikuj se</button>
                             </div>
-                            : 
-                            <div className="flex justify-between gap-2 items-center">
-                                <div className="flex gap-2 items-center text-red-600">
-                                    <MdVerified className="text-red-500" size={30} />
-                                    Verifikacija je istekla: {statusVerifikacije.statusVerifikacije}
-                                </div>
-                                <button className="bg-green-500 rounded-lg p-1 text-white cursor-pointer hover:scale-110 transition-transform duration-200" onClick={()=>{produziVerifikaciju()}}>Produži verifikaciju</button>
-                            </div>
-                            
                         )
                     )
                 )}

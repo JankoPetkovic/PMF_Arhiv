@@ -16,7 +16,9 @@ export default function Navbar()
 
     return(
         <div className="bg-zinc-200 flex justify-between items-center">
-            <Logo/>
+            <div className="w-30 ml-5">
+                <Logo/>
+            </div>
             {/* <SearchBox value={query} onChange={setQuery} placeholder="Pretraži materijale..."  /> */}
 
 

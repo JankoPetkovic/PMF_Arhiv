@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Tip_materijala extends Model
+class TipMaterijala extends Model
 {
     /**
      * Tabela koja predstavalja model

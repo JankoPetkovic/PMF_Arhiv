@@ -39,7 +39,7 @@ class prijaviMaterijal extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'prijavaMaterijala',
+            view: 'prijaviMaterijala',
             with: [
                 'posiljaoc' => $this->posiljaoc,
                 'idMaterijala' => $this->idMaterijala,

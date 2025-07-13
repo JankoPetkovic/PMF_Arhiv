@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-class Nivo_studija extends Model
+class NivoStudija extends Model
 {
     /**
      * Tabela koja predstavalja model

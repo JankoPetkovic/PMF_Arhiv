@@ -23,11 +23,36 @@ class KontrolerKorisnika extends Controller
         }
     }
 
-    public function verifikujKorisnika(Request $zahtev){
+    public function posaljiVerifikaciju(Request $zahtev){
         $korisnickiMejl = $zahtev->input('mejl');
         $korisnik = Korisnik::where('email', $korisnickiMejl)->first();
-        $korisnik->verifikuj(); 
-
+        if($korisnik){
+            $korisnik->posaljiVerifikaciju(); 
+        } else {
+            $noviKorisnik = new Korisnik();
+            $noviKorisnik->email = $korisnickiMejl;
+            $noviKorisnik->save();
+            $noviKorisnik->posaljiVerifikaciju(); 
+        }
         return response()->noContent();
     }
+
+    public function obradiVerifikaciju($id){
+        if (!request()->hasValidSignature()) {
+            return redirect()->route('home')->with('error', 'Link nije validan ili je istekao.');
+        }
+
+        $korisnik = Korisnik::findOrFail($id);
+
+        $korisnik->obradiVerifikaciju();
+
+        $statusVerifikacije = $korisnik->statusVerifikacije();
+
+        if($statusVerifikacije['verifikovan']){
+            return redirect()->route('home')->with('success', "Korisnik uspesno verifikovan!");
+        } else {
+            return redirect()->route('home')->with('error', 'Greska pri verifikaciji');
+        }
+    }
+
 }

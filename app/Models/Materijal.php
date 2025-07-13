@@ -2,11 +2,12 @@
 
 namespace App\Models;
 use App\Models\Korisnik;
-use App\Models\podTipMaterijala;
+use App\Models\podtipMaterijala;
 use App\Models\Predmet;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class Materijal extends Model
 {
@@ -39,7 +40,7 @@ class Materijal extends Model
      */
     protected $fillable = ['naziv', 'predmet_id','podtip_materijala_id', 'skolska_godina', 'korisnik_id', 'datum_dodavanja', 'putanja_fajla'];
 
-    public function podTipMaterijala(){
+    public function podtipMaterijala(){
         return $this->belongsTo(PodTipMaterijala::class, 'podtip_materijala_id', 'podtip_materijala_id');
     }
 
@@ -51,36 +52,75 @@ class Materijal extends Model
         return $this->belongsTo(Korisnik::class, 'korisnik_id');
     }
 
-    /**
-     * Vraca sve materijale iz tabele Materijal
-     */
-    public static function getMaterijalPoPodTipu($predmet,$podtipoviMaterijala)
+    public static function filtriraj(array $filteri)
     {
-        $query = self::with(['korisnik', 'predmet'])
-        ->where('predmet_id', $predmet);
+        $upit = self::with([
+            'predmet.smer.departman',
+            'predmet.smer.nivoStudija',
+            'podtipMaterijala.tip',
+            'korisnik'
+        ]);
 
-        if (!empty($podtipoviMaterijala)) {
-        $query->whereIn('podtip_materijala_id', $podtipoviMaterijala);
+        if (!empty($filteri['podtip_materijala_id'])) {
+            $upit->where('podtip_materijala_id', $filteri['podtip_materijala_id']);
         }
 
-       $materijali = $query->get();
-        return $materijali->map(function ($m) {
-        return [
-            'materijal_id' => $m->materijal_id,
-            'naziv' => $m->naziv,
-            'tip_materijala' => $m->podTipMaterijala->naziv ?? null,
-            'email' => $m->korisnik->email ?? null,
-            'predmet_id' => $m->predmet->naziv,
-            'datumDodavanja' => $m->datum_dodavanja,
-            'skolskaGodina' => $m->skolska_godina,
-            'putanja'=>$m->putanja_fajla,
+        if (!empty($filteri['tip_materijala_id'])) {
+            $upit->whereHas('podtipMaterijala', function ($u) use ($filteri) {
+                $u->where('tip_materijala_id', $filteri['tip_materijala_id']);
+            });
+        }
+
+        if (!empty($filteri['predmet_id'])) {
+            $upit->where('predmet_id', $filteri['predmet_id']);
+        }
+
+        if (!empty($filteri['skolska_godina'])) {
+            if (!preg_match('/^\d{4}\/\d{4}$/', $filteri['skolska_godina'])) {
+                throw new \InvalidArgumentException("Format školske godine nije validan (očekivan: npr. 2023/2024).");
+            }
+            $upit->where('skolska_godina', $filteri['skolska_godina']);
+        }
+
+        if (!empty($filteri['pretraga'])) {
+            $upit->where('naziv', 'like', '%' . $filteri['pretraga'] . '%');
+        }
+
+        $kolonaSortiranja = $filteri['kolonaSortiranja'] ?? 'datum_dodavanja';
+        $pravacSortiranja = $filteri['pravacSortiranja'] ?? 'desc';
+        $poStranici = $filteri['poStranici'] ?? 10;
+
+        if (!in_array($kolonaSortiranja, ['naziv', 'datum_dodavanja']) || !in_array($pravacSortiranja, ['asc', 'desc'])) {
+            throw new \InvalidArgumentException("Nevalidan parametar za sortiranje.");
+        }
+
+        $rezultat = $upit->orderBy($kolonaSortiranja, $pravacSortiranja)->paginate($poStranici);
+
+        $rezultat->getCollection()->transform(function ($materijal) {
+            return [
+                'materijal_id' => $materijal->materijal_id,
+                'naziv' => $materijal->naziv,
+                'putanja_fajla' => $materijal->putanja_fajla,
+                'skolska_godina' => $materijal->skolska_godina,
+                'datum_dodavanja' => Carbon::parse($materijal->datum_dodavanja)->format('d.m.Y'),
+                'predmet' => $materijal->predmet->naziv ?? null,
+                'smer' => $materijal->predmet->smer ?? null,
+                'departman' => $materijal->predmet->smer->departman->naziv ?? null,
+                'nivo_studija' => $materijal->predmet->smer->nivoStudija->nivo_studija ?? null,
+                'tip' => $materijal->podtipMaterijala->tip->naziv ?? null,
+                'podtip' => $materijal->podtipMaterijala->naziv ?? null,
+                'korisnik' => $materijal->korisnik->email ?? null,
             ];
         });
+
+        return $rezultat;
     }
 
-    public static function kreirajMaterijal($fajl, $departman, $nivoStudija, $smer, $godina, $predmet, $tipMaterijala, $podTipMaterijala, $akademskaGodina, $korisnikId){
+
+
+    public static function kreirajMaterijal($fajl, $departman, $nivoStudija, $smer, $godina, $predmet, $tipMaterijala, $podtipMaterijala, $akademskaGodina, $korisnikId){
         $nazivFajla = $fajl->getClientOriginalName();
-        $putanja = "{$departman['naziv']}/{$nivoStudija['nivo_studija']}/{$smer['naziv_smera']}/{$godina['naziv']}/{$predmet['naziv']}/{$tipMaterijala['naziv']}/{$podTipMaterijala['naziv']}/{$akademskaGodina}";
+        $putanja = "{$departman['naziv']}/{$nivoStudija['nivo_studija']}/{$smer['naziv_smera']}/{$godina['naziv']}/{$predmet['naziv']}/{$tipMaterijala['naziv']}/{$podtipMaterijala['naziv']}/{$akademskaGodina}";
         $putanja = strtolower(preg_replace('/\s+/', '_', $putanja));
 
         if (!Storage::disk('public')->exists($putanja)) {
@@ -90,7 +130,7 @@ class Materijal extends Model
         $materijal = self::create([
             'naziv' => $nazivFajla,
             'predmet_id' => $predmet['predmet_id'],
-            'podtip_materijala_id' => $podTipMaterijala['podtip_materijala_id'],
+            'podtip_materijala_id' => $podtipMaterijala['podtip_materijala_id'],
             'skolska_godina' => $akademskaGodina,
             'korisnik_id' => $korisnikId,
             'putanja_fajla' => ''
@@ -104,6 +144,60 @@ class Materijal extends Model
         $materijal->save();
 
         return $putanjaFajla;
+    }
+
+    public static function sacuvajMaterijala($korisnickiMejl, $departman, $nivoStudija, $smer, $godina, $predmet, $tipMaterijala, $podtipMaterijala, $akademskaGodina, $fajl){
+        $korisnik = Korisnik::where('email', $korisnickiMejl)->first();
+
+         if (
+            $korisnik->datum_verifikacije && 
+            $korisnik->datum_verifikacije->gt(now()->subMonths(env('VERIFIKACIJA_TRAJANJE_MESECI', 1)))
+        ){
+            $putanjaKreiranogMaterijala = Materijal::kreirajMaterijal(
+                $fajl, $departman, $nivoStudija, $smer, $godina, $predmet, $tipMaterijala, $podtipMaterijala, $akademskaGodina, $korisnik->korisnik_id
+            );
+
+            return response()->json([
+                'message' => 'Fajl uspešno sačuvan.',
+                'putanja' => $putanjaKreiranogMaterijala,
+            ], 200);
+        } else if (!$korisnik) {
+            $korisnik = Korisnik::create([
+                'email' => $korisnickiMejl
+            ]);
+           $korisnik->verifikuj();
+
+           $putanjaFajla = $fajl->storeAs('temp', $fajl->getClientOriginalName());
+           Cache::put('materijal_cekaj_' . $korisnik->korisnik_id, [
+                'putanja_fajla' => $putanjaFajla,
+                'departman' => $departman,
+                'nivoStudija' => $nivoStudija,
+                'smer' => $smer,
+                'godina' => $godina,
+                'predmet' => $predmet,
+                'tipMaterijala' => $tipMaterijala,
+                'podtipMaterijala' => $podtipMaterijala,
+                'akademskaGodina' => $akademskaGodina,
+            ], now()->addMinutes(30));
+
+            return response()->json(['message' => 'Potvrdi mejl da bi se fajl objavio.'], 200);
+        } else {
+            $korisnik->verifikuj();
+            $putanjaFajla = $fajl->storeAs('temp', $fajl->getClientOriginalName());
+            Cache::put('materijal_cekaj_' . $korisnik->korisnik_id, [
+                'putanja_fajla' => $putanjaFajla,
+                'departman' => $departman,
+                'nivoStudija' => $nivoStudija,
+                'smer' => $smer,
+                'godina' => $godina,
+                'predmet' => $predmet,
+                'tipMaterijala' => $tipMaterijala,
+                'podtipMaterijala' => $podtipMaterijala,
+                'akademskaGodina' => $akademskaGodina,
+            ], now()->addMinutes(30));
+
+            return response()->json(['message' => 'Potvrdi mejl da bi se fajl objavio.'], 200);
+        }
     }
 
 

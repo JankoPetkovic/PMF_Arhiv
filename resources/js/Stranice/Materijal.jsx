@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import Checkbox from "../Komponente/Alati/Checkbox";
 import Navbar from "../Komponente/Alati/Navbar";
-import Radio from "../Komponente/Alati/Radio";
-import KarticePredmeta from '../Komponente/KarticePredmeta';
 import CustomSelect from '../Komponente/Alati/CustomSelect';
+import ServisMaterijala from '../PomocniAlati/Servisi/ServisMaterijala';
+import { generisiSkolskeGodine } from '../PomocniAlati/SkolskeGodine';
+import ServisPodtipovaMaterijala from '../PomocniAlati/Servisi/ServisPodtipovaMaterijala';
+import PrikazMaterijala from '../Komponente/PrikazMaterijala';
 
+export default function Materijal({predmeti, smer, tipoviMaterijala}) {
 
-export default function Materijal({predmeti, smer, tipovi_materijala})
-{
     const [dostupneGodine, podesiDostupneGodine] = useState('');
     const [dostupniPodTipoviMaterijala, podesiDostupnePodTipoveMaterijala] = useState('');
     
@@ -56,15 +56,12 @@ export default function Materijal({predmeti, smer, tipovi_materijala})
             podesiZakljucavanjePodMaterijala(true)
         }
         async function prezumiPodTipoveMaterijala(){
-            try{
-                const odgovor = await axios.post('/get-podTipovi',{
-                    tipMaterijala: izabraniTipoviMaterijala
-                }).then((odgovor)=>{
-                    podesiDostupnePodTipoveMaterijala(odgovor.data)
-                })
-            } catch(greska){
-                console.error('Greška prilikom slanja zahteva:', greska);
+            const filteri = {
+                tip_materijala_id: izabraniTipoviMaterijala.tip_materijala_id
             }
+
+            const dostupniPodTipoviMaterijala = await ServisPodtipovaMaterijala.vratiPodTipoveMaterijala(filteri);
+            podesiDostupnePodTipoveMaterijala(dostupniPodTipoviMaterijala)
         }
         prezumiPodTipoveMaterijala()
         podesiIzabranePodTipoveMaterijala('');
@@ -83,15 +80,12 @@ export default function Materijal({predmeti, smer, tipovi_materijala})
 
     useEffect(()=>{
         async function preuzmiMaterijale() {
-            try {
-                const odgovor = await axios.post('/materijali', {
-                    predmeti: izabraniPredmeti,
-                    podTipovi: izabraniPodTipoviMaterijala
-                });
-                podesiDostupneMaterijale(odgovor.data);                   
-            } catch (error) {
-                console.error('Greška prilikom slanja zahteva:', error);
-            }
+            let filteri = {
+                        predmeti: izabraniPredmeti,
+                        podTipovi: izabraniPodTipoviMaterijala
+                    }
+            const odgovor = await ServisMaterijala.vratiMaterijale(filteri)   
+            podesiDostupneMaterijale(odgovor.data);   
         }
         if(zaustaviPrviRenderMaterijal.current){
             zaustaviPrviRenderMaterijal.current = false
@@ -108,54 +102,52 @@ export default function Materijal({predmeti, smer, tipovi_materijala})
             <Navbar/>
             <div className='flex gap-6'>
                 <div className="flex flex-col gap-6 mt-5 ml-5 border rounded-sm p-4 w-68">
-                <p className='border-gray-300 border p-2 rounded-sm'>Izaberite Filtere:</p>
-                <div className="flex gap-2">
-                    <CustomSelect 
-                        klase={"w-60"}
-                        labela={"Izaberite godinu"}
-                        opcije={dostupneGodine}
-                        vrednost={izabranaGodina}
-                        podesiSelektovaneOpcije = {podesiIzabranuGodinu}
-                    />
-                </div>
-                <div className="flex gap-2">
-                    <CustomSelect
-                        klase={"w-60"}
-                        labela={"Izaberite tip materijala"}
-                        opcije={tipovi_materijala}
-                        vrednost={izabraniTipoviMaterijala}
-                        podesiSelektovaneOpcije={podesiIzabraneTipoveMaterijala}
-                        viseOpcija={false}
-                    />
-                </div>
-                <div className="flex gap-2">
-                    <CustomSelect
-                        klase={"w-60"}
-                        labela={"Izaberite podtip materijala"}
-                        opcije={dostupniPodTipoviMaterijala}
-                        vrednost={izabraniPodTipoviMaterijala}
-                        podesiSelektovaneOpcije={podesiIzabranePodTipoveMaterijala}
-                        zakljucana ={zakljucajPodTipoveMaterijala}
-                        tooltipTekst='Izaberite tip materijala'
+                    <p className='border-gray-300 border p-2 rounded-sm'>Izaberite Filtere:</p>
+                    <div className="flex gap-2">
+                        <CustomSelect 
+                            klase={"w-60"}
+                            labela={"Izaberite godinu"}
+                            opcije={dostupneGodine}
+                            vrednost={izabranaGodina}
+                            podesiSelektovaneOpcije = {podesiIzabranuGodinu}
                         />
+                    </div>
+                    <div className="flex gap-2">
+                        <CustomSelect
+                            klase={"w-60"}
+                            labela={"Izaberite tip materijala"}
+                            opcije={tipoviMaterijala}
+                            vrednost={izabraniTipoviMaterijala}
+                            podesiSelektovaneOpcije={podesiIzabraneTipoveMaterijala}
+                            viseOpcija={false}
+                        />
+                    </div>
+                    <div className="flex gap-2">
+                        <CustomSelect
+                            klase={"w-60"}
+                            labela={"Izaberite podtip materijala"}
+                            opcije={dostupniPodTipoviMaterijala}
+                            vrednost={izabraniPodTipoviMaterijala}
+                            podesiSelektovaneOpcije={podesiIzabranePodTipoveMaterijala}
+                            zakljucana ={zakljucajPodTipoveMaterijala}
+                            tooltipTekst='Izaberite tip materijala'
+                            />
+                    </div>
+                    <div className="flex gap-2">
+                        <CustomSelect
+                            klase={"w-60"}
+                            labela={"Izaberite predmet"}
+                            opcije={dostupniPredmeti}
+                            vrednost={izabraniPredmeti}
+                            podesiSelektovaneOpcije={podesiIzabranePredmete}
+                        />
+                    </div>
                 </div>
-                <div className="flex gap-2">
-                    <CustomSelect
-                        klase={"w-60"}
-                        labela={"Izaberite predmet"}
-                        opcije={dostupniPredmeti}
-                        vrednost={izabraniPredmeti}
-                        podesiSelektovaneOpcije={podesiIzabranePredmete}
-                    />
-                </div>
-            </div>
                 <div className='flex'>
                     <div className="p-4 w-full">
-                    {izabraniPredmeti &&  <KarticePredmeta
+                    {izabraniPredmeti &&  <PrikazMaterijala
                             key={izabraniPredmeti.predmet_id}
-                            predmet={izabraniPredmeti.naziv}
                             materijali={dostupniMaterijali}
-                            smer={smer}
                         />}
                     </div>
                 </div>

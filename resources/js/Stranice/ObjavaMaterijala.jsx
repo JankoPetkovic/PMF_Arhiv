@@ -3,16 +3,20 @@ import CustomSelect from "../Komponente/Alati/CustomSelect";
 import FajlUploader from "../Komponente/Alati/FajlUploader";
 import { prikaziToastNotifikaciju } from "../PomocniAlati/ToastNotifikacijaServis";
 import TipToastNotifikacije from "../PomocniAlati/TipToastNotifikacije";
-import ServisKorisnika from "../PomocniAlati/ServisKorisnika"
-import axios from "axios";
+import ServisKorisnika from "../PomocniAlati/Servisi/ServisKorisnika"
+import ServisMaterijala from "../PomocniAlati/Servisi/ServisMaterijala";
+import ServisSmerova from "../PomocniAlati/Servisi/ServisSmerova";
+import ServisPredmeta from "../PomocniAlati/Servisi/ServisPredmeta";
+import ServisPodtipovaMaterijala from "../PomocniAlati/Servisi/ServisPodtipovaMaterijala";
+import { koristiGlobalniKontekst } from "../Konteksti";
 import { useState, useEffect, useRef } from "react";
 import { Tooltip } from "@mui/material";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { IoCloudUpload } from "react-icons/io5";
-import { CiCircleInfo } from "react-icons/ci";
 import { MdVerified } from "react-icons/md"
 
 export default function ObjavaMaterijala({podesiPrikazDialoga}) {
+    const {podaci} = koristiGlobalniKontekst();
     const dostupneSkolskeGodine = generisiSkolskeGodine();
 
     const zaustaviPrviRender = useRef(false);
@@ -20,9 +24,9 @@ export default function ObjavaMaterijala({podesiPrikazDialoga}) {
     const zaustaviPrviRenderStatusaVerifikacije = useRef(false);
 
     const [dostupneInformacije, podesiDostupneInformacije] = useState({
-        dostupniDepartmani: '',
-        dostupniNivoiStudija: '',
-        dostupniTipoviMaterijala: '',
+        dostupniDepartmani: podaci.dostupniDepartmani,
+        dostupniNivoiStudija: podaci.dostupniNivoiStudija,
+        dostupniTipoviMaterijala: podaci.dostupniTipoviMaterijala,
         dostupniSmerovi: '',
         dostupniPredmeti: '',
         dostupneGodine: '',
@@ -37,7 +41,7 @@ export default function ObjavaMaterijala({podesiPrikazDialoga}) {
         izabranaGodina: '',
         izabraniTipMaterijala: '',
         izabraniPodTipMaterijala: '',
-        izabranaAkademskaGodina:
+        izabranaSkolskaGodina:
             dostupneSkolskeGodine[dostupneSkolskeGodine.length - 1],
         izabraniFajl: '',
     });
@@ -85,28 +89,17 @@ export default function ObjavaMaterijala({podesiPrikazDialoga}) {
 
 
     useEffect(() => {
-        const getPocetneInformacije = async () => {
-            const odgovor = await axios
-                .get("/objavi-materijal")
-                .then((odgovor) => {
-                    azurirajPoljeDostupneInformacije(
-                        "dostupniDepartmani",
-                        odgovor.data.dostupniDepartmani
-                    );
-                    azurirajPoljeDostupneInformacije(
-                        "dostupniNivoiStudija",
-                        odgovor.data.dostupniNivoiStudija
-                    );
-                    azurirajPoljeDostupneInformacije(
-                        "dostupniTipoviMaterijala",
-                        odgovor.data.dostupniTipoviMaterijala
-                    );
-                    azurirajZakljucavanjeSelecta('selectDepartmana', false)
-                    azurirajZakljucavanjeSelecta('selectNivoaStudija', false)
-                    azurirajZakljucavanjeSelecta('selectTipaMaterijala', false)
-                });
-        };
-        getPocetneInformacije();
+        if(dostupneInformacije.dostupniDepartmani){
+            azurirajZakljucavanjeSelecta('selectDepartmana', false)
+        }
+
+        if(dostupneInformacije.dostupniNivoiStudija){
+            azurirajZakljucavanjeSelecta('selectNivoaStudija', false)
+        }
+
+        if(dostupneInformacije.dostupniTipoviMaterijala){
+            azurirajZakljucavanjeSelecta('selectTipaMaterijala', false)
+        }
     }, []);
 
     useEffect(() => {
@@ -136,18 +129,19 @@ export default function ObjavaMaterijala({podesiPrikazDialoga}) {
             }
             azurirajZakljucavanjeSelecta('selectGodina', false)
 
-            const odgovor = axios
-                .post("/get-smerovi", {
-                    departman: izabraneInformacije.izabraniDepartman,
-                    nivoStudija: izabraneInformacije.izabraniNivoStudija,
-                })
-                .then((odgovor) => {
-                    azurirajPoljeDostupneInformacije(
-                        "dostupniSmerovi",
-                        odgovor.data
-                    );
-                    azurirajZakljucavanjeSelecta('selectSmera', false)
-                });
+            const uzmiDostupneSmerove = async () => {
+                let filteri = {
+                    departman_id: izabraneInformacije.izabraniDepartman.departman_id,
+                    nivo_studija_id: izabraneInformacije.izabraniNivoStudija.nivo_studija_id,
+                }
+                const dostupniSmerovi = await ServisSmerova.vratiSmerove(filteri);
+                azurirajPoljeDostupneInformacije(
+                    "dostupniSmerovi",
+                    dostupniSmerovi
+                );
+                azurirajZakljucavanjeSelecta('selectSmera', false)
+           }
+           uzmiDostupneSmerove();
         }
     }, [
         izabraneInformacije.izabraniDepartman,
@@ -155,6 +149,21 @@ export default function ObjavaMaterijala({podesiPrikazDialoga}) {
     ]);
 
     useEffect(() => {
+
+        const preuzimiPredmete = async () => {
+            const filteri = {
+                smer_id: izabraneInformacije.izabraniSmer.smer_id,
+                godina: izabraneInformacije.izabranaGodina.vrednost
+            }
+
+            const dostupniPredmeti = await ServisPredmeta.vratiPredmete(filteri);
+            
+            azurirajPoljeDostupneInformacije(
+                "dostupniPredmeti",
+                dostupniPredmeti
+            );
+            azurirajZakljucavanjeSelecta('selectPredmeta', false)
+        }
         if (!zaustaviPrviRender.current) {
             zaustaviPrviRender.current = true;
             return;
@@ -164,23 +173,12 @@ export default function ObjavaMaterijala({podesiPrikazDialoga}) {
 
         azurirajPoljeIzabraneInformacije('izabraniPredmet', '')
 
-        azurirajZakljucavanjeSelecta('selectPredmeta', true)
+        azurirajZakljucavanjeSelecta('selectPredmeta', true) 
         if (
             izabraneInformacije.izabraniSmer &&
             izabraneInformacije.izabranaGodina
         ) {
-            const odgovor = axios
-                .post("/get-predmeti", {
-                    smerID: izabraneInformacije.izabraniSmer,
-                    godina: izabraneInformacije.izabranaGodina,
-                })
-                .then((odgovor) => {
-                    azurirajPoljeDostupneInformacije(
-                        "dostupniPredmeti",
-                        odgovor.data
-                    );
-                    azurirajZakljucavanjeSelecta('selectPredmeta', false)
-                });
+            preuzimiPredmete()
         }
     }, [izabraneInformacije.izabraniSmer, izabraneInformacije.izabranaGodina]);
 
@@ -188,18 +186,20 @@ export default function ObjavaMaterijala({podesiPrikazDialoga}) {
         azurirajPoljeDostupneInformacije("dostupniPodTipoviMaterijala", '');
         azurirajPoljeIzabraneInformacije("izabraniPodTipMaterijala", '');
         azurirajZakljucavanjeSelecta('selectPodTipaMaterijala', true)
+
+        const vratiPodtipoveMaterijala = async () =>{
+            const filteri = {
+                tip_materijala_id: izabraneInformacije.izabraniTipMaterijala.tip_materijala_id
+            }
+            const dostupniPodTipoviMaterijala = await ServisPodtipovaMaterijala.vratiPodTipoveMaterijala(filteri);
+            azurirajPoljeDostupneInformacije(
+                "dostupniPodTipoviMaterijala",
+                dostupniPodTipoviMaterijala
+            );
+            azurirajZakljucavanjeSelecta('selectPodTipaMaterijala', false)
+        }
         if (izabraneInformacije.izabraniTipMaterijala) {
-            const odgovor = axios
-                .post("/get-podTipovi", {
-                    tipMaterijala: izabraneInformacije.izabraniTipMaterijala,
-                })
-                .then((odgovor) => {
-                    azurirajPoljeDostupneInformacije(
-                        "dostupniPodTipoviMaterijala",
-                        odgovor.data
-                    );
-                    azurirajZakljucavanjeSelecta('selectPodTipaMaterijala', false)
-                });
+            vratiPodtipoveMaterijala()
         }
     }, [izabraneInformacije.izabraniTipMaterijala]);
 
@@ -258,7 +258,7 @@ export default function ObjavaMaterijala({podesiPrikazDialoga}) {
         if (
             izabraneInformacije.izabraniPredmet &&
             izabraneInformacije.izabraniPodTipMaterijala &&
-            izabraneInformacije.izabranaAkademskaGodina &&
+            izabraneInformacije.izabranaSkolskaGodina &&
             izabraneInformacije.izabraniFajl
         ) {
             const podaciForme = new FormData();
@@ -268,18 +268,16 @@ export default function ObjavaMaterijala({podesiPrikazDialoga}) {
             podaciForme.append("godina", JSON.stringify(izabraneInformacije.izabranaGodina));
             podaciForme.append("predmet", JSON.stringify(izabraneInformacije.izabraniPredmet));
             podaciForme.append("tipMaterijala", JSON.stringify(izabraneInformacije.izabraniTipMaterijala));
-            podaciForme.append("podTipMaterijala", JSON.stringify(izabraneInformacije.izabraniPodTipMaterijala));
-            podaciForme.append("akademskaGodina", izabraneInformacije.izabranaAkademskaGodina.naziv);
+            podaciForme.append("podtipMaterijala", JSON.stringify(izabraneInformacije.izabraniPodTipMaterijala));
+            podaciForme.append("akademskaGodina", izabraneInformacije.izabranaSkolskaGodina.naziv);
             podaciForme.append("korisnickiMejl", unetaMailAdresa); 
             podaciForme.append("fajl", izabraneInformacije.izabraniFajl);
 
-            try{
-                axios.post("/kreiraj-materijal", podaciForme);
-            } catch (greska) {
-                prikaziToastNotifikaciju("Greska prilikom objavljivanja materijala", TipToastNotifikacije.Greska);
-            } finally {
+            const uspesnaObjava = ServisMaterijala.sacuvajMaterijal(podaciForme);
+                
+            if(uspesnaObjava) {
                 if(statusVerifikacije.verifikovan){
-                    prikaziToastNotifikaciju("Materijal je uspešno objavljen", TipToastNotifikacije.Info);
+                    prikaziToastNotifikaciju("Materijal je uspešno objavljen", TipToastNotifikacije.Uspesno);
                 } else {
                     prikaziToastNotifikaciju("Mejl za verifikaciju je poslat. Materijal će biti vidljiv nakon verifikacije.", TipToastNotifikacije.Info);
                 }
@@ -463,11 +461,11 @@ export default function ObjavaMaterijala({podesiPrikazDialoga}) {
                                 klase={"w-80"}
                                 opcije={dostupneSkolskeGodine}
                                 vrednost={
-                                    izabraneInformacije.izabranaAkademskaGodina
+                                    izabraneInformacije.izabranaSkolskaGodina
                                 }
                                 podesiSelektovaneOpcije={(vrednost) => {
                                     azurirajPoljeIzabraneInformacije(
-                                        "izabranaAkademskaGodina",
+                                        "izabranaSkolskaGodina",
                                         vrednost
                                     );
                                 }}

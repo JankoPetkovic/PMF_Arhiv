@@ -3,10 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Mail;
+
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Carbon;
+
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
+
+use App\Http\Controllers\HomeController;
+
 use App\Mail\Verifikacija;
 
 class Korisnik extends Model
@@ -82,9 +89,9 @@ class Korisnik extends Model
     }
 
 
-    public function verifikuj(){
+    public function posaljiVerifikaciju(){
         $link = URL::temporarySignedRoute(
-            'verifikuj.mejl',
+            'korisnik.verifikuj',
             Carbon::now()->addMinutes(10),
             ['id' => $this->korisnik_id]
         );
@@ -92,6 +99,34 @@ class Korisnik extends Model
             Mail::to($this->email)->send(new Verifikacija($this->email, $link));
         } catch (\Exception $e) {
             echo 'GRESKA pri slanju verifikacije: ' . $e->getMessage();
+        }
+    }
+
+    public function obradiVerifikaciju(){
+        $this->datum_verifikacije = Carbon::now();
+        $this->save();
+
+        $keširaniMaterijal = Cache::pull('materijal_cekaj_' . $this->korisnik_id);
+
+        if ($keširaniMaterijal) {
+            $fajl = new UploadedFile(
+                storage_path('app/public/' . $keširaniMaterijal['putanja_fajla']),
+                basename($keširaniMaterijal['putanja_fajla'])
+            );
+
+            $putanja = Materijal::kreirajMaterijal(
+                $fajl,
+                $keširaniMaterijal['departman'],
+                $keširaniMaterijal['nivoStudija'],
+                $keširaniMaterijal['smer'],
+                $keširaniMaterijal['godina'],
+                $keširaniMaterijal['predmet'],
+                $keširaniMaterijal['tipMaterijala'],
+                $keširaniMaterijal['podtipMaterijala'],
+                $keširaniMaterijal['akademskaGodina'],
+                $id
+            );
+            Storage::disk('public')->delete($keširaniMaterijal['putanja_fajla']);
         }
     }
 }

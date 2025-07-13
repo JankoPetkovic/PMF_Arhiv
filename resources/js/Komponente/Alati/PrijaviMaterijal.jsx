@@ -6,7 +6,7 @@ export default function PrijaviMaterijal({podesiPrijavu, materijalId}){
     const [opisPrijave, podesiopisPrijave] = useState('');
 
     const prijavi = () => {
-        axios.post('/prijavaMaterijala', {
+        axios.post('materijal.prijavi', {
             posiljaoc: posiljaoc,
             materijalId: materijalId,
             opisPrijave: opisPrijave
