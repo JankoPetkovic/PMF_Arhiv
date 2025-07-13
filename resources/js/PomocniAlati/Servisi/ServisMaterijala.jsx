@@ -9,8 +9,6 @@ export default class ServisMaterijala {
             const odgovor = await axios.get('/materijali', {
                 params:  filteri 
             });
-            console.log(odgovor.data.data == []);
-            
             if(odgovor.data.data.length === 0){
                 prikaziToastNotifikaciju('Trenutno nema materijala za ovaj predmet', TipToastNotifikacije.Info);
             }
