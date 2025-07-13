@@ -2,7 +2,7 @@
 
 namespace App\Models;
 use App\Models\Korisnik;
-use App\Models\podtipMaterijala;
+use App\Models\PodtipMaterijala;
 use App\Models\Predmet;
 
 use Illuminate\Database\Eloquent\Model;

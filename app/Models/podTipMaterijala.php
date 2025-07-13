@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class podtipMaterijala extends Model
+class PodtipMaterijala extends Model
 {
     protected $table = 'podtip_materijala';
     protected $primaryKey = 'podtip_materijala_id';
