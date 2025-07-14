@@ -14,6 +14,11 @@ import TipToastNotifikacije from'../PomocniAlati/TipToastNotifikacije';
 export default function KarticaMaterijala({materijal}){
 
     const [prijava, podesiPrijavu] = useState(false)
+    const [izabraniMaterijal, podesiIzabraniMaterijal] = useState(false);
+
+    const zatvoriPrijavu = () => {
+        podesiPrijavu(false)
+    }
 
     const preuzmiMaterijal = (putanjaFajla, nazivFajla) => {
         const link = document.createElement('a');
@@ -89,7 +94,7 @@ export default function KarticaMaterijala({materijal}){
                     size={25}
                     onClick={() => {
                     podesiPrijavu(true)
-                    selektujMaterijal(materijal.materijal_id)
+                    podesiIzabraniMaterijal(materijal.materijal_id)
                     }}
                     className="text-red-800 cursor-pointer hover:scale-110 transition-transform duration-200"
                 />
@@ -106,7 +111,7 @@ export default function KarticaMaterijala({materijal}){
             {prijava && (
                 <PrijaviMaterijal
                 podesiPrijavu={zatvoriPrijavu}
-                materijalId={selektovanMaterijal}
+                materijalId={izabraniMaterijal}
                 />
             )}
         </div>

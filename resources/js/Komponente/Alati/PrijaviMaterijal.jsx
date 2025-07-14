@@ -16,7 +16,6 @@ export default function PrijaviMaterijal({podesiPrijavu, materijalId}){
     return(
         <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-white/30">
             <div className="bg-white p-8 rounded-lg shadow-lg flex flex-col gap-2">
-                <h1>Zbog čega prijavljujete ovaj materijal?</h1>
                 <textarea 
                     className='border-1 rounded-xl p-1'
                     placeholder='Opiši problem sa ovim materijalom' 
@@ -24,14 +23,14 @@ export default function PrijaviMaterijal({podesiPrijavu, materijalId}){
                     name='opisPrijave' 
                     rows="4" cols="50"
                     onChange={(e) => podesiopisPrijave(e.target.value)}/>
-                <div>
-                    <label htmlFor="posiljaoc">Unesite Vašu PMF email adresu: </label>
+                <div className='flex items-center gap-2 self-end'>
+                    <label htmlFor="posiljaoc" className='items-center flex'>Vaša PMF email adresa: </label>
                     <input 
                         type="email" 
                         name="posiljaoc" 
                         id="posiljaoc" 
-                        placeholder='petar.petrovic@pmf.edu.rs' 
-                        className='border-1 rounded-xl p-1' 
+                        placeholder='ime.prezime@pmf.edu.rs' 
+                        className='border-1 rounded-xl p-2' 
                         onChange={(e) => podesiPosiljaoca(e.target.value)}/>
                 </div>
                 <div className="flex justify-between">
