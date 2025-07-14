@@ -61,7 +61,7 @@ export default function KarticaMaterijala({materijal}){
     return(
         <div className="border-2 shadow-[12px_12px_14px_-1px_rgba(0,_0,_0,_0.1)] rounded-xl p-4 w-[210px] h-[300px] flex flex-col gap-6">
             <div className="text-xs font-semibold mb-1">
-                <p>{skracenicaNivoaStudija(materijal.nivo_studija)} / {materijal.smer.naziv_smera} / {materijal.predmet}</p> 
+                <p>{skracenicaNivoaStudija(materijal.nivo_studija)} / {materijal.smer.naziv_smera} / {materijal.predmet} / {materijal.skolska_godina}</p> 
             </div>
 
             <div className="flex items-center justify-center">
