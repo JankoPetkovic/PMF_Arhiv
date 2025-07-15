@@ -7,6 +7,7 @@ import PrijaviMaterijal from "./Alati/PrijaviMaterijal";
 import { FaRegUserCircle } from "react-icons/fa";
 import { MdNavigateNext } from "react-icons/md";
 import { FaShareAlt } from "react-icons/fa";
+import { GrDocumentZip } from "react-icons/gr";
 import skracenicaNivoaStudija from '../PomocniAlati/skracenicaNivoaStudija';
 import {prikaziToastNotifikaciju} from'../PomocniAlati/ToastNotifikacijaServis';
 import TipToastNotifikacije from'../PomocniAlati/TipToastNotifikacije';
@@ -40,7 +41,8 @@ export default function KarticaMaterijala({materijal}){
     const fileIcons = {
         pdf: <FaRegFilePdf size={60} color="red" className="cursor-pointer w-14 h-14 object-contain" />,
         png: <img src={`/storage/${materijal.putanja_fajla}`} alt="PNG fajl" className="w-14 h-14 object-contain" />,
-        jpg: <img src={`/storage/${materijal.putanja_fajla}`} alt="JPG fajl" className="w-14 h-14 object-contain" />
+        jpg: <img src={`/storage/${materijal.putanja_fajla}`} alt="JPG fajl" className="w-14 h-14 object-contain" />,
+        zip: <GrDocumentZip size={60} color='red' className="cursor-pointer w-14 h-14 object-contain" />,
     };
 
     const obradiDeljenje = () => {
