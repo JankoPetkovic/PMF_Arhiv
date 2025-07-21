@@ -23,7 +23,7 @@ export default function Departmani({smerovi})
 
     
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:flex gap-4 border-2 rounded-xl p-4 shadow-[12px_12px_14px_-1px_rgba(0,_0,_0,_0.1)]">
+    <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:flex gap-4 rounded-xl p-4 shadow-[12px_12px_14px_-1px_rgba(0,_0,_0,_0.1)]">
       {smerovi.map(departman => (
         <div key={departman.departman_id} className="relative">
           <button 

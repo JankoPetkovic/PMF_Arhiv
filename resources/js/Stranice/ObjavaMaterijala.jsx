@@ -488,7 +488,7 @@ export default function ObjavaMaterijala({podesiPrikazDialoga}) {
                                 <input
                                     type="email"
                                     id="email"
-                                    value={unetaMailAdresa}
+                                    value={unetaMailAdresa} // ""
                                     onChange={(e) => {
                                         podesiUnetuMailAdresu(e.target.value);
                                     }}
@@ -531,7 +531,7 @@ export default function ObjavaMaterijala({podesiPrikazDialoga}) {
                         </div>
                     )}
                 </div>
-                <div className="flex justify-end">
+                <div className="flex justify-end mt-5">
                     {korak > 1 && (
                         <button
                             onClick={prosliKorak}

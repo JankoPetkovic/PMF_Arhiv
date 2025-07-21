@@ -24,18 +24,21 @@ export default function Home({ smerovi, flash, dostupniDepartmani, dostupniNivoi
   }, [])
 
   return (
-   <>
-    <Navbar/>
-    <div className="flex justify-center items-center mt-20">
-      <Departmani smerovi={smerovi}/>
-    </div>
+   <div className="relative min-h-screen">
+    <div className="absolute inset-0 bg-[url('/storage/images/pozadina.jpg')] bg-cover bg-center blur-sm opacity-60 z-0"></div>
 
-    <div className="w-screen max-w-[90vw] mx-auto h-[66.6667vh] my-10 flex flex-col">
-      {dostupniMaterijali.length !== 0 && (
-        <span className="font-semibold pl-4">Najnoviji materijali: </span>
-      )}
-      <PrikazMaterijala materijali={dostupniMaterijali}/>
+
+    <div className="relative z-10">
+      <Navbar />
+      <div className="flex justify-center items-center mt-20">
+        <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg z-20 max-w-5xl w-full">
+          <Departmani smerovi={smerovi} />
+        </div>
+      </div>
+
+      <PrikazMaterijala materijali={dostupniMaterijali} />
     </div>
-   </>
+  </div>
+
   );
 }

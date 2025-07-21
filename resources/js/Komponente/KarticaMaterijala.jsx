@@ -61,19 +61,26 @@ export default function KarticaMaterijala({materijal}){
     }
 
     return(
-        <div className="border-2 shadow-[12px_12px_14px_-1px_rgba(0,_0,_0,_0.1)] rounded-xl p-4 w-[210px] h-[300px] flex flex-col gap-6">
+        <div className="hover:scale-110 transition-transform duration-200 shadow-[12px_12px_14px_-1px_rgba(0,_0,_0,_0.1)] rounded-xl p-4 w-[210px] h-[300px] flex flex-col gap-6 bg-white/70 backdrop-blur-sm">
             <div className="text-xs font-semibold mb-1">
                 <p>{skracenicaNivoaStudija(materijal.nivo_studija)} / {materijal.smer.naziv_smera} / {materijal.predmet} / {materijal.skolska_godina}</p> 
             </div>
 
-            <div className="flex items-center justify-center">
-                <a href={`/storage/${materijal.putanja_fajla}`} target="_blank" rel="noopener noreferrer" className='items-center flex flex-col gap-4'>
+         <div className="flex items-center justify-center">
+                <a
+                    href={`/storage/${materijal.putanja_fajla}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex flex-col items-center gap-2 w-full text-center"
+                >
                     <Tooltip title="Otvori">
-                        {fileIcons[vratiTipFajla(materijal.naziv)] || <span>Unsupported</span>}
+                    {fileIcons[vratiTipFajla(materijal.naziv)] || <span>Unsupported</span>}
                     </Tooltip>
-                    <p className="text-center text-sm">{materijal.naziv}</p>
+                    
+                    <p className="text-sm break-all whitespace-normal leading-tight">
+                    {materijal.naziv}
+                    </p>
                 </a>
-                
             </div>
 
             <div className="flex justify-center items-center gap-4 mt-auto mb-2">

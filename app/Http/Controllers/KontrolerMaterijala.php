@@ -26,9 +26,11 @@ class KontrolerMaterijala extends Controller
     public function index(Request $zahtev){
         try {
             $validiraniPodaci = $zahtev->validate([
-                'podtip_materijala_id' => 'sometimes|integer|exists:podtip_materijala,podtip_materijala_id',
-                'tip_materijala_id'    => 'sometimes|integer|exists:tip_materijala,tip_materijala_id',
-                'predmet_id'           => 'sometimes|integer|exists:predmeti,predmeti_id',
+                'podtip_materijala_id' => 'sometimes',
+                'tip_materijala_id'    => 'sometimes',
+                'predmet_id'           => 'sometimes',
+                'smer_id'              => 'sometimes',
+                'godina'               => 'sometimes',
                 'skolska_godina'       => 'sometimes|string|max:20',
                 'pretraga'             => 'sometimes|string|max:255',
                 'kolonaSortiranja'     => 'sometimes|in:naziv,datum_dodavanja',
@@ -50,12 +52,6 @@ class KontrolerMaterijala extends Controller
             return response()->json([
                 'error' => 'Neki entitet nije pronađen u bazi.',
             ], 404);
-
-        } catch (\Illuminate\Database\QueryException $qe) {
-            return response()->json([
-                'error' => 'Greška u bazi podataka.',
-                'detalji' => $qe->getMessage(),
-            ], 500);
 
         } catch (\Throwable $e) {
             return response()->json([

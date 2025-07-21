@@ -1,19 +1,19 @@
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
-import { useEffect } from 'react';
 import KarticaMaterijala from './KarticaMaterijala';
 
 export default function PrikazMaterijala({predmeti = false, materijali}){
     return(
-        <div className="flex flex-wrap gap-4 p-4 h-[80vh] overflow-auto justify-center lg:justify-start">
-            {Array.isArray(materijali) && materijali.length !== 0 && (
-                materijali.map((m) => (
-                <KarticaMaterijala
-                    materijal={m}
-                    key={m.materijal_id}
-                />
-                ))
-            )}
+        <div className='flex flex-col gap-4 w-screen max-w-[90vw] mx-auto h-[66.6667vh] mb-10 rounded-xl shadow-[12px_12px_14px_-1px_rgba(0,_0,_0,_0.1)] p-4'>
+            {!predmeti && <div className="font-semibold p-2 rounded-lg bg-white/70 backdrop-blur-sm w-[20vh]">Najnoviji materijali: </div>}
+            <div className="flex flex-wrap gap-4 p-4 h-[80vh] overflow-auto justify-center lg:justify-start">
+                {Array.isArray(materijali) && materijali.length !== 0 && (
+                    materijali.map((m) => (
+                    <KarticaMaterijala
+                        materijal={m}
+                        key={m.materijal_id}
+                    />
+                    ))
+                )}
+            </div>
         </div>
     )
 }

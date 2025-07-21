@@ -1,25 +1,49 @@
-import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
+import { useState, useEffect, useRef } from 'react';
 import Navbar from "../Komponente/Alati/Navbar";
 import CustomSelect from '../Komponente/Alati/CustomSelect';
 import ServisMaterijala from '../PomocniAlati/Servisi/ServisMaterijala';
 import { generisiSkolskeGodine } from '../PomocniAlati/SkolskeGodine';
 import ServisPodtipovaMaterijala from '../PomocniAlati/Servisi/ServisPodtipovaMaterijala';
 import PrikazMaterijala from '../Komponente/PrikazMaterijala';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import Drawer from '@mui/material/Drawer';
+import { IoMdOptions } from "react-icons/io";
+import { Tooltip } from '@mui/material';
+import TablePagination from '@mui/material/TablePagination';
 
 export default function Materijal({predmeti, smer, tipoviMaterijala}) {
 
-    const [dostupneGodine, podesiDostupneGodine] = useState('');
-    const [dostupniPodTipoviMaterijala, podesiDostupnePodTipoveMaterijala] = useState('');
+    const dostupneSkolskeGodine = generisiSkolskeGodine();
+
+    const[filteri, podesiFIltere] = useState(false)
     
-    const [dostupniMaterijali, podesiDostupneMaterijale] = useState([]);
+    const [izabraneInformacije, podesiIzabraneInformacije] = useState({
+        izabranPredmet: 0,
+        izabranaGodina: {naziv: "1.godina", vrednost: 1},
+        izabraniTipMaterijala: '',
+        izabraniPodTipMaterijala: '',
+        izabranaSkolskaGodina: dostupneSkolskeGodine[dostupneSkolskeGodine.length-1],
+        izabranaOpcijaSortiranja: {naziv: 'Datum opadajuće', vrednost: 'Datum opadajuće', kolonaSortiranja:'datum_dodavanja', pravacSortiranja:'desc'},
+        izabranaStranica: 0,
+        izabranBrMaterijalaPoStranici: 10,
+    })
 
-    const [izabranaGodina, podesiIzabranuGodinu] = useState({naziv: "1.godina", vrednost: 1});
-    const [dostupniPredmeti, podesiDostupnePredmete] = useState(predmeti.filter(objekat => objekat.godina === izabranaGodina.vrednost))
-
-    const [izabraniPredmeti, podesiIzabranePredmete] = useState('');
-    const [izabraniTipoviMaterijala, podesiIzabraneTipoveMaterijala] = useState('');
-    const [izabraniPodTipoviMaterijala, podesiIzabranePodTipoveMaterijala] = useState('');
+    const [dostupneInformacije, podesiDostupneInformacije] = useState({
+        dostupniPredmeti: predmeti.filter(objekat => objekat.godina === izabraneInformacije.izabranaGodina.vrednost),
+        dostupanSmer: smer,
+        dostupniTipoviMaterijala: tipoviMaterijala,
+        dostupniPodTipoviMaterijala: '',
+        dostupniMaterijali: '',
+        dostupneGodine: '',
+        dostupneSkolskeGodine: dostupneSkolskeGodine,
+        dostupneOpcijeSortiranja: [
+            {naziv: 'Datum rastuće', vrednost: 1, kolonaSortiranja:'datum_dodavanja', pravacSortiranja:'asc'}, 
+            {naziv: 'Datum opadajuće', vrednost: 2, kolonaSortiranja:'datum_dodavanja', pravacSortiranja:'desc'}, 
+            {naziv: 'Naziv rastuće', vrednost: 3, kolonaSortiranja:'naziv', pravacSortiranja:'asc'}, 
+            {naziv: 'Naziv opadajuće', vrednost: 4, kolonaSortiranja:'naziv', pravacSortiranja:'desc'}],
+        brDostupnihMaterijala: 10,
+    })
 
     const [zakljucajPodTipoveMaterijala, podesiZakljucavanjePodMaterijala] = useState(true)
 
@@ -27,14 +51,32 @@ export default function Materijal({predmeti, smer, tipoviMaterijala}) {
     const zaustaviPrviRenderPodTipovi = useRef(true);
     const zaustaviPrviRenderMaterijal = useRef(true);
 
+    const azurirajPolje = (setter, nazivPolja, vrednost) => {
+        setter((prosli) => ({
+            ...prosli,
+            [nazivPolja]: vrednost,
+        }));
+    };
+
+    const azurirajPoljeDostupneInformacije = (polje, vrednost) =>
+        azurirajPolje(podesiDostupneInformacije, polje, vrednost);
+
+    const azurirajPoljeIzabraneInformacije = (polje, vrednost) =>
+        azurirajPolje(podesiIzabraneInformacije, polje, vrednost);
+
+    const obradiPromenuBrMaterijalaPoStranici = (dogadjaj) => {
+        azurirajPoljeIzabraneInformacije("izabranBrMaterijalaPoStranici", parseInt(dogadjaj.target.value, 10));
+        azurirajPoljeIzabraneInformacije("izabranaStranica", 0);
+    }
+
     useEffect(()=>{
         if(smer.nivo_studija_id === 2){
-            podesiDostupneGodine([
+            azurirajPoljeDostupneInformacije("dostupneGodine",[
                 {naziv: "1.godina", vrednost: 1},
                 {naziv: "2.godina", vrednost: 2}
             ])
         }else{
-           podesiDostupneGodine([
+           azurirajPoljeDostupneInformacije("dostupneGodine",[
                 {naziv: "1.godina", vrednost: 1},
                 {naziv: "2.godina", vrednost: 2},
                 {naziv: "3.godina", vrednost: 3}
@@ -43,114 +85,225 @@ export default function Materijal({predmeti, smer, tipoviMaterijala}) {
     }, [])
 
     useEffect(()=>{
-        podesiIzabranePredmete('');
-        podesiDostupnePredmete(predmeti.filter(objekat => objekat.godina === izabranaGodina.vrednost))
-    }, [izabranaGodina])
+        azurirajPoljeIzabraneInformacije('izabranPredmet', 0);
+        azurirajPoljeDostupneInformacije('dostupniPredmeti',predmeti.filter(objekat => objekat.godina === izabraneInformacije.izabranaGodina.vrednost))
+    }, [izabraneInformacije.izabranaGodina])
 
     useEffect(()=>{
         if(zaustaviPrviRenderTipovi.current){
             zaustaviPrviRenderTipovi.current = false
             return
         }
-        if(!izabraniPodTipoviMaterijala){
+        if(!izabraneInformacije.izabraniPodTipMaterijala){
             podesiZakljucavanjePodMaterijala(true)
         }
         async function prezumiPodTipoveMaterijala(){
             const filteri = {
-                tip_materijala_id: izabraniTipoviMaterijala.tip_materijala_id
+                tip_materijala_id: izabraneInformacije.izabraniTipMaterijala.tip_materijala_id
             }
 
             const dostupniPodTipoviMaterijala = await ServisPodtipovaMaterijala.vratiPodTipoveMaterijala(filteri);
-            podesiDostupnePodTipoveMaterijala(dostupniPodTipoviMaterijala)
+            azurirajPoljeDostupneInformacije('dostupniPodTipoviMaterijala', dostupniPodTipoviMaterijala)
         }
         prezumiPodTipoveMaterijala()
-        podesiIzabranePodTipoveMaterijala('');
-    }, [izabraniTipoviMaterijala])
+        azurirajPoljeIzabraneInformacije('izabraniPodTipMaterijala', '')
+    }, [izabraneInformacije.izabraniTipMaterijala])
 
     useEffect(()=>{
         if(zaustaviPrviRenderPodTipovi.current){
             zaustaviPrviRenderPodTipovi.current = false
             return
         }
-        if(dostupniPodTipoviMaterijala && dostupniPodTipoviMaterijala.length > 0){
+        if(dostupneInformacije.dostupniPodTipoviMaterijala && dostupneInformacije.dostupniPodTipoviMaterijala.length > 0){
             podesiZakljucavanjePodMaterijala(false)
         }
-    }, [dostupniPodTipoviMaterijala])
-
+    }, [dostupneInformacije.dostupniPodTipoviMaterijala])
 
     useEffect(()=>{
         async function preuzmiMaterijale() {
-            let filteri = {
-                        predmeti: izabraniPredmeti,
-                        podTipovi: izabraniPodTipoviMaterijala
+            const url = window.location.pathname.split('/')
+                let filteri = {
+                        predmet_id: izabraneInformacije.izabranPredmet,
+                        podtip_materijala_id: izabraneInformacije.izabraniPodTipMaterijala,
+                        smer_id: url[url.length-1],
+                        godina: izabraneInformacije.izabranaGodina.vrednost,
+                        tip_materijala_id: izabraneInformacije.izabraniTipMaterijala.tip_materijala_id,
+                        skolska_godina: izabraneInformacije.izabranaSkolskaGodina.naziv,
+                        kolonaSortiranja: izabraneInformacije.izabranaOpcijaSortiranja.kolonaSortiranja,
+                        pravacSortiranja: izabraneInformacije.izabranaOpcijaSortiranja.pravacSortiranja,
+                        stranica: izabraneInformacije.izabranaStranica
                     }
             const odgovor = await ServisMaterijala.vratiMaterijale(filteri)   
-            podesiDostupneMaterijale(odgovor.data);   
+            azurirajPoljeDostupneInformacije('dostupniMaterijali', odgovor.data)
+            azurirajPoljeDostupneInformacije('brDostupnihMaterijala', odgovor.total)
         }
         if(zaustaviPrviRenderMaterijal.current){
             zaustaviPrviRenderMaterijal.current = false
             return
         }
-        
-        if(izabraniPredmeti && izabraniPodTipoviMaterijala){
-            preuzmiMaterijale();
-        }
-    }, [izabraniPredmeti, izabraniPodTipoviMaterijala])
+        azurirajPoljeDostupneInformacije('dostupniMaterijali', '')
+
+        preuzmiMaterijale();
+    }, [izabraneInformacije])
 
     return(
         <div>
-            <Navbar/>
-            <div className='flex gap-6'>
-                <div className="flex flex-col gap-6 mt-5 ml-5 border rounded-sm p-4 w-68">
-                    <p className='border-gray-300 border p-2 rounded-sm'>Izaberite Filtere:</p>
-                    <div className="flex gap-2">
-                        <CustomSelect 
-                            klase={"w-60"}
-                            labela={"Izaberite godinu"}
-                            opcije={dostupneGodine}
-                            vrednost={izabranaGodina}
-                            podesiSelektovaneOpcije = {podesiIzabranuGodinu}
-                        />
+            <div className="absolute inset-0 bg-cover bg-center blur-sm opacity-60 z-0" style={{
+                    backgroundImage: `url('/storage/images/${smer.departman.toLowerCase().replace(/\s+/g, '_')}.jpg')`,
+                }}
+                ></div>
+            <div  className="relative z-10">
+                <Navbar/>
+                <div className='flex-col flex ml-5 mt-10 gap-6'>
+                    <h1 className='font-bold text-xl'>    
+                        {smer.naziv_smera}
+                    </h1>
+                    <div className="w-[90vw] flex items-center gap-2 overflow-hidden">
+                        <div className="flex-1 min-w-0 ">
+                            <Tabs
+                                value={izabraneInformacije.izabranPredmet}
+                                onChange={(dogadjaj, predmet) =>
+                                    azurirajPoljeIzabraneInformacije('izabranPredmet', predmet)
+                                }
+                                textColor="secondary"
+                                indicatorColor="secondary"
+                                variant="scrollable"
+                                scrollButtons="auto"
+                                allowScrollButtonsMobile
+                                sx={{
+                                    minHeight: 5,
+                                    '& .MuiTabs-scroller': {
+                                    paddingLeft: '12px',
+                                    },
+                                    '& .MuiTabs-indicator': {
+                                    backgroundColor: '#ff0000',
+                                    height: '2px',
+                                    },
+                                }}
+                            >
+                            <Tab
+                                label="Svi predmeti"
+                                value={0}
+                                sx={{
+                                color: 'black',
+                                '&.Mui-selected': {
+                                    color: '#ff0000',
+                                },
+                                minHeight: 5,
+                                paddingTop: '4px',
+                                paddingBottom: '4px',
+                                fontSize: '0.7rem',
+                                whiteSpace: 'nowrap',
+                                transition: 'transform 0.3s ease-in-out',
+                                    '&:hover': {
+                                    transform: 'scale(1.1)',},
+                                }}
+                            />
+                            {dostupneInformacije.dostupniPredmeti.map((p) => (
+                                <Tab
+                                key={p.predmet_id}
+                                value={p.predmet_id}
+                                label={p.naziv}
+                                sx={{
+                                    color: 'black',
+                                    '&.Mui-selected': {
+                                    color: '#ff0000',
+                                    },
+                                    minHeight: 5,
+                                    paddingTop: '4px',
+                                    paddingBottom: '4px',
+                                    fontSize: '0.7rem',
+                                    whiteSpace: 'nowrap',
+                                    transition: 'transform 0.3s ease-in-out',
+                                        '&:hover': {
+                                    transform: 'scale(1.1)',},
+                                }}
+                                />
+                            ))}
+                            </Tabs>
+                        </div>
+                        <div className="flex-shrink-0 pl-1 hover:scale-105 transition-transform duration-200 ">
+                            <Tooltip title={'Filteri i sortiranje'}>
+                                <IoMdOptions size={24} onClick={()=>{podesiFIltere(true)}} />
+                            </Tooltip>
+                        </div>
                     </div>
-                    <div className="flex gap-2">
+                    <div className='flex'>
+                        <div className="p-4 w-full">
+                            <PrikazMaterijala
+                                key={izabraneInformacije.izabranPredmet.predmet_id}
+                                materijali={dostupneInformacije.dostupniMaterijali}
+                                predmeti = {true}
+                            />
+                            <TablePagination
+                                component="div"
+                                count={dostupneInformacije.brDostupnihMaterijala}
+                                page={izabraneInformacije.izabranaStranica}
+                                onPageChange={(dogadjaj, novaStranica)=>{
+                                    azurirajPoljeIzabraneInformacije('izabranaStranica', novaStranica)
+                                }}
+                                rowsPerPage={izabraneInformacije.izabranBrMaterijalaPoStranici}
+                                onRowsPerPageChange={obradiPromenuBrMaterijalaPoStranici}
+                            />
+                        </div>
+                    </div>
+                </div>
+                <Drawer open={filteri} onClose={()=>{podesiFIltere(false)}} anchor='right'>
+                    <div className="flex flex-col gap-6 m-5 rounded-sm p-4 w-68">
+                        Sortiranje:
+                        <div className='flex gap-6 items-center'>
+                            <CustomSelect
+                                klase={"w-64"}
+                                labela={"Izaberite kolonu za sortiranje"}
+                                opcije={dostupneInformacije.dostupneOpcijeSortiranja}
+                                vrednost={izabraneInformacije.izabranaOpcijaSortiranja}
+                                podesiSelektovaneOpcije = {(vrednost)=>{
+                                    azurirajPoljeIzabraneInformacije("izabranaOpcijaSortiranja", vrednost)
+                                }}
+                            />
+                        </div>
+                        Filteri:
                         <CustomSelect
-                            klase={"w-60"}
+                            klase={"w-64"}
+                            labela={"Izaberite školsku godinu"}
+                            opcije={dostupneInformacije.dostupneSkolskeGodine}
+                            vrednost={izabraneInformacije.izabranaSkolskaGodina}
+                            podesiSelektovaneOpcije = {(vrednost)=>{
+                                azurirajPoljeIzabraneInformacije("izabranaSkolskaGodina", vrednost)
+                            }}
+                        />
+                        <CustomSelect 
+                            klase={"w-64"}
+                            labela={"Izaberite godinu"}
+                            opcije={dostupneInformacije.dostupneGodine}
+                            vrednost={izabraneInformacije.izabranaGodina}
+                            podesiSelektovaneOpcije = {(vrednost)=>{
+                                azurirajPoljeIzabraneInformacije("izabranaGodina", vrednost)
+                            }}
+                        />
+                        <CustomSelect
+                            klase={"w-64"}
                             labela={"Izaberite tip materijala"}
-                            opcije={tipoviMaterijala}
-                            vrednost={izabraniTipoviMaterijala}
-                            podesiSelektovaneOpcije={podesiIzabraneTipoveMaterijala}
+                            opcije={dostupneInformacije.dostupniTipoviMaterijala}
+                            vrednost={izabraneInformacije.izabraniTipMaterijala}
+                            podesiSelektovaneOpcije = {(vrednost)=>{
+                                azurirajPoljeIzabraneInformacije("izabraniTipMaterijala", vrednost)
+                            }}
                             viseOpcija={false}
                         />
-                    </div>
-                    <div className="flex gap-2">
                         <CustomSelect
-                            klase={"w-60"}
+                            klase={"w-64"}
                             labela={"Izaberite podtip materijala"}
-                            opcije={dostupniPodTipoviMaterijala}
-                            vrednost={izabraniPodTipoviMaterijala}
-                            podesiSelektovaneOpcije={podesiIzabranePodTipoveMaterijala}
+                            opcije={dostupneInformacije.dostupniPodTipoviMaterijala}
+                            vrednost={izabraneInformacije.izabraniPodTipMaterijala}
+                            podesiSelektovaneOpcije = {(vrednost)=>{
+                                azurirajPoljeIzabraneInformacije("izabraniPodTipMaterijala", vrednost)
+                            }}
                             zakljucana ={zakljucajPodTipoveMaterijala}
-                            tooltipTekst='Izaberite tip materijala'
-                            />
-                    </div>
-                    <div className="flex gap-2">
-                        <CustomSelect
-                            klase={"w-60"}
-                            labela={"Izaberite predmet"}
-                            opcije={dostupniPredmeti}
-                            vrednost={izabraniPredmeti}
-                            podesiSelektovaneOpcije={podesiIzabranePredmete}
+                            tooltipTekst='Izaberite podtip materijala'
                         />
                     </div>
-                </div>
-                <div className='flex'>
-                    <div className="p-4 w-full">
-                    {izabraniPredmeti &&  <PrikazMaterijala
-                            key={izabraniPredmeti.predmet_id}
-                            materijali={dostupniMaterijali}
-                        />}
-                    </div>
-                </div>
+                </Drawer>
             </div>
         </div>
     )

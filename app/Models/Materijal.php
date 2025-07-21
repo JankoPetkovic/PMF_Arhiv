@@ -61,25 +61,38 @@ class Materijal extends Model
             'korisnik'
         ]);
 
+        if (!empty($filteri['smer_id'])) {
+            $upit->whereHas('predmet', function ($podupit) use ($filteri) {
+                $podupit->where('smer_id', $filteri['smer_id']);
+            });
+        }
+
+        if (!empty($filteri['godina'])) {
+            $upit->whereHas('predmet', function ($podupit) use ($filteri) {
+                $podupit->where('godina', $filteri['godina']);
+            });
+        }
+
         if (!empty($filteri['podtip_materijala_id'])) {
             $upit->where('podtip_materijala_id', $filteri['podtip_materijala_id']);
         }
 
         if (!empty($filteri['tip_materijala_id'])) {
-            $upit->whereHas('podtipMaterijala', function ($u) use ($filteri) {
-                $u->where('tip_materijala_id', $filteri['tip_materijala_id']);
+            $upit->whereHas('podtipMaterijala', function ($podupit) use ($filteri) {
+                $podupit->where('tip_materijala_id', $filteri['tip_materijala_id']);
             });
         }
 
-        if (!empty($filteri['predmet_id'])) {
+        if (!empty($filteri['predmet_id']) && $filteri['predmet_id'] != 0) {
             $upit->where('predmet_id', $filteri['predmet_id']);
         }
 
         if (!empty($filteri['skolska_godina'])) {
-            if (!preg_match('/^\d{4}\/\d{4}$/', $filteri['skolska_godina'])) {
+            if (!preg_match('/^\d{4}\/\d{2}$/', $filteri['skolska_godina'])) {
                 throw new \InvalidArgumentException("Format školske godine nije validan (očekivan: npr. 2023/2024).");
             }
-            $upit->where('skolska_godina', $filteri['skolska_godina']);
+            $skolskaGodina = str_replace('/', '-', $filteri['skolska_godina']);
+            $upit->where('skolska_godina', $skolskaGodina);
         }
 
         if (!empty($filteri['pretraga'])) {

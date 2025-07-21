@@ -11,6 +11,7 @@ export default class ServisMaterijala {
             });
             if(odgovor.data.data.length === 0){
                 prikaziToastNotifikaciju('Trenutno nema materijala za ovaj predmet', TipToastNotifikacije.Info);
+                return false
             }
             else{
                 return odgovor.data;    
