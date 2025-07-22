@@ -11,6 +11,7 @@ import { GrDocumentZip } from "react-icons/gr";
 import skracenicaNivoaStudija from '../PomocniAlati/skracenicaNivoaStudija';
 import {prikaziToastNotifikaciju} from'../PomocniAlati/ToastNotifikacijaServis';
 import TipToastNotifikacije from'../PomocniAlati/TipToastNotifikacije';
+import Dialog from "../Komponente/Dialog"
 
 export default function KarticaMaterijala({materijal}){
 
@@ -116,13 +117,13 @@ export default function KarticaMaterijala({materijal}){
                 </Tooltip>
                 <span>{materijal.datum_dodavanja}</span>
             </div>
-
-            {prijava && (
-                <PrijaviMaterijal
-                podesiPrijavu={zatvoriPrijavu}
-                materijalId={izabraniMaterijal}
-                />
-            )}
+            <Dialog
+                naslov={"Prijava materijala"}
+                sadrzaj={<PrijaviMaterijal podesiPrijavu={zatvoriPrijavu} materijalId={izabraniMaterijal}/>}
+                prikaziDialog={prijava}
+                podesiPrikaziDialog={podesiPrijavu}
+            />
+            
         </div>
     )
 }

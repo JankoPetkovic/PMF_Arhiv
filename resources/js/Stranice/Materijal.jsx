@@ -122,17 +122,17 @@ export default function Materijal({predmeti, smer, tipoviMaterijala}) {
     useEffect(()=>{
         async function preuzmiMaterijale() {
             const url = window.location.pathname.split('/')
-                let filteri = {
-                        predmet_id: izabraneInformacije.izabranPredmet,
-                        podtip_materijala_id: izabraneInformacije.izabraniPodTipMaterijala,
-                        smer_id: url[url.length-1],
-                        godina: izabraneInformacije.izabranaGodina.vrednost,
-                        tip_materijala_id: izabraneInformacije.izabraniTipMaterijala.tip_materijala_id,
-                        skolska_godina: izabraneInformacije.izabranaSkolskaGodina.naziv,
-                        kolonaSortiranja: izabraneInformacije.izabranaOpcijaSortiranja.kolonaSortiranja,
-                        pravacSortiranja: izabraneInformacije.izabranaOpcijaSortiranja.pravacSortiranja,
-                        stranica: izabraneInformacije.izabranaStranica
-                    }
+            let filteri = {
+                predmet_id: izabraneInformacije.izabranPredmet,
+                podtip_materijala_id: izabraneInformacije.izabraniPodTipMaterijala,
+                smer_id: url[url.length-1],
+                godina: izabraneInformacije.izabranaGodina.vrednost,
+                tip_materijala_id: izabraneInformacije.izabraniTipMaterijala.tip_materijala_id,
+                skolska_godina: izabraneInformacije.izabranaSkolskaGodina.naziv,
+                kolonaSortiranja: izabraneInformacije.izabranaOpcijaSortiranja.kolonaSortiranja,
+                pravacSortiranja: izabraneInformacije.izabranaOpcijaSortiranja.pravacSortiranja,
+                stranica: izabraneInformacije.izabranaStranica
+            }
             const odgovor = await ServisMaterijala.vratiMaterijale(filteri)   
             azurirajPoljeDostupneInformacije('dostupniMaterijali', odgovor.data)
             azurirajPoljeDostupneInformacije('brDostupnihMaterijala', odgovor.total)

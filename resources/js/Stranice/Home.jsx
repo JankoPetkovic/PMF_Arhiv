@@ -27,7 +27,7 @@ export default function Home({ smerovi, flash, dostupniDepartmani, dostupniNivoi
    <div className="relative min-h-screen">
     <div className="absolute inset-0 bg-[url('/storage/images/pozadina.jpg')] bg-cover bg-center blur-sm opacity-60 z-0"></div>
 
-
+    
     <div className="relative z-10">
       <Navbar />
       <div className="flex justify-center items-center mt-20">
