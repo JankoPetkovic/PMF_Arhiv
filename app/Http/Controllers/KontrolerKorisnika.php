@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use App\Models\Korisnik;
+use App\Mail\PrijaviProblem;
 
 class KontrolerKorisnika extends Controller
 {
@@ -53,6 +55,15 @@ class KontrolerKorisnika extends Controller
         } else {
             return redirect()->route('home')->with('error', 'Greska pri verifikaciji');
         }
+    }
+
+    public function prijaviProblem(Request $zahtev){
+        $posiljaoc = $zahtev->input('posiljaoc');
+        $opisPrijave = $zahtev->input('opisPrijave');
+
+        Mail::to('jankopetkovic@pmf-arhiv.com')->send(new PrijaviProblem($posiljaoc, $opisPrijave));
+
+        return response()->json(['message' => 'Email sent successfully!']);
     }
 
 }

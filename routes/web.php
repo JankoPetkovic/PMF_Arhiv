@@ -27,6 +27,7 @@ Route::get('/', [KontrolerPocetneStranice::class, 'index'])->name('home');
 Route::get('/status-verifikacije', [KontrolerKorisnika::class, 'statusVerifikacije']);
 Route::post('/posalji-verifikaciju', [KontrolerKorisnika::class, 'posaljiVerifikaciju']);
 Route::get('/verifikuj-mejl/{id}',[KontrolerKorisnika::class, 'obradiVerifikaciju'])->name('korisnik.verifikuj');
+Route::post('/prijavi-problem', [KontrolerKorisnika::class, 'prijaviProblem']);
 
 //Kontroler Materijala 
 Route::resource('materijali', KontrolerMaterijala::class)->only(['index', 'store'])->names(['index' => 'materijali.index', 'store' => 'materijali.sacuvaj']);

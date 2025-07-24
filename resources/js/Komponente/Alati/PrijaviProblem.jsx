@@ -1,23 +1,30 @@
 import axios from 'axios';
 import { useState } from 'react';
-export default function PrijaviMaterijal({podesiPrijavu, materijalId}){
+export default function PrijaviProblem({podesiPrikazDialoga, materijalId=false}){
 
     const [posiljaoc, podesiPosiljaoca] = useState('');
     const [opisPrijave, podesiopisPrijave] = useState('');
 
     const prijavi = () => {
-        axios.post('materijal.prijavi', {
+        if(materijalId){
+            axios.post('/materijal.prijavi', {
             posiljaoc: posiljaoc,
             materijalId: materijalId,
             opisPrijave: opisPrijave
-        })        
+        })} else {
+            axios.post('/prijavi-problem', {
+                posiljaoc: posiljaoc,
+                opisPrijave: opisPrijave
+            })
+        }
+        podesiPrikazDialoga(false)     
     }
 
     return(
        <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col gap-2">
             <textarea 
                 className='border-1 rounded-xl p-1'
-                placeholder='Opiši problem sa ovim materijalom' 
+                placeholder='Opiši problem' 
                 id='opisPrijave' 
                 name='opisPrijave' 
                 rows="4" cols="50"
@@ -32,19 +39,13 @@ export default function PrijaviMaterijal({podesiPrijavu, materijalId}){
                     className='border-1 rounded-xl p-2' 
                     onChange={(e) => podesiPosiljaoca(e.target.value)}/>
             </div>
-            <div className="flex justify-between">
+            <div className="flex self-end">
                 <button 
                     onClick={()=>{
                         prijavi()
                     }}
                     className="block mt-4 px-4 py-2 bg-orange-500 text-white rounded-md cursor-pointer">
                     Prijavi
-                </button>
-                <button 
-                    onClick={podesiPrijavu}
-                    className="block mt-4 px-4 py-2 bg-red-500 text-white rounded-md cursor-pointer"
-                    >
-                    Zatvori
                 </button>
             </div>
         </div>
