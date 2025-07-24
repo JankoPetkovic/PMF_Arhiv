@@ -9,8 +9,9 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Drawer from '@mui/material/Drawer';
 import { IoMdOptions } from "react-icons/io";
-import { Tooltip } from '@mui/material';
+import { Tooltip, CircularProgress  } from '@mui/material';
 import TablePagination from '@mui/material/TablePagination';
+import { UploadCloudIcon } from 'lucide-react';
 
 export default function Materijal({predmeti, smer, tipoviMaterijala}) {
 
@@ -23,7 +24,7 @@ export default function Materijal({predmeti, smer, tipoviMaterijala}) {
         izabranaGodina: {naziv: "1.godina", vrednost: 1},
         izabraniTipMaterijala: '',
         izabraniPodTipMaterijala: '',
-        izabranaSkolskaGodina: dostupneSkolskeGodine[dostupneSkolskeGodine.length-1],
+        izabranaSkolskaGodina: '',
         izabranaOpcijaSortiranja: {naziv: 'Datum opadajuće', vrednost: 'Datum opadajuće', kolonaSortiranja:'datum_dodavanja', pravacSortiranja:'desc'},
         izabranaStranica: 0,
         izabranBrMaterijalaPoStranici: 10,
@@ -46,6 +47,7 @@ export default function Materijal({predmeti, smer, tipoviMaterijala}) {
     })
 
     const [zakljucajPodTipoveMaterijala, podesiZakljucavanjePodMaterijala] = useState(true)
+    const [ucitavanje, podesiUcitavanje] = useState(false);
 
     const zaustaviPrviRenderTipovi = useRef(true);
     const zaustaviPrviRenderPodTipovi = useRef(true);
@@ -119,32 +121,45 @@ export default function Materijal({predmeti, smer, tipoviMaterijala}) {
         }
     }, [dostupneInformacije.dostupniPodTipoviMaterijala])
 
-    useEffect(()=>{
+    useEffect(() => {
         async function preuzmiMaterijale() {
-            const url = window.location.pathname.split('/')
+            const url = window.location.pathname.split('/');
+
             let filteri = {
                 predmet_id: izabraneInformacije.izabranPredmet,
                 podtip_materijala_id: izabraneInformacije.izabraniPodTipMaterijala,
-                smer_id: url[url.length-1],
+                smer_id: url[url.length - 1],
                 godina: izabraneInformacije.izabranaGodina.vrednost,
                 tip_materijala_id: izabraneInformacije.izabraniTipMaterijala.tip_materijala_id,
                 skolska_godina: izabraneInformacije.izabranaSkolskaGodina.naziv,
                 kolonaSortiranja: izabraneInformacije.izabranaOpcijaSortiranja.kolonaSortiranja,
                 pravacSortiranja: izabraneInformacije.izabranaOpcijaSortiranja.pravacSortiranja,
-                stranica: izabraneInformacije.izabranaStranica
+                stranica: izabraneInformacije.izabranaStranica + 1,
+                poStranici: izabraneInformacije.izabranBrMaterijalaPoStranici,
+            };
+
+            try {
+                podesiUcitavanje(true); 
+                azurirajPoljeDostupneInformacije('dostupniMaterijali', '');
+
+                const odgovor = await ServisMaterijala.vratiMaterijale(filteri);
+
+                azurirajPoljeDostupneInformacije('dostupniMaterijali', odgovor.data);
+                azurirajPoljeDostupneInformacije('brDostupnihMaterijala', odgovor.total);
+            } catch (err) {
+                return
+            } finally {
+                podesiUcitavanje(false); 
             }
-            const odgovor = await ServisMaterijala.vratiMaterijale(filteri)   
-            azurirajPoljeDostupneInformacije('dostupniMaterijali', odgovor.data)
-            azurirajPoljeDostupneInformacije('brDostupnihMaterijala', odgovor.total)
         }
-        if(zaustaviPrviRenderMaterijal.current){
-            zaustaviPrviRenderMaterijal.current = false
-            return
+
+        if (zaustaviPrviRenderMaterijal.current) {
+            zaustaviPrviRenderMaterijal.current = false;
+            return;
         }
-        azurirajPoljeDostupneInformacije('dostupniMaterijali', '')
 
         preuzmiMaterijale();
-    }, [izabraneInformacije])
+    }, [izabraneInformacije]);
 
     return(
         <div>
@@ -228,25 +243,33 @@ export default function Materijal({predmeti, smer, tipoviMaterijala}) {
                             </Tooltip>
                         </div>
                     </div>
-                    <div className='flex'>
-                        <div className="p-4 w-full">
+                    {ucitavanje ? (
+                        <div className="flex justify-center items-center w-full mt-30">
+                            <CircularProgress color="error" size={80}/>
+                        </div>
+                        ) : (
+                        <div className="flex">
+                            <div className="p-4 w-full">
                             <PrikazMaterijala
                                 key={izabraneInformacije.izabranPredmet.predmet_id}
                                 materijali={dostupneInformacije.dostupniMaterijali}
-                                predmeti = {true}
+                                predmeti={true}
                             />
                             <TablePagination
                                 component="div"
                                 count={dostupneInformacije.brDostupnihMaterijala}
                                 page={izabraneInformacije.izabranaStranica}
-                                onPageChange={(dogadjaj, novaStranica)=>{
-                                    azurirajPoljeIzabraneInformacije('izabranaStranica', novaStranica)
+                                onPageChange={(dogadjaj, novaStranica) => {
+                                azurirajPoljeIzabraneInformacije('izabranaStranica', novaStranica);
                                 }}
                                 rowsPerPage={izabraneInformacije.izabranBrMaterijalaPoStranici}
                                 onRowsPerPageChange={obradiPromenuBrMaterijalaPoStranici}
+                                labelRowsPerPage="Materijala po stranici:"
+                                rowsPerPageOptions={[5, 10, 20, 50]}
                             />
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
                 <Drawer open={filteri} onClose={()=>{podesiFIltere(false)}} anchor='right'>
                     <div className="flex flex-col gap-6 m-5 rounded-sm p-4 w-68">

@@ -25,6 +25,10 @@ class KontrolerMaterijala extends Controller
      */
     public function index(Request $zahtev){
         try {
+            if ($zahtev->has('stranica')) {
+                $zahtev->merge(['page' => $zahtev->get('stranica')]);
+            }
+
             $validiraniPodaci = $zahtev->validate([
                 'podtip_materijala_id' => 'sometimes',
                 'tip_materijala_id'    => 'sometimes',

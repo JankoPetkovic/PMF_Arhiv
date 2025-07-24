@@ -52,8 +52,7 @@ class Materijal extends Model
         return $this->belongsTo(Korisnik::class, 'korisnik_id');
     }
 
-    public static function filtriraj(array $filteri)
-    {
+    public static function filtriraj(array $filteri){
         $upit = self::with([
             'predmet.smer.departman',
             'predmet.smer.nivoStudija',
