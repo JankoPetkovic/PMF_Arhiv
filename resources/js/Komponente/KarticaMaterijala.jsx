@@ -10,7 +10,9 @@ import { GrDocumentZip } from "react-icons/gr";
 import skracenicaNivoaStudija from '../PomocniAlati/skracenicaNivoaStudija';
 import {prikaziToastNotifikaciju} from'../PomocniAlati/ToastNotifikacijaServis';
 import TipToastNotifikacije from'../PomocniAlati/TipToastNotifikacije';
-import Dialog from "../Komponente/Dialog"
+import Dialog from "../Komponente/Dialog";
+import { TbFileTypeDocx } from "react-icons/tb";
+import { FaFileAlt } from "react-icons/fa";
 
 export default function KarticaMaterijala({materijal}){
 
@@ -43,6 +45,8 @@ export default function KarticaMaterijala({materijal}){
         png: <img src={`/storage/${materijal.putanja_fajla}`} alt="PNG fajl" className="w-14 h-14 object-contain" />,
         jpg: <img src={`/storage/${materijal.putanja_fajla}`} alt="JPG fajl" className="w-14 h-14 object-contain" />,
         zip: <GrDocumentZip size={60} color='red' className="cursor-pointer w-14 h-14 object-contain" />,
+        doc: <TbFileTypeDocx size={60} className='cursor-pointer w-14 h-14 object-contain text-blue-500' />,
+        docx: <TbFileTypeDocx size={60} className='cursor-pointer w-14 h-14 object-contain text-blue-500' />,
     };
 
     const obradiDeljenje = () => {
@@ -74,7 +78,7 @@ export default function KarticaMaterijala({materijal}){
                     className="flex flex-col items-center gap-2 w-full text-center"
                 >
                     <Tooltip title="Otvori">
-                    {fileIcons[vratiTipFajla(materijal.naziv)] || <span>Unsupported</span>}
+                    {fileIcons[vratiTipFajla(materijal.naziv)] || <FaFileAlt size={60}  className='cursor-pointer w-14 h-14 object-contain text-gray-500' />}
                     </Tooltip>
                     
                     <p className="text-sm break-all whitespace-normal leading-tight">
