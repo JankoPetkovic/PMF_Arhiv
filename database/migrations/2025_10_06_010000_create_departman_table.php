@@ -6,16 +6,15 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateDepartmanTable extends Migration
 {
-    public function up()
+    public function up(): void
     {
         Schema::create('departman', function (Blueprint $table) {
-            $table->id('departman_id')->unsigned();
+            $table->increments('departman_id');
             $table->string('naziv', 45);
-            $table->primary('departman_id');
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('departman');
     }
