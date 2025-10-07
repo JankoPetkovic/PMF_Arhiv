@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             PredmetSeeder2::class,
             PredmetSeeder3::class,
             PredmetSeeder4::class,
+            TipKorisnickeAkcijeSeeder::class,
         ]);
     }
 }
