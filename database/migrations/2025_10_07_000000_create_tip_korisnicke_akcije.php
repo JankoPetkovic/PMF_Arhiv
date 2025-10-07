@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tip_korisnicke_akcije', function (Blueprint $table) {
-            $table->id(); 
+            $table->increments('id'); // Primarni ključ, auto increment
             $table->string('naziv'); 
         });
     }

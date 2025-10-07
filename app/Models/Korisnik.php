@@ -2,19 +2,20 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Mail\Verifikacija;
 
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
 
-use Illuminate\Support\Facades\Mail;
+use App\Models\KorisnickaAkcija;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Cache;
+
+use Illuminate\Database\Eloquent\Model;
+
 use Illuminate\Support\Facades\Storage;
-
 use App\Http\Controllers\HomeController;
-
-use App\Mail\Verifikacija;
 
 class Korisnik extends Model
 {
@@ -49,12 +50,9 @@ class Korisnik extends Model
         'datum_verifikacije' => 'datetime',
     ];
 
-    /**
-     * Vraca sve departmane iz tabele Departmani
-     */
-    public static function getKorisnikInfo()
+    public function korisnickeAkcije()
     {
-        return self::all();
+        return $this->hasMany(KorisnickaAkcija::class, 'korisnik_id');
     }
 
     /**
@@ -128,5 +126,10 @@ class Korisnik extends Model
             );
             Storage::disk('public')->delete($keširaniMaterijal['putanja_fajla']);
         }
+    }
+
+    public function zabeleziAkcijuKorisnika($tipAkcije, $poruka = null)
+    {
+        return KorisnickaAkcija::zabeleziAkciju($this->korisnik_id, $tipAkcije, $poruka);
     }
 }

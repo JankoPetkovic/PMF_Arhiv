@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Mail;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use App\Models\Korisnik;
 use App\Mail\PrijaviProblem;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use App\Models\KorisnickaAkcija;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Mail;
 
 class KontrolerKorisnika extends Controller
 {
@@ -51,6 +52,7 @@ class KontrolerKorisnika extends Controller
         $statusVerifikacije = $korisnik->statusVerifikacije();
 
         if($statusVerifikacije['verifikovan']){
+            $korisnik->zabeleziAkcijuKorisnika('verifikacija', 'Korisnik je uspesno verifikovan.');
             return redirect()->route('home')->with('success', "Korisnik uspesno verifikovan!");
         } else {
             return redirect()->route('home')->with('error', 'Greska pri verifikaciji');
