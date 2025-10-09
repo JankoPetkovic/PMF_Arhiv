@@ -17,6 +17,11 @@ class CreateKorisnikTable extends Migration
             $table->date('datum_verifikacije')->nullable()->default(null);
             $table->string('sifra', 225);
             $table->integer('godina')->default(1);
+            $table->integer('tip_uloge_korisnika_id')->unsigned()->nullable();
+            $table->foreign('tip_uloge_korisnika_id')
+                  ->references('id')
+                  ->on('tip_uloge_korisnika')
+                  ->onDelete('cascade');
         });
     }
 
