@@ -7,8 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class PodtipMaterijala extends Model
 {
     protected $table = 'podtip_materijala';
+
     protected $primaryKey = 'podtip_materijala_id';
+
     public $timestamps = false;
+    
     protected $fillable = ['naziv'];
 
     public static function vratiPodTipoveTipa($tipMaterijala){

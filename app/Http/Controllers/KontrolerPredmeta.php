@@ -15,8 +15,9 @@ class KontrolerPredmeta extends Controller
     public function index(Request $zahtev){
         try{
             $validiraniPodaci = $zahtev->validate([
-                'godina' => 'sometimes|integer|exists:predmet,godina|in: 1,2,3',
-                'smer_id' => 'sometimes|integer|exists:predmet,smer_id',
+                'godina'    => 'sometimes|integer|exists:predmet,godina|in:1,2,3',
+                'smer_id'   => 'sometimes',
+                'smer_id.*' => 'integer|exists:predmet,smer_id',
             ]);
 
             $predmeti = Predmet::filtriraj($validiraniPodaci);

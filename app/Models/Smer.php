@@ -10,31 +10,12 @@ use App\Models\NivoStudija;
 
 class Smer extends Model
 {
-    /**
-     * Tabela koja predstavlja model
-     * 
-     * @var string
-     */
     protected $table = 'smer';
 
-    /**
-     * Primarni kljuc u tabeli
-     * 
-     * @var string
-     */
     protected $primaryKey = 'smer_id';
 
-
-    /**
-     * Iskljucivanje created_at i updated_at kolone
-     * 
-     * @var bool
-     */
     public $timestamps = false;
 
-    /**
-     * Kolone u koje je dozvoljen upis
-     */
     protected $fillable = ['naziv_smera', 'departman_id', 'nivo_studija_id'];
 
     public function predmeti(){
@@ -49,6 +30,11 @@ class Smer extends Model
     public function nivoStudija()
     {
         return $this->belongsTo(NivoStudija::class, 'nivo_studija_id');
+    }
+
+    public function korisnici()
+    {
+        return $this->belongsToMany(Korisnik::class, 'smerovi_korisnika', 'smer_id', 'korisnik_id');
     }
 
     public static function filtriraj(array $filteri){
@@ -66,7 +52,7 @@ class Smer extends Model
         $pravacSortiranja = $filteri['pravacSortiranja'] ?? 'asc';
         $poStranici = $filteri['poStranici'] ?? 10;
 
-        if(!in_array($kolonaSortiranja, ['naziv_smera', 'smer_id']) || !in_array($pravacSortiranja, ['asc', 'desc'])){
+        if(!in_array($kolonaSortiranja, ['naziv_smera', 'smer_id', 'nivo_studija_id']) || !in_array($pravacSortiranja, ['asc', 'desc'])){
             throw new \InvalidArgumentException("Nevalidan parametar za sortiranje.");
         }
 
@@ -81,7 +67,7 @@ class Smer extends Model
                 'smer_id' => $s->smer_id,
                 'naziv_smera' => $s->naziv_smera,
                 'departman' => $s->departman->naziv,
-                // 'nivo_studija' => $s->nivoStudija->nivo_studija,
+                'nivo_studija' => $s->nivoStudija->nivo_studija,
             ];
         });
 

@@ -7,37 +7,19 @@ use App\Models\Predmet;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 
 class Materijal extends Model
 {
-    /**
-     * Tabela koja predstavalja model
-     * 
-     * @var string
-     */
     protected $table = 'materijal';
 
-    /**
-     * Primarni kljuc u tabeli
-     * 
-     * @var string
-     */
     protected $primaryKey = 'materijal_id';
 
-
-    /**
-     * Kontrola created_at i updated_at kolone
-     * 
-     * @var bool
-     */
     public $timestamps = true;
     const CREATED_AT = 'datum_dodavanja';
     const UPDATED_AT = NULL;
 
-    /**
-     * Kolone u koje je dozvoljen upis
-     */
     protected $fillable = ['naziv', 'predmet_id','podtip_materijala_id', 'skolska_godina', 'korisnik_id', 'datum_dodavanja', 'putanja_fajla'];
 
     public function podtipMaterijala(){
@@ -59,10 +41,13 @@ class Materijal extends Model
             'podtipMaterijala.tip',
             'korisnik'
         ]);
-
         if (!empty($filteri['smer_id'])) {
             $upit->whereHas('predmet', function ($podupit) use ($filteri) {
-                $podupit->where('smer_id', $filteri['smer_id']);
+                $smerovi = is_array($filteri['smer_id'])
+                    ? $filteri['smer_id']
+                    : [$filteri['smer_id']];
+
+                $podupit->whereIn('smer_id', $smerovi);
             });
         }
 
@@ -136,7 +121,7 @@ class Materijal extends Model
         $putanja = strtolower(preg_replace('/\s+/', '_', $putanja));
 
         if (!Storage::disk('public')->exists($putanja)) {
-            Storage::disk('public')->makeDirectory($putanja, 0755, true);
+            Storage::disk('public')->makeDirectory($putanja);
         }
 
         $materijal = self::create([

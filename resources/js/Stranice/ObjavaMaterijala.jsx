@@ -361,6 +361,7 @@ export default function ObjavaMaterijala({podesiPrikazDialoga}) {
                                 tooltipTekst={"Inforamacije o nivoima studija se preuzimaju"}
                                 obaveznoPolje={true}
                                 labela={"Izaberi Nivo Studija"}
+                                imeOpcije="nivo_studija"
                             />
                         </div>
                     )}
@@ -382,6 +383,7 @@ export default function ObjavaMaterijala({podesiPrikazDialoga}) {
                                 tooltipTekst={
                                     "Izaberi departman i nivo studija!"
                                 }
+                                imeOpcije="naziv_smera"
                             />
                             <CustomSelect
                                 klase={"w-80"}

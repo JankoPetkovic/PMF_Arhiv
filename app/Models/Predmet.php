@@ -7,36 +7,21 @@ use Illuminate\Database\Eloquent\Model;
 class Predmet extends Model
 {   
 
-    /**
-     * Tabela koja predstavlja model
-     * 
-     * @var string
-     */
     protected $table = 'predmet';
 
-    /**
-     * Primarni kljuc u tabeli
-     * 
-     * @var string
-     */
     protected $primaryKey = 'predmet_id';
 
-
-    /**
-     * Iskljucivanje created_at i updated_at kolone
-     * 
-     * @var bool
-     */
     public $timestamps = false;
 
-    /**
-     * Kolone u koje je dozvoljen upis
-     */
     protected $fillable = ['naziv', 'godina', 'smer_id'];
 
     public function smer()
     {
         return $this->belongsTo(Smer::class, 'smer_id');
+    }
+
+    public function korisnici(){
+        return $this->belongsToMany(Korisnik::class, 'predmeti_korisnika', 'predmet_id', 'korisnik_id');
     }
 
     public static function filtriraj(array $filteri){
@@ -47,7 +32,11 @@ class Predmet extends Model
         }
 
         if(!empty($filteri['smer_id'])){
-            $upit->where('smer_id', $filteri['smer_id']);
+             if (is_array($filteri['smer_id'])) {
+                $upit->whereIn('smer_id', $filteri['smer_id']);
+            } else {
+                $upit->where('smer_id', $filteri['smer_id']);
+            }
         }
 
         $kolonaSortiranja = $filteri['kolonaSortiranja'] ?? 'godina';
