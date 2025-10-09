@@ -35,7 +35,7 @@ export default function PrijaviProblem({podesiPrikazDialoga, materijalId=false})
                     type="email" 
                     name="posiljaoc" 
                     id="posiljaoc" 
-                    placeholder='ime.prezime@pmf.edu.rs' 
+                    placeholder={'ime.prezime@' + import.meta.env.VITE_STUDENTSKI_EMAIL}
                     className='border-1 rounded-xl p-2' 
                     onChange={(e) => podesiPosiljaoca(e.target.value)}/>
             </div>

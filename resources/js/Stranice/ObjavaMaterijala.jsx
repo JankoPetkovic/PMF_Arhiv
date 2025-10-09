@@ -495,7 +495,7 @@ export default function ObjavaMaterijala({podesiPrikazDialoga}) {
                                         podesiUnetuMailAdresu(e.target.value);
                                     }}
                                     className="border border-gray-400 rounded-lg p-2 w-60"
-                                    placeholder="ime.prezime@pmf.edu.rs"
+                                    placeholder={"ime.prezime@" + import.meta.env.VITE_STUDENTSKI_EMAIL}
                                 />
                             </div>
                             <div className="flex gap-4 justify-center">

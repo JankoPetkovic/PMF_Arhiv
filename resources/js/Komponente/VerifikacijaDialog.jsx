@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import ServisKorisnika from "../PomocniAlati/Servisi/ServisKorisnika";
 import { MdVerified } from "react-icons/md";
+import { prikaziToastNotifikaciju } from "../PomocniAlati/ToastNotifikacijaServis";
+import TipToastNotifikacije from "../PomocniAlati/TipToastNotifikacije";
 
 export default function VerifikacijaDialog({podesiPrikazDialoga}) {
 
@@ -28,14 +30,15 @@ export default function VerifikacijaDialog({podesiPrikazDialoga}) {
             }
         };
 
-        const validanMejl = /^[\w.-]+@pmf\.edu\.rs$/i.test(unetaMailAdresa);
-        if(validanMejl){
+        if(unetaMailAdresa.endsWith("@" + import.meta.env.VITE_STUDENTSKI_EMAIL)){
             proveriVerifikaciju();
         } else {
+            prikaziToastNotifikaciju("Email mora biti studentski (" + import.meta.env.VITE_STUDENTSKI_EMAIL + ")", TipToastNotifikacije.Greska);
             podesiStatusVerifikacije({
                 verifikovan: false,
                 statusVerifikacije: undefined
             })
+            return;
         }
     }, [unetaMailAdresa])
 
@@ -57,7 +60,7 @@ export default function VerifikacijaDialog({podesiPrikazDialoga}) {
                         podesiUnetuMailAdresu(e.target.value);
                     }}
                     className="border border-gray-400 rounded-lg p-2 w-60"
-                    placeholder="ime.prezime@pmf.edu.rs"
+                    placeholder={"ime.prezime@" + import.meta.env.VITE_STUDENTSKI_EMAIL}
                 />
             </div>
             <div>
