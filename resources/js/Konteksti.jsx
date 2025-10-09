@@ -1,4 +1,3 @@
-// GlobalniKontekst.js
 import { createContext, useContext, useState } from "react";
 
 const GlobalniKontekst = createContext();

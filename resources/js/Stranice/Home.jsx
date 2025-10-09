@@ -35,8 +35,7 @@ export default function Home({ smerovi, flash, dostupniDepartmani, dostupniNivoi
           <Departmani smerovi={smerovi} />
         </div>
       </div>
-
-      <PrikazMaterijala materijali={dostupniMaterijali} />
+      <PrikazMaterijala materijali={dostupniMaterijali.data} />
     </div>
   </div>
 

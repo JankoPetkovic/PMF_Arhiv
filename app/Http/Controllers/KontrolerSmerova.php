@@ -17,18 +17,22 @@ class KontrolerSmerova extends Controller
      */
     public function index(Request $zahtev)
     {
-        try{
+        try {
             $validiraniPodaci = $zahtev->validate([
-                'departman_id' => 'sometimes|integer|exists:departman,departman_id',
-                'nivo_studija_id' => 'sometimes|integer|exists:nivo_studija,nivo_studija_id',
+                'departman_id'      => 'sometimes|integer|exists:departman,departman_id',
+                'nivo_studija_id'   => 'sometimes|integer|exists:nivo_studija,nivo_studija_id',
+                'kolonaSortiranja'  => 'sometimes|string|in:naziv_smera,smer_id,nivo_studija_id',
+                'pravacSortiranja'  => 'sometimes|string|in:asc,desc',
+                'poStranici'        => 'sometimes|integer|min:1|max:100',
             ]);
 
             $smerovi = Smer::filtriraj($validiraniPodaci);
 
             return response()->json($smerovi);
+
         } catch (\Illuminate\Validation\ValidationException $ve) {
             return response()->json([
-                'error' => 'Nevalidan unos.',
+                'error'   => 'Nevalidan unos.',
                 'detalji' => $ve->errors()
             ], 422);
 
@@ -39,17 +43,18 @@ class KontrolerSmerova extends Controller
 
         } catch (\Illuminate\Database\QueryException $qe) {
             return response()->json([
-                'error' => 'Greška u bazi podataka.',
+                'error'   => 'Greška u bazi podataka.',
                 'detalji' => $qe->getMessage(),
             ], 500);
 
         } catch (\Throwable $e) {
             return response()->json([
-                'error' => 'Došlo je do nepredviđene greške.',
+                'error'   => 'Došlo je do nepredviđene greške.',
                 'detalji' => $e->getMessage(),
             ], 500);
         }
     }
+
 
     /**
      * Show the form for creating a new resource.

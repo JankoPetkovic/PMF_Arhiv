@@ -56,8 +56,6 @@ export default function KarticaMaterijala({materijal}){
             text: 'Pogledaj ovaj materijal:',
             url: window.location.origin + `/storage/${materijal.putanja_fajla}`,
             })
-            .then(() => console.log('Deljenje uspešno'))
-            .catch((error) => console.log('Greška pri deljenju:', error));
         } else {
             navigator.clipboard.writeText(window.location.origin + `/storage/${materijal.putanja_fajla}`);
             prikaziToastNotifikaciju("Link do materijala je kopiran u privremenu memoriju", TipToastNotifikacije.Info)

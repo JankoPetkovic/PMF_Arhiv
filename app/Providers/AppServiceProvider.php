@@ -27,6 +27,24 @@ class AppServiceProvider extends ServiceProvider
                     'error' => session('error'),
                 ];
             },
+            'auth' => function(){
+                $korisnik = auth()->user();
+                    return [
+                    'korisnik' => $korisnik? [
+                        'id' => $korisnik->korisnik_id,
+                        'ime' => $korisnik->ime,
+                        'email' => $korisnik->email,
+                    ] : null,
+                ];
+            },
+            'ulogovanKorisnik' => function(){
+                $korisnik = auth()->user();
+                 return $korisnik ? [
+                    'id' => $korisnik->korisnik_id,
+                    'ime' => $korisnik->ime,
+                    'email' => $korisnik->email,
+                ] : null;
+            },
         ]);
     }
 }

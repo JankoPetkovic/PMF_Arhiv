@@ -8,8 +8,6 @@ use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
 
 use App\Http\Controllers\KontrolerPocetneStranice;
-use App\Http\Controllers\DepartmanController;
-use App\Http\Controllers\MaterijalController;
 use App\Http\Controllers\ObjaviMaterijal;
 use App\Http\Controllers\KontrolerKorisnika;
 use App\Http\Controllers\KontrolerMaterijala;
@@ -24,6 +22,10 @@ use App\Http\Controllers\KontrolerPodtipovaMaterijala;
 Route::get('/', [KontrolerPocetneStranice::class, 'index'])->name('home');
 
 //Kontroler Korisnika
+Route::get('korisnik/registracija', [KontrolerKorisnika::class, 'create'])->name('korisnik.create');
+Route::post('/prijava', [KontrolerKorisnika::class, 'prijava']);
+Route::post('/odjava', [KontrolerKorisnika::class, 'odjava']); 
+Route::resource('korisnik', KontrolerKorisnika::class)->except(['create']);
 Route::get('/status-verifikacije', [KontrolerKorisnika::class, 'statusVerifikacije']);
 Route::post('/posalji-verifikaciju', [KontrolerKorisnika::class, 'posaljiVerifikaciju']);
 Route::get('/verifikuj-mejl/{id}',[KontrolerKorisnika::class, 'obradiVerifikaciju'])->name('korisnik.verifikuj');

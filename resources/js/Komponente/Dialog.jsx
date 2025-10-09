@@ -2,7 +2,7 @@ import Popup from "reactjs-popup";
 import 'reactjs-popup/dist/index.css'; 
 import { IoMdClose } from "react-icons/io";
 import { useRef, useEffect } from "react";
-import { GlobalniProvider, koristiGlobalniKontekst } from "../Konteksti";
+import { koristiGlobalniKontekst } from "../Konteksti";
 
 export default function Dialog({naslov, slika = null, sadrzaj, prikaziDialog, podesiPrikaziDialog}) {
     const { upravljajKlikomVanElemenata } = koristiGlobalniKontekst();
@@ -16,8 +16,7 @@ export default function Dialog({naslov, slika = null, sadrzaj, prikaziDialog, po
     const upravljajVidljivoscuProzora = (event) => {
         const referenceElemenata = [prozor];
         const kliknutoVan = upravljajKlikomVanElemenata(referenceElemenata, event, ["MuiPopper-root", 'Toastify__toast ']);
-        if (kliknutoVan)
-        {
+        if (kliknutoVan) {
             podesiPrikaziDialog(false);
         }
     };

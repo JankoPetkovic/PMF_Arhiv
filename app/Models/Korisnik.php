@@ -4,62 +4,103 @@ namespace App\Models;
 
 use App\Mail\Verifikacija;
 
-use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
-
+use Illuminate\Http\UploadedFile;
 use App\Models\KorisnickaAkcija;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Cache;
-
-use Illuminate\Database\Eloquent\Model;
-
 use Illuminate\Support\Facades\Storage;
-use App\Http\Controllers\HomeController;
+use Illuminate\Support\Facades\Hash; 
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class Korisnik extends Model
+use App\Models\Smer;
+use App\Models\Predmet;
+
+class Korisnik extends Authenticatable
 {
-    /**
-     * Tabela koja predstavalja model
-     * 
-     * @var string
-     */
     protected $table = 'korisnik';
 
-    /**
-     * Primarni kljuc u tabeli
-     * 
-     * @var string
-     */
     protected $primaryKey = 'korisnik_id';
 
-
-    /**
-     * Iskljucivanje created_at i updated_at kolone
-     * 
-     * @var bool
-     */
     public $timestamps = false;
 
-    /**
-     * Kolone u koje je dozvoljen upis
-     */
-    protected $fillable = ['email', 'datum_verifikacije'];
+    protected $fillable = ['ime', 'prezime','email', 'broj_indeksa','datum_verifikacije', 'sifra', 'godina'];
 
     protected $casts = [
         'datum_verifikacije' => 'datetime',
     ];
+
+    public function smerovi(){
+        return $this->belongsToMany(Smer::class, 'smerovi_korisnika', 'korisnik_id', 'smer_id');
+    }
+
+    public function predmeti(){
+        return $this->belongsToMany(Predmet::class, 'predmeti_korisnika', 'korisnik_id', 'predmet_id');
+    }
 
     public function korisnickeAkcije()
     {
         return $this->hasMany(KorisnickaAkcija::class, 'korisnik_id');
     }
 
-    /**
-     * Ako je korisnik verifikovan i zadnji put je verifikovan pre vise od mesec dana, verifikovan se postavlja na false i mora da se ponovo verifikuje.
-     * 
-     * @var bool
-     */
+    public static function kreirajKorisnika($podaci){
+        $korisnik = self::create([
+            'ime' => $podaci['ime'],
+            'prezime' => $podaci['prezime'],
+            'broj_indeksa' => $podaci['broj_indeksa'],
+            'email' => $podaci['email'],
+            'datum_verifikacije' => null,
+            'sifra' => Hash::make($podaci['sifra']),
+            'godina' => $podaci['godina'] ?? 1,
+        ]);
+
+        if (!empty($podaci['smerovi'])) {
+            $korisnik->smerovi()->sync($podaci['smerovi']);
+        }
+
+        if (!empty($podaci['predmeti'])) {
+            $korisnik->predmeti()->sync($podaci['predmeti']); 
+        }
+
+        $korisnik->posaljiVerifikaciju();
+
+        return $korisnik;
+    }
+
+    public static function prikaziKorisnika($id){
+        $korisnik = Korisnik::findOrFail($id);
+
+        $podaciKorisnika = [
+            'ime' => $korisnik->ime,
+            'prezime' => $korisnik->prezime,
+            'broj_indeksa' => $korisnik ->broj_indeksa,
+            'korisnicki_email' => $korisnik->email,
+            'smerovi_korisnika' => $korisnik->smerovi->map(function ($smer) {
+                    return [
+                        'smer_id' => $smer->smer_id,
+                        'naziv_smera' => $smer->naziv_smera,
+                        'nivo_studija' => $smer->nivoStudija->nivo_studija,
+                    ];
+                })->toArray(),
+                'predmeti_korisnika' => $korisnik->predmeti->map(function ($predmet) {
+                    return [
+                        'predmet_id' => $predmet->predmet_id,
+                        'naziv' => $predmet->naziv,
+                    ];
+                })->toArray(),
+            'godina' => $korisnik->godina,
+        ];
+
+        $podaci = [
+            'korisnik' => $podaciKorisnika,
+            'dostupniSmerovi' => Smer::all()->toArray(),
+            'dostupniPredmeti' => Predmet::whereIn('smer_id', array_column($podaciKorisnika['smerovi_korisnika'], 'id'))->get()->toArray(),
+        ];
+
+        return $podaci;
+    }
+
     public function statusVerifikacije()
     {
         $trajanje = (int) env('VERIFIKACIJA_TRAJANJE_MESECI', 1);
@@ -122,7 +163,7 @@ class Korisnik extends Model
                 $keširaniMaterijal['tipMaterijala'],
                 $keširaniMaterijal['podtipMaterijala'],
                 $keširaniMaterijal['akademskaGodina'],
-                $id
+                $this->korisnik_id
             );
             Storage::disk('public')->delete($keširaniMaterijal['putanja_fajla']);
         }
