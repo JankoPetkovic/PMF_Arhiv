@@ -7,7 +7,7 @@ export default function PrikazMaterijala({predmeti = false, materijali}){
     const [tekst, podesiTekst] = useState("Najnoviji materijali:")
 
     useEffect(()=>{
-        if(ulogovanKorisnik){
+        if(ulogovanKorisnik && ulogovanKorisnik?.smerovi_korisnika?.length > 0){
             podesiTekst("Najnoviji materijali sa vaših smerova:")
         }
     }, [])

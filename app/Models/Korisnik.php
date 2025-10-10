@@ -101,13 +101,7 @@ class Korisnik extends Authenticatable
             'godina' => $korisnik->godina,
         ];
 
-        $podaci = [
-            'korisnik' => $podaciKorisnika,
-            'dostupniSmerovi' => Smer::all()->toArray(),
-            'dostupniPredmeti' => Predmet::whereIn('smer_id', array_column($podaciKorisnika['smerovi_korisnika'], 'id'))->get()->toArray(),
-        ];
-
-        return $podaci;
+        return $podaciKorisnika;
     }
 
     public static function azurirajKorisnika($id, $podaci){
@@ -119,8 +113,7 @@ class Korisnik extends Authenticatable
 
         $korisnik->update($updatePodaci);
 
-
-        if (!empty($podaci['izabraniSmerovi'])) {
+        if (array_key_exists('izabraniSmerovi', $podaci)) {
             $korisnik->smerovi()->sync($podaci['izabraniSmerovi']);
         }
     }

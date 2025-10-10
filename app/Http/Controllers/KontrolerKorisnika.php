@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Mail;
 
 use App\Http\Controllers\Controller;
 use App\Models\Korisnik;
+use App\Models\Smer;
+use App\Models\Predmet;
 use App\Mail\PrijaviProblem;
 use Inertia\Inertia;
 
@@ -69,7 +71,14 @@ class KontrolerKorisnika extends Controller
         $korisnik?->load('tipUloge');
         if(($korisnik && $korisnik->korisnik_id == $id) || $korisnik?->tipUloge->naziv === 'Admin'){
             $podaciKorisnika = Korisnik::prikaziKorisnika($id);
-            return Inertia::render("Korisnik", $podaciKorisnika);
+            $dostupniSmerovi = Smer::all()->toArray();
+            $dostupniPredmeti = Predmet::whereIn('smer_id', array_column($podaciKorisnika['smerovi_korisnika'], 'id'))->get()->toArray();
+            $podaci = [
+                'korisnik' => $podaciKorisnika,
+                'dostupniSmerovi' => $dostupniSmerovi,
+                'dostupniPredmeti' => $dostupniPredmeti,
+            ];
+            return Inertia::render("Korisnik", $podaci);
         } else {
             return redirect()->route('home');
         }

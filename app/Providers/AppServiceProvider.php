@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\Korisnik;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class AppServiceProvider extends ServiceProvider
@@ -28,22 +30,12 @@ class AppServiceProvider extends ServiceProvider
                 ];
             },
             'auth' => function(){
-                $korisnik = auth()->user();
-                    return [
-                    'korisnik' => $korisnik? [
-                        'id' => $korisnik->korisnik_id,
-                        'ime' => $korisnik->ime,
-                        'email' => $korisnik->email,
-                    ] : null,
-                ];
+                $korisnik = Auth::user();
+                return Korisnik::prikaziKorisnika($korisnik->korisnik_id);
             },
             'ulogovanKorisnik' => function(){
-                $korisnik = auth()->user();
-                 return $korisnik ? [
-                    'id' => $korisnik->korisnik_id,
-                    'ime' => $korisnik->ime,
-                    'email' => $korisnik->email,
-                ] : null;
+                $korisnik = Auth::user();
+                return Korisnik::prikaziKorisnika($korisnik->korisnik_id);
             },
         ]);
     }
