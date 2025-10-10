@@ -3,19 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\URL;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
-use Inertia\Inertia;
 
-use App\Models\Predmet;
+
 use App\Models\Materijal;
-use App\Models\TipMaterijala;
-use App\Models\Smer;
 use App\Models\Korisnik;
-
 use App\Mail\PrijaviMaterijal;
 
 class KontrolerMaterijala extends Controller
@@ -88,9 +84,10 @@ class KontrolerMaterijala extends Controller
                 'tipMaterijala' => ['required'],
                 'podtipMaterijala' => ['required'],
                 'akademskaGodina' => ['required'],
-                'korisnickiMejl' => ['required', 'email', 'max:255', 'regex:/^[\w\.-]+@pmf\.edu\.rs$/i'],
                 'fajl' => ['required', 'file', 'mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/zip,text/plain,application/vnd.oasis.opendocument.text,image/png,image/jpeg', 'max:20480'],
             ]);
+
+            $korisnickiMejl = Auth::user()->email;
 
             $departman = json_decode($zahtev->input('departman'), true);
             $nivoStudija = json_decode($zahtev->input('nivoStudija'), true);
@@ -126,7 +123,7 @@ class KontrolerMaterijala extends Controller
                 'message' => 'Greška u obradi podataka. Proveri format vrednosti.',
             ], 400);
         } catch (\Throwable $e) {
-            \Log::error('Greška pri čuvanju materijala: ' . $e->getMessage(), ['exception' => $e]);
+            Log::error('Greška pri čuvanju materijala: ' . $e->getMessage(), ['exception' => $e]);
             return response()->json([
                 'message' => 'Došlo je do interne greške. Pokušaj ponovo kasnije.',
             ], 500);

@@ -7,7 +7,7 @@ import { prikaziToastNotifikaciju } from "../PomocniAlati/ToastNotifikacijaServi
 import TipToastNotifikacije from "../PomocniAlati/TipToastNotifikacije";
 import { router } from "@inertiajs/react";
 
-export default function Registracija() {
+export default function Registracija({podesiPrikaziDialog}) {
   const [podaci, podesiPodatke] = useState({
     ime: "",
     prezime: "",
@@ -59,7 +59,7 @@ export default function Registracija() {
         sifra_potvrda: "",
       });
 
-      console.log(odgovor.data);
+      podesiPrikaziDialog(false)
       prikaziToastNotifikaciju('Korisnik uspešno registrovan', TipToastNotifikacije.Info);
       router.visit('korisnik/' + odgovor.data.korisnik_id)
     } catch (error) {

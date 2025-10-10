@@ -25,15 +25,10 @@ Route::get('/', [KontrolerPocetneStranice::class, 'index'])->name('home');
 Route::get('korisnik/registracija', [KontrolerKorisnika::class, 'create'])->name('korisnik.create');
 Route::post('/prijava', [KontrolerKorisnika::class, 'prijava']);
 Route::post('/odjava', [KontrolerKorisnika::class, 'odjava']); 
-Route::resource('korisnik', KontrolerKorisnika::class)->except(['create']);
 Route::get('/status-verifikacije', [KontrolerKorisnika::class, 'statusVerifikacije']);
 Route::post('/posalji-verifikaciju', [KontrolerKorisnika::class, 'posaljiVerifikaciju']);
 Route::get('/verifikuj-mejl/{id}',[KontrolerKorisnika::class, 'obradiVerifikaciju'])->name('korisnik.verifikuj');
 Route::post('/prijavi-problem', [KontrolerKorisnika::class, 'prijaviProblem']);
-
-//Kontroler Materijala 
-Route::resource('materijali', KontrolerMaterijala::class)->only(['index', 'store'])->names(['index' => 'materijali.index', 'store' => 'materijali.sacuvaj']);
-Route::post('materijal.prijavi', [KontrolerMaterijala::class, 'prijaviMaterijal']);
 
 //Kontroler Predmeta
 Route::resource('predmeti', KontrolerPredmeta::class);
@@ -52,4 +47,10 @@ Route::resource('smerovi', KontrolerSmerova::class);
 
 //Kontroler Podtipova materijala
 Route::resource('podtipovi-materijala', KontrolerPodtipovaMaterijala::class);
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::resource('korisnik', KontrolerKorisnika::class)->except(['create']);
+    Route::resource('materijali', KontrolerMaterijala::class)->only(['index', 'store'])->names(['index' => 'materijali.index', 'store' => 'materijali.sacuvaj']);
+    Route::post('materijal.prijavi', [KontrolerMaterijala::class, 'prijaviMaterijal']);
+});
 

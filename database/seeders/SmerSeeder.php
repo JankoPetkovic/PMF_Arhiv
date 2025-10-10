@@ -38,7 +38,7 @@ class SmerSeeder extends Seeder
             ['smer_id' => 26, 'naziv_smera' => 'Matematika', 'departman_id' => 3, 'nivo_studija_id' => 3],
             ['smer_id' => 27, 'naziv_smera' => 'Matematika (2021)', 'departman_id' => 3, 'nivo_studija_id' => 3],
             ['smer_id' => 28, 'naziv_smera' => 'Racunarske nauke', 'departman_id' => 4, 'nivo_studija_id' => 1],
-            ['smer_id' => 29, 'naziv_smera' => 'Racunarske nauke (2021)', 'departman_id' => 4, 'nivo_studija_id' => 2],
+            ['smer_id' => 29, 'naziv_smera' => 'Racunarske nauke (2021)', 'departman_id' => 4, 'nivo_studija_id' => 1],
             ['smer_id' => 30, 'naziv_smera' => 'Razvoj softvera', 'departman_id' => 4, 'nivo_studija_id' => 2],
             ['smer_id' => 31, 'naziv_smera' => 'Upravljanje informacijama', 'departman_id' => 4, 'nivo_studija_id' => 2],
             ['smer_id' => 32, 'naziv_smera' => 'Vestacka inteligencija i masinsko ucenje (2021)', 'departman_id' => 4, 'nivo_studija_id' => 2],

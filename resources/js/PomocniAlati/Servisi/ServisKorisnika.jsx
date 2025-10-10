@@ -27,4 +27,21 @@ export default class ServisKorisnika {
             console.error('Greska pri slanju mejla za verifikacije', greska);
         }
     }
+
+    static async azurirajKorisnika(korisnikId, podaci) {
+        try {
+            const odgovor = await axios.put(`/korisnik/${korisnikId}`, podaci, {
+                withCredentials: true,
+            });
+            prikaziToastNotifikaciju("Podaci korisnika su uspešno sačuvani!",TipToastNotifikacije.Info);
+            return odgovor.data;
+        } catch (greska) {
+            if (greska.response?.status === 422) {
+                prikaziToastNotifikaciju("Proveri unete podatke.",TipToastNotifikacije.Greska);
+            } else {
+                prikaziToastNotifikaciju("Došlo je do greške pri čuvanju podataka.",TipToastNotifikacije.Greska);
+            }
+            throw greska;
+        }
+    }
 }

@@ -4,9 +4,10 @@ import { Tooltip } from "@mui/material";
 import axios from "axios";
 import { prikaziToastNotifikaciju } from "../PomocniAlati/ToastNotifikacijaServis";
 import TipToastNotifikacije from "../PomocniAlati/TipToastNotifikacije";
+import { router } from "@inertiajs/react";
 
 
-export default function PrijaviSe({otvoriRegistraciju}) {
+export default function PrijaviSe({otvoriRegistraciju, podesiPrikaziDialog}) {
   const [podaci, podesiPodatke] = useState({
     email: "",
     sifra: ""
@@ -20,7 +21,9 @@ export default function PrijaviSe({otvoriRegistraciju}) {
         email: podaci.email,
         sifra: podaci.sifra,
       }, { withCredentials: true })
+      podesiPrikaziDialog(false)
       prikaziToastNotifikaciju("Dobrodošao/la - " + odgovor.data.ime, TipToastNotifikacije.Uspesno)
+      router.reload();
     } catch(greska){
       if (greska.response?.status === 401) {
         prikaziToastNotifikaciju("Neispravan email ili lozinka", TipToastNotifikacije.Greska)

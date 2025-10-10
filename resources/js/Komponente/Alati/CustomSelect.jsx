@@ -14,6 +14,7 @@ export default function CustomSelect({
     zakljucana = false,
     tooltipTekst ='',
     nazivPlus = false,
+    brojIzabranihOpcija = 1
 }) {
     const selektujHandle = (event, vrednosti) => {
         if (vrednosti === null) {
@@ -40,7 +41,7 @@ export default function CustomSelect({
         <span className={klase}>
             <Autocomplete
                 options={opcije}
-                limitTags={1}
+                limitTags={brojIzabranihOpcija}
                 getOptionLabel={(opcija) =>
                     opcija.naziv ||
                     opcija.nivo_studija ||
@@ -74,7 +75,7 @@ export default function CustomSelect({
         <div className={klase}>
             <Autocomplete
                 options={opcije}
-                limitTags={1}
+                limitTags={brojIzabranihOpcija}
                 getOptionLabel={(opcija) =>
                     opcija[imeOpcije] + (nazivPlus ?" - " + opcija[nazivPlus] : '')
                 }

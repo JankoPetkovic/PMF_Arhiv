@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash; 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -11,7 +10,6 @@ use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Controller;
 use App\Models\Korisnik;
 use App\Mail\PrijaviProblem;
-use App\Models\KorisnickaAkcija;
 use Inertia\Inertia;
 
 
@@ -48,6 +46,9 @@ class KontrolerKorisnika extends Controller
 
             $korisnik = Korisnik::kreirajKorisnika($validacija);
             $korisnik->zabeleziAkcijuKorisnika('Kreiranje', 'Kreiran korisnik( id: ' . $korisnik->korisnik_id . ', ime: ' . $korisnik->ime . ', prezime: '. $korisnik->prezime . ')');
+            Auth::login($korisnik);
+            $zahtev->session()->regenerate();
+            $korisnik->zabeleziAkcijuKorisnika('Prijavljivanje');
             
             return response()->json($korisnik, 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -63,8 +64,16 @@ class KontrolerKorisnika extends Controller
      */
     public function show(string $id)
     {
-        $podaciKorisnika = Korisnik::prikaziKorisnika($id);
-        return Inertia::render("Korisnik", $podaciKorisnika);
+        /** @var \App\Models\Korisnik $korisnik */
+        $korisnik = Auth::user();
+        $korisnik?->load('tipUloge');
+        if(($korisnik && $korisnik->korisnik_id == $id) || $korisnik?->tipUloge->naziv === 'Admin'){
+            $podaciKorisnika = Korisnik::prikaziKorisnika($id);
+            return Inertia::render("Korisnik", $podaciKorisnika);
+        } else {
+            return redirect()->route('home');
+        }
+        
     }
 
     /**
@@ -80,7 +89,25 @@ class KontrolerKorisnika extends Controller
      */
     public function update(Request $zahtev, string $id)
     {
-        //
+        $ulogovanKorisnik = Auth::user();
+        if (($ulogovanKorisnik->korisnik_id != $id) || $ulogovanKorisnik?->tipUloge->naziv != 'Admin') {
+            abort(403, 'Nemaš dozvolu da menjaš ovog korisnika.');
+        }
+
+        $validacija = $zahtev->validate([
+            'ime' => 'sometimes|string|max:255',
+            'prezime' => 'sometimes|string|max:255',
+            'broj_indeksa' => 'sometimes|string|max:50',
+            'email' => 'sometimes|string|max:255',
+            'tip_uloge_korisnika_id' => 'sometimes|integer',
+            'datum_verifikacije' => 'sometimes|string|max:255',
+            'godina' => 'sometimes|string|max:255',
+            'izabraniSmerovi' => 'sometimes|array',
+            'izabraniSmerovi.*' => 'integer|exists:smer,smer_id',
+        ]);
+
+
+        Korisnik::azurirajKorisnika($id, $validacija);
     }
 
     /**
@@ -172,6 +199,6 @@ class KontrolerKorisnika extends Controller
         $zahtev->session()->invalidate();
         $zahtev->session()->regenerateToken();
 
-        return response()->json(['poruka' => 'Korisnik odjavljen']);
+        return redirect()->route('home');
     }
 }

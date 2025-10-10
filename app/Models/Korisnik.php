@@ -27,6 +27,8 @@ class Korisnik extends Authenticatable
 
     protected $fillable = ['ime', 'prezime','email', 'broj_indeksa','datum_verifikacije', 'sifra', 'godina'];
 
+    protected $hidden = ['sifra'];
+
     protected $casts = [
         'datum_verifikacije' => 'datetime',
     ];
@@ -42,6 +44,11 @@ class Korisnik extends Authenticatable
     public function korisnickeAkcije()
     {
         return $this->hasMany(KorisnickaAkcija::class, 'korisnik_id');
+    }
+
+    public function tipUloge()
+    {
+        return $this->belongsTo(TipUlogeKorisnika::class, 'tip_uloge_korisnika_id', 'id');
     }
 
     public static function kreirajKorisnika($podaci){
@@ -72,10 +79,12 @@ class Korisnik extends Authenticatable
         $korisnik = Korisnik::findOrFail($id);
 
         $podaciKorisnika = [
+            'korisnik_id' => $korisnik->korisnik_id,
             'ime' => $korisnik->ime,
             'prezime' => $korisnik->prezime,
             'broj_indeksa' => $korisnik ->broj_indeksa,
             'korisnicki_email' => $korisnik->email,
+            'status_verifikacije' => $korisnik->statusVerifikacije(),
             'smerovi_korisnika' => $korisnik->smerovi->map(function ($smer) {
                     return [
                         'smer_id' => $smer->smer_id,
@@ -99,6 +108,21 @@ class Korisnik extends Authenticatable
         ];
 
         return $podaci;
+    }
+
+    public static function azurirajKorisnika($id, $podaci){
+        $korisnik = Korisnik::findOrFail($id);
+
+        $updatePodaci = array_filter($podaci, function($v, $k) {
+            return in_array($k, ['ime', 'prezime', 'broj_indeksa', 'email', 'datum_verifikacije', 'godina']) && $v !== null;
+        }, ARRAY_FILTER_USE_BOTH);
+
+        $korisnik->update($updatePodaci);
+
+
+        if (!empty($podaci['izabraniSmerovi'])) {
+            $korisnik->smerovi()->sync($podaci['izabraniSmerovi']);
+        }
     }
 
     public function statusVerifikacije()
