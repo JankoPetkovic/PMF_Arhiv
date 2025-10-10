@@ -1,19 +1,23 @@
 import Navbar from "../Komponente/Alati/Navbar"
 import CustomSelect from "../Komponente/Alati/CustomSelect";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import ServisSmerova from "../PomocniAlati/Servisi/ServisSmerova";
-import { usePage } from "@inertiajs/react";
-import ServisPredmeta from "../PomocniAlati/Servisi/ServisPredmeta";
-import { prikaziToastNotifikaciju } from "../PomocniAlati/ToastNotifikacijaServis";
-import TipToastNotifikacije from "../PomocniAlati/TipToastNotifikacije";
 import ServisKorisnika from "../PomocniAlati/Servisi/ServisKorisnika";
 import StatusVerifikacije from "../PomocniAlati/StatusVerifikacije";
+import PrikazMaterijala from "../Komponente/PrikazMaterijala";
+import ServisMaterijala from "../PomocniAlati/Servisi/ServisMaterijala";
+import TablePagination from '@mui/material/TablePagination';
+import { CircularProgress  } from '@mui/material';
 
 export default function Korisnik(podaci){
     const korisnik = podaci.korisnik
-    
+
+    const zaustaviPrviRenderMaterijal = useRef(true);
+    const [ucitavanje, podesiUcitavanje] = useState(false);
     const [dostupneInformacije, podesiDostupneInformacije] = useState({
         dostupniSmerovi: podaci.dostupniSmerovi,
+        dostupniMaterijali: {},
+        brDostupnihMaterijala: 10,
         // dostupniPredmeti: podaci.dostupniPredmeti,
         // dostupneGodine: [
         //     {vrednost: 1, naziv: "1.godina"},
@@ -23,6 +27,8 @@ export default function Korisnik(podaci){
     })
     const [izabraneInformacije, podesiIzabraneInformacije] = useState({
         izabraniSmerovi: korisnik.smerovi_korisnika,
+        izabranBrMaterijalaPoStranici: 10,
+        izabranaStranica: 0,
         // izabraniPredmeti: korisnik.predmeti_korisnika,
         // izabranaGodina: korisnik.godina,
     })
@@ -48,6 +54,11 @@ export default function Korisnik(podaci){
     const azurirajZakljucavanjeSelecta = (polje, vrednost) =>
         azurirajPolje(podesiZakljucavanjeSelecta, polje, vrednost);
 
+    const obradiPromenuBrMaterijalaPoStranici = (dogadjaj) => {
+        azurirajPoljeIzabraneInformacije("izabranBrMaterijalaPoStranici", parseInt(dogadjaj.target.value, 10));
+        azurirajPoljeIzabraneInformacije("izabranaStranica", 0);
+    }
+
     const obradiCuvanjePromena = async () => {
         await ServisKorisnika.azurirajKorisnika(korisnik.korisnik_id, {
                 izabraniSmerovi: izabraneInformacije.izabraniSmerovi.map(
@@ -69,9 +80,41 @@ export default function Korisnik(podaci){
             });
             azurirajPoljeDostupneInformacije('dostupniSmerovi', smerovi);
         }
+        const prezumiMaterijaleKorisnika = async () => {
+            const materijali = await ServisMaterijala.vratiMaterijale({
+                korisnik_id: korisnik.korisnik_id
+            });
+            azurirajPoljeDostupneInformacije('dostupniMaterijali', materijali.data);
+        }
         vratiSmerove();
+        prezumiMaterijaleKorisnika();
         azurirajZakljucavanjeSelecta('selectSmera', false)
     }, [])
+
+    useEffect(() => {
+        async function preuzmiMaterijale() {
+            let filteri = {
+                stranica: izabraneInformacije.izabranaStranica + 1,
+                poStranici: izabraneInformacije.izabranBrMaterijalaPoStranici,
+            };
+
+            try {
+                podesiUcitavanje(true); 
+                azurirajPoljeDostupneInformacije('dostupniMaterijali', '');
+
+                const odgovor = await ServisMaterijala.vratiMaterijale(filteri);
+
+                azurirajPoljeDostupneInformacije('dostupniMaterijali', odgovor.data);
+                azurirajPoljeDostupneInformacije('brDostupnihMaterijala', odgovor.total);
+            } catch (err) {
+                return
+            } finally {
+                podesiUcitavanje(false); 
+            }
+        }
+
+        preuzmiMaterijale();
+    }, [izabraneInformacije]);
 
     return(
        <div className="relative min-h-screen">
@@ -79,7 +122,7 @@ export default function Korisnik(podaci){
         
         <div className="relative z-10">
             <Navbar />
-            <div className="flex justify-center items-center mt-20 px-4">
+            <div className="flex flex-col justify-center items-center mt-20 px-4">
                 <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-2xl z-20 max-w-3xl w-full p-8">
                     <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
                         Podaci o studentu
@@ -130,7 +173,34 @@ export default function Korisnik(podaci){
                             Sačuvaj
                         </button>
                     </div>
+                </div>
+                <div className="flex">
+                    {ucitavanje ? (
+                        <div className="flex justify-center items-center w-full mt-30">
+                            <CircularProgress color="error" size={80}/>
+                        </div>
+                    ) : (
+                        <div className="p-4 w-full">
+                            <PrikazMaterijala  
+                                materijali={dostupneInformacije.dostupniMaterijali} 
+                                tekst={"Materijali korisnika " + korisnik.ime +" "+ korisnik.prezime + ": "}
+                            />
+                            <TablePagination
+                                component="div"
+                                count={dostupneInformacije.brDostupnihMaterijala}
+                                page={izabraneInformacije.izabranaStranica}
+                                onPageChange={(dogadjaj, novaStranica) => {
+                                    azurirajPoljeIzabraneInformacije('izabranaStranica', novaStranica);
+                                }}
+                                rowsPerPage={izabraneInformacije.izabranBrMaterijalaPoStranici}
+                                onRowsPerPageChange={obradiPromenuBrMaterijalaPoStranici}
+                                labelRowsPerPage="Materijala po stranici:"
+                                rowsPerPageOptions={[5, 10, 20, 50]}
+                            />
+                        </div>
+                    )}
                 </div> 
+                
             </div>
         </div>
     </div>

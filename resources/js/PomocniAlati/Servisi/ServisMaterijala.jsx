@@ -10,7 +10,7 @@ export default class ServisMaterijala {
                 params:  filteri 
             });
             if(odgovor.data.data.length === 0){
-                prikaziToastNotifikaciju('Trenutno nema materijala za ovaj predmet', TipToastNotifikacije.Info);
+                prikaziToastNotifikaciju('Trenutno nema materijala za aktivne filtere', TipToastNotifikacije.Info);
                 return false
             }
             else{

@@ -50,6 +50,9 @@ class Materijal extends Model
                 $podupit->whereIn('smer_id', $smerovi);
             });
         }
+        if (!empty($filteri['korisnik_id'])) {
+            $upit->where('korisnik_id', $filteri['korisnik_id']);
+        }
 
         if (!empty($filteri['godina'])) {
             $upit->whereHas('predmet', function ($podupit) use ($filteri) {

@@ -1,13 +1,16 @@
 import Departmani from "../Komponente/Departmani"
 import Navbar from "../Komponente/Alati/Navbar";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { prikaziToastNotifikaciju } from "../PomocniAlati/ToastNotifikacijaServis";
 import TipToastNotifikacije from "../PomocniAlati/TipToastNotifikacije";
 import { koristiGlobalniKontekst } from "../Konteksti";
 import PrikazMaterijala from "../Komponente/PrikazMaterijala";
+import { usePage } from '@inertiajs/react';
 
 export default function Home({ smerovi, flash, dostupniDepartmani, dostupniNivoiStudija, dostupniTipoviMaterijala, dostupniMaterijali}){
   const {podesiPodatke} = koristiGlobalniKontekst();
+  const { ulogovanKorisnik } = usePage().props;
+  const [tekstMaterijala, podesiTekstMaterijal] = useState('Najnoviji materijali: ')
 
   
   useEffect(()=>{
@@ -21,6 +24,10 @@ export default function Home({ smerovi, flash, dostupniDepartmani, dostupniNivoi
       dostupniNivoiStudija: dostupniNivoiStudija,
       dostupniTipoviMaterijala: dostupniTipoviMaterijala
     })
+
+    if(ulogovanKorisnik && ulogovanKorisnik?.smerovi_korisnika?.length > 0){
+      podesiTekstMaterijal("Najnoviji materijali sa vaših smerova:")
+    }
   }, [])
 
   return (
@@ -35,7 +42,7 @@ export default function Home({ smerovi, flash, dostupniDepartmani, dostupniNivoi
           <Departmani smerovi={smerovi} />
         </div>
       </div>
-      <PrikazMaterijala materijali={dostupniMaterijali.data} />
+      <PrikazMaterijala materijali={dostupniMaterijali.data} tekst={tekstMaterijala} />
     </div>
   </div>
 

@@ -31,6 +31,7 @@ class KontrolerMaterijala extends Controller
                 'predmet_id'           => 'sometimes',
                 'smer_id'              => 'sometimes',
                 'godina'               => 'sometimes',
+                'korisnik_id'          => 'sometimes',
                 'skolska_godina'       => 'sometimes|string|max:20',
                 'pretraga'             => 'sometimes|string|max:255',
                 'kolonaSortiranja'     => 'sometimes|in:naziv,datum_dodavanja',

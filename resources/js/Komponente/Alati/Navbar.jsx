@@ -30,7 +30,7 @@ export default function Navbar()
 
     const obradiKlikProfila = () => {
         if(ulogovanKorisnik){
-            router.visit("korisnik/" + ulogovanKorisnik.korisnik_id)
+            router.visit("/korisnik/" + ulogovanKorisnik.korisnik_id)
         } else {
             podesiPrikazDialogaPrijave(true)
         }

@@ -11,7 +11,6 @@ import Drawer from '@mui/material/Drawer';
 import { IoMdOptions } from "react-icons/io";
 import { Tooltip, CircularProgress  } from '@mui/material';
 import TablePagination from '@mui/material/TablePagination';
-import { UploadCloudIcon } from 'lucide-react';
 
 export default function Materijal({predmeti, smer, tipoviMaterijala}) {
 
@@ -260,7 +259,7 @@ export default function Materijal({predmeti, smer, tipoviMaterijala}) {
                                 count={dostupneInformacije.brDostupnihMaterijala}
                                 page={izabraneInformacije.izabranaStranica}
                                 onPageChange={(dogadjaj, novaStranica) => {
-                                azurirajPoljeIzabraneInformacije('izabranaStranica', novaStranica);
+                                    azurirajPoljeIzabraneInformacije('izabranaStranica', novaStranica);
                                 }}
                                 rowsPerPage={izabraneInformacije.izabranBrMaterijalaPoStranici}
                                 onRowsPerPageChange={obradiPromenuBrMaterijalaPoStranici}
