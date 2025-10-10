@@ -20,7 +20,7 @@ class Materijal extends Model
     const CREATED_AT = 'datum_dodavanja';
     const UPDATED_AT = NULL;
 
-    protected $fillable = ['naziv', 'predmet_id','podtip_materijala_id', 'skolska_godina', 'korisnik_id', 'datum_dodavanja', 'putanja_fajla'];
+    protected $fillable = ['naziv', 'predmet_id','podtip_materijala_id', 'skolska_godina', 'korisnik_id', 'datum_dodavanja'];
 
     public function podtipMaterijala(){
         return $this->belongsTo(PodTipMaterijala::class, 'podtip_materijala_id', 'podtip_materijala_id');
@@ -32,6 +32,20 @@ class Materijal extends Model
 
     public function korisnik(){
         return $this->belongsTo(Korisnik::class, 'korisnik_id');
+    }
+
+    public function vratiPutanju(){
+        $putanja = $this->predmet->smer->departman->naziv . '/'. 
+                   $this->predmet->smer->nivoStudija->nivo_studija . '/'. 
+                   $this->predmet->smer->naziv_smera .'/'. 
+                   $this->predmet->godina .'._godina/'. 
+                   $this->predmet->naziv .'/'. 
+                   $this->podtipMaterijala->tip->naziv .'/'. 
+                   $this->podtipMaterijala->naziv .'/'.
+                   $this->skolska_godina .'/'.
+                   $this->materijal_id .'_'. 
+                   $this->naziv;
+        return strtolower(str_replace(' ', '_', $putanja));
     }
 
     public static function filtriraj(array $filteri){
@@ -100,7 +114,7 @@ class Materijal extends Model
             return [
                 'materijal_id' => $materijal->materijal_id,
                 'naziv' => $materijal->naziv,
-                'putanja_fajla' => $materijal->putanja_fajla,
+                'putanja_fajla' => $materijal->vratiPutanju(),
                 'skolska_godina' => $materijal->skolska_godina,
                 'datum_dodavanja' => Carbon::parse($materijal->datum_dodavanja)->format('d.m.Y'),
                 'predmet' => $materijal->predmet->naziv ?? null,
@@ -133,23 +147,21 @@ class Materijal extends Model
             'podtip_materijala_id' => $podtipMaterijala['podtip_materijala_id'],
             'skolska_godina' => $akademskaGodina,
             'korisnik_id' => $korisnikId,
-            'putanja_fajla' => ''
         ]);
 
         $imeFajla = $materijal->materijal_id . '_' . $nazivFajla;
 
-        $putanjaFajla = Storage::disk('public')->putFileAs($putanja, $fajl, $imeFajla);
+        Storage::disk('public')->putFileAs($putanja, $fajl, $imeFajla);
 
-        $materijal->putanja_fajla = $putanjaFajla;
         $materijal->save();
 
-        return $putanjaFajla;
+        return $materijal->vratiPutanju();
     }
 
     public static function sacuvajMaterijala($korisnickiMejl, $departman, $nivoStudija, $smer, $godina, $predmet, $tipMaterijala, $podtipMaterijala, $akademskaGodina, $fajl){
         $korisnik = Korisnik::where('email', $korisnickiMejl)->first();
 
-         if (
+        if (
             $korisnik->datum_verifikacije && 
             $korisnik->datum_verifikacije->gt(now()->subMonths(env('VERIFIKACIJA_TRAJANJE_MESECI', 1)))
         ){

@@ -30,12 +30,20 @@ class AppServiceProvider extends ServiceProvider
                 ];
             },
             'auth' => function(){
+                /** @var \App\Models\Korisnik $korisnik */
                 $korisnik = Auth::user();
-                return Korisnik::prikaziKorisnika($korisnik->korisnik_id);
+                if($korisnik)
+                    return $korisnik->prikaziKorisnika();
+                else 
+                    return null;
             },
             'ulogovanKorisnik' => function(){
+                /** @var \App\Models\Korisnik $korisnik */
                 $korisnik = Auth::user();
-                return Korisnik::prikaziKorisnika($korisnik->korisnik_id);
+                if($korisnik)
+                    return $korisnik->prikaziKorisnika();
+                else 
+                    return null;
             },
         ]);
     }

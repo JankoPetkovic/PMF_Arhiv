@@ -75,46 +75,42 @@ class Korisnik extends Authenticatable
         return $korisnik;
     }
 
-    public static function prikaziKorisnika($id){
-        $korisnik = Korisnik::findOrFail($id);
-
+    public function prikaziKorisnika(){
         $podaciKorisnika = [
-            'korisnik_id' => $korisnik->korisnik_id,
-            'ime' => $korisnik->ime,
-            'prezime' => $korisnik->prezime,
-            'broj_indeksa' => $korisnik ->broj_indeksa,
-            'korisnicki_email' => $korisnik->email,
-            'status_verifikacije' => $korisnik->statusVerifikacije(),
-            'smerovi_korisnika' => $korisnik->smerovi->map(function ($smer) {
+            'korisnik_id' => $this->korisnik_id,
+            'ime' => $this->ime,
+            'prezime' => $this->prezime,
+            'broj_indeksa' => $this ->broj_indeksa,
+            'korisnicki_email' => $this->email,
+            'status_verifikacije' => $this->statusVerifikacije(),
+            'smerovi_korisnika' => $this->smerovi->map(function ($smer) {
                     return [
                         'smer_id' => $smer->smer_id,
                         'naziv_smera' => $smer->naziv_smera,
                         'nivo_studija' => $smer->nivoStudija->nivo_studija,
                     ];
                 })->toArray(),
-                'predmeti_korisnika' => $korisnik->predmeti->map(function ($predmet) {
+                'predmeti_korisnika' => $this->predmeti->map(function ($predmet) {
                     return [
                         'predmet_id' => $predmet->predmet_id,
                         'naziv' => $predmet->naziv,
                     ];
                 })->toArray(),
-            'godina' => $korisnik->godina,
+            'godina' => $this->godina,
         ];
 
         return $podaciKorisnika;
     }
 
-    public static function azurirajKorisnika($id, $podaci){
-        $korisnik = Korisnik::findOrFail($id);
-
-        $updatePodaci = array_filter($podaci, function($v, $k) {
-            return in_array($k, ['ime', 'prezime', 'broj_indeksa', 'email', 'datum_verifikacije', 'godina']) && $v !== null;
+    public function azurirajKorisnika($podaci){
+        $updatePodaci = array_filter($podaci, function($vrednost, $kljuc) {
+            return in_array($kljuc, ['ime', 'prezime', 'broj_indeksa', 'email', 'datum_verifikacije', 'godina']) && $vrednost !== null;
         }, ARRAY_FILTER_USE_BOTH);
 
-        $korisnik->update($updatePodaci);
+        $this->update($updatePodaci);
 
         if (array_key_exists('izabraniSmerovi', $podaci)) {
-            $korisnik->smerovi()->sync($podaci['izabraniSmerovi']);
+            $this->smerovi()->sync($podaci['izabraniSmerovi']);
         }
     }
 
@@ -155,34 +151,6 @@ class Korisnik extends Authenticatable
             Mail::to($this->email)->send(new Verifikacija($this->email, $link));
         } catch (\Exception $e) {
             echo 'GRESKA pri slanju verifikacije: ' . $e->getMessage();
-        }
-    }
-
-    public function obradiVerifikaciju(){
-        $this->datum_verifikacije = Carbon::now();
-        $this->save();
-
-        $keširaniMaterijal = Cache::pull('materijal_cekaj_' . $this->korisnik_id);
-
-        if ($keširaniMaterijal) {
-            $fajl = new UploadedFile(
-                storage_path('app/public/' . $keširaniMaterijal['putanja_fajla']),
-                basename($keširaniMaterijal['putanja_fajla'])
-            );
-
-            $putanja = Materijal::kreirajMaterijal(
-                $fajl,
-                $keširaniMaterijal['departman'],
-                $keširaniMaterijal['nivoStudija'],
-                $keširaniMaterijal['smer'],
-                $keširaniMaterijal['godina'],
-                $keširaniMaterijal['predmet'],
-                $keširaniMaterijal['tipMaterijala'],
-                $keširaniMaterijal['podtipMaterijala'],
-                $keširaniMaterijal['akademskaGodina'],
-                $this->korisnik_id
-            );
-            Storage::disk('public')->delete($keširaniMaterijal['putanja_fajla']);
         }
     }
 

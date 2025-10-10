@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash; 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Carbon;
 
 use App\Http\Controllers\Controller;
 use App\Models\Korisnik;
@@ -70,7 +71,8 @@ class KontrolerKorisnika extends Controller
         $korisnik = Auth::user();
         $korisnik?->load('tipUloge');
         if(($korisnik && $korisnik->korisnik_id == $id) || $korisnik?->tipUloge->naziv === 'Admin'){
-            $podaciKorisnika = Korisnik::prikaziKorisnika($id);
+            $trazeniKorisnik = Korisnik::findOrFail($id);
+            $podaciKorisnika = $trazeniKorisnik->prikaziKorisnika();
             $dostupniSmerovi = Smer::all()->toArray();
             $dostupniPredmeti = Predmet::whereIn('smer_id', array_column($podaciKorisnika['smerovi_korisnika'], 'id'))->get()->toArray();
             $podaci = [
@@ -115,8 +117,8 @@ class KontrolerKorisnika extends Controller
             'izabraniSmerovi.*' => 'integer|exists:smer,smer_id',
         ]);
 
-
-        Korisnik::azurirajKorisnika($id, $validacija);
+        $korisnik = Korisnik::findOrFail($id);
+        $korisnik->azurirajKorisnika($validacija);
     }
 
     /**
@@ -162,12 +164,12 @@ class KontrolerKorisnika extends Controller
 
         $korisnik = Korisnik::findOrFail($id);
 
-        $korisnik->obradiVerifikaciju();
+        $korisnik->azurirajKorisnika(['datum_verifikacije' => Carbon::now()]);
 
         $statusVerifikacije = $korisnik->statusVerifikacije();
 
         if($statusVerifikacije['verifikovan']){
-            $korisnik->zabeleziAkcijuKorisnika('verifikacija', 'Korisnik je uspesno verifikovan.');
+            $korisnik->zabeleziAkcijuKorisnika('Verifikacija', 'Korisnik je uspesno verifikovan.');
             return redirect()->route('home')->with('success', "Korisnik uspesno verifikovan!");
         } else {
             return redirect()->route('home')->with('error', 'Greska pri verifikaciji');
