@@ -88,8 +88,6 @@ class KontrolerMaterijala extends Controller
                 'fajl' => ['required', 'file', 'mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/zip,text/plain,application/vnd.oasis.opendocument.text,image/png,image/jpeg', 'max:20480'],
             ]);
 
-            $korisnickiMejl = Auth::user()->email;
-
             $departman = json_decode($zahtev->input('departman'), true);
             $nivoStudija = json_decode($zahtev->input('nivoStudija'), true);
             $smer = json_decode($zahtev->input('smer'), true);
@@ -100,6 +98,16 @@ class KontrolerMaterijala extends Controller
             $akademskaGodina = str_replace('/', '-', $zahtev->input('akademskaGodina'));
             $korisnickiMejl = $zahtev->input('korisnickiMejl');
             $fajl = $zahtev->file('fajl');
+
+            /** @var \App\Models\Korisnik $korisnik */
+            $korisnik = Auth::user();
+            $verifikacijaKorisnika = $korisnik->statusVerifikacije();
+
+            if(($korisnickiMejl != $korisnik->korisnicki_email) || (!$verifikacijaKorisnika['verifikovan'])){
+                return response()->json([
+                    'message' => 'Neovlašlćeni korisnik',
+                ], 401);
+            }
 
             return Materijal::sacuvajMaterijala(
                 $korisnickiMejl,

@@ -14,14 +14,14 @@ import { Tooltip } from "@mui/material";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { IoCloudUpload } from "react-icons/io5";
 import { MdVerified } from "react-icons/md"
+import { usePage } from "@inertiajs/react";
 
 export default function ObjavaMaterijala({podesiPrikazDialoga}) {
+    const { ulogovanKorisnik } = usePage().props;
     const {podaci} = koristiGlobalniKontekst();
     const dostupneSkolskeGodine = generisiSkolskeGodine();
 
     const zaustaviPrviRender = useRef(false);
-    const zaustaviPrviRenderVerifikacija = useRef(false);
-    const zaustaviPrviRenderStatusaVerifikacije = useRef(false);
 
     const [dostupneInformacije, podesiDostupneInformacije] = useState({
         dostupniDepartmani: podaci.dostupniDepartmani,
@@ -45,18 +45,6 @@ export default function ObjavaMaterijala({podesiPrikazDialoga}) {
             dostupneSkolskeGodine[dostupneSkolskeGodine.length - 1],
         izabraniFajl: '',
     });
-
-    const [unetaMailAdresa, podesiUnetuMailAdresu] = useState("");
-
-    const [statusVerifikacije, podesiStatusVerifikacije] = useState({
-        verifikovan: false,
-        statusVerifikacije: undefined
-    });
-
-    const [opisVerifikacije, podesiOpisVerifikacije] = useState({
-        klase: "text-gray-500",
-        tekst: "Materijal će biti vidljiv nakon verifikacije"
-    })
 
     const [zakljucavanjeSelecta, podesiZakljucavanjeSelecta] = useState({
         selectDepartmana: true,
@@ -89,6 +77,7 @@ export default function ObjavaMaterijala({podesiPrikazDialoga}) {
 
 
     useEffect(() => {
+        console.log(ulogovanKorisnik);
         if(dostupneInformacije.dostupniDepartmani){
             azurirajZakljucavanjeSelecta('selectDepartmana', false)
         }
@@ -203,58 +192,7 @@ export default function ObjavaMaterijala({podesiPrikazDialoga}) {
         }
     }, [izabraneInformacije.izabraniTipMaterijala]);
 
-    useEffect(()=>{
-        if (!zaustaviPrviRenderVerifikacija.current) {
-            zaustaviPrviRenderVerifikacija.current = true;
-            return;
-        }
-        const proveriVerifikaciju = async () => {
-            podesiStatusVerifikacije(await ServisKorisnika.statusVerifikacije(unetaMailAdresa));
-        };
-
-        const validanMejl = /^[\w.-]+@pmf\.edu\.rs$/i.test(unetaMailAdresa);
-        if(validanMejl){
-            proveriVerifikaciju();
-        } else {
-            podesiStatusVerifikacije({
-                verifikovan: undefined,
-                statusVerifikacije: false
-            })
-        }
-    }, [unetaMailAdresa])
-
-    useEffect(()=>{
-        if (!zaustaviPrviRenderStatusaVerifikacije.current) {
-            zaustaviPrviRenderStatusaVerifikacije.current = true;
-            return;
-        }
-        if (statusVerifikacije.verifikovan === undefined){
-            podesiOpisVerifikacije({
-                klase: "text-gray-500",
-                tekst: "Materijal će biti vidljiv nakon verifikacije"
-            })
-        }
-        else if(statusVerifikacije.verifikovan){
-            podesiOpisVerifikacije({
-                klase: "text-green-500",
-                tekst: "Verifikovani ste"
-            })
-        } else {
-            podesiOpisVerifikacije({
-                klase: "text-red-500",
-                tekst: "Očekuj te mejl za verifikaciju"
-            })
-        }
-    }, [statusVerifikacije])
-
     const obradiKrajForme = () => {
-        const validanMejl = /^[\w.-]+@pmf\.edu\.rs$/i.test(unetaMailAdresa);
-
-        if (!validanMejl) {
-            prikaziToastNotifikaciju("Mejl nije validan", TipToastNotifikacije.Greska)
-            return;
-        }
-
         if (
             izabraneInformacije.izabraniPredmet &&
             izabraneInformacije.izabraniPodTipMaterijala &&
@@ -270,17 +208,13 @@ export default function ObjavaMaterijala({podesiPrikazDialoga}) {
             podaciForme.append("tipMaterijala", JSON.stringify(izabraneInformacije.izabraniTipMaterijala));
             podaciForme.append("podtipMaterijala", JSON.stringify(izabraneInformacije.izabraniPodTipMaterijala));
             podaciForme.append("akademskaGodina", izabraneInformacije.izabranaSkolskaGodina.naziv);
-            podaciForme.append("korisnickiMejl", unetaMailAdresa); 
+            podaciForme.append("korisnickiMejl", ulogovanKorisnik.korisnicki_email); 
             podaciForme.append("fajl", izabraneInformacije.izabraniFajl);
 
             const uspesnaObjava = ServisMaterijala.sacuvajMaterijal(podaciForme);
                 
             if(uspesnaObjava) {
-                if(statusVerifikacije.verifikovan){
-                    prikaziToastNotifikaciju("Materijal je uspešno objavljen", TipToastNotifikacije.Uspesno);
-                } else {
-                    prikaziToastNotifikaciju("Mejl za verifikaciju je poslat. Materijal će biti vidljiv nakon verifikacije.", TipToastNotifikacije.Info);
-                }
+                prikaziToastNotifikaciju("Materijal je uspešno objavljen", TipToastNotifikacije.Uspesno);
             }
             podesiPrikazDialoga(false);
         }
@@ -478,26 +412,6 @@ export default function ObjavaMaterijala({podesiPrikazDialoga}) {
                     )}
                     {korak === 4 && (
                         <div className="flex flex-col justify-center gap-6 items-center">
-                            <div className="flex items-center gap-2">
-                                {/* <label htmlFor="email">
-                                    Unesite PMF mail adresu:
-                                </label> */}
-                                <Tooltip
-                                    title={opisVerifikacije.tekst}
-                                >
-                                    <MdVerified className={opisVerifikacije.klase} size={40} />
-                                </Tooltip>
-                                <input
-                                    type="email"
-                                    id="email"
-                                    value={unetaMailAdresa} // ""
-                                    onChange={(e) => {
-                                        podesiUnetuMailAdresu(e.target.value);
-                                    }}
-                                    className="border border-gray-400 rounded-lg p-2 w-60"
-                                    placeholder={"ime.prezime@" + import.meta.env.VITE_STUDENTSKI_EMAIL}
-                                />
-                            </div>
                             <div className="flex gap-4 justify-center">
                                 <FajlUploader
                                     podesiFajl={(vrednost) => {

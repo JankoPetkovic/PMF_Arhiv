@@ -97,6 +97,7 @@ class Korisnik extends Authenticatable
                     ];
                 })->toArray(),
             'godina' => $this->godina,
+            'uloga' => $this->tipUloge->naziv,
         ];
 
         return $podaciKorisnika;

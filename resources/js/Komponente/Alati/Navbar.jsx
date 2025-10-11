@@ -62,14 +62,26 @@ export default function Navbar()
 
             <div className="flex flex-row justify-end items-center gap-2 mr-5">
                 {ulogovanKorisnik && (
-                    <Tooltip title="Objavi materijal" arrow>
-                        <div
-                            className='border-2 rounded-lg p-2 border-emerald-500 cursor-pointer hover:scale-110 transition-transform duration-200'
-                            onClick={() => podesiPrikazDialogaDodavanja(true)}
-                        >
-                            <FaUpload className='text-emerald-500' size={30} />
-                        </div>
-                    </Tooltip>
+                    ulogovanKorisnik?.status_verifikacije?.verifikovan ?
+                    (
+                        <Tooltip title="Objavi materijal" arrow>
+                            <div
+                                className='border-2 rounded-lg p-2 border-emerald-500 cursor-pointer hover:scale-110 transition-transform duration-200'
+                                onClick={() => podesiPrikazDialogaDodavanja(true)}
+                            >
+                                <FaUpload className='text-emerald-500' size={30} />
+                            </div>
+                        </Tooltip>
+                    ) : (
+                        <Tooltip title="Verifikacija potrebna" arrow>
+                            <div
+                                className='border-2 rounded-lg p-2 border-gray-500 cursor-pointer hover:scale-110 transition-transform duration-200'
+                                onClick={() => prikaziToastNotifikaciju("Za objavu materijala je potrebana verifikacija. Posetite Vaš profil.", TipToastNotifikacije.Info)}
+                            >
+                                <FaUpload className='text-gray-500' size={30} />
+                            </div>
+                        </Tooltip>
+                        )
                 )}
 
                 <Tooltip title="Podrška" arrow>

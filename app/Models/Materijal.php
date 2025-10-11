@@ -100,11 +100,11 @@ class Materijal extends Model
             $upit->where('naziv', 'like', '%' . $filteri['pretraga'] . '%');
         }
 
-        $kolonaSortiranja = $filteri['kolonaSortiranja'] ?? 'datum_dodavanja';
+        $kolonaSortiranja = $filteri['kolonaSortiranja'] ?? 'materijal_id';
         $pravacSortiranja = $filteri['pravacSortiranja'] ?? 'desc';
         $poStranici = $filteri['poStranici'] ?? 10;
 
-        if (!in_array($kolonaSortiranja, ['naziv', 'datum_dodavanja']) || !in_array($pravacSortiranja, ['asc', 'desc'])) {
+        if (!in_array($kolonaSortiranja, ['naziv', 'datum_dodavanja', 'materijal_id']) || !in_array($pravacSortiranja, ['asc', 'desc'])) {
             throw new \InvalidArgumentException("Nevalidan parametar za sortiranje.");
         }
 
