@@ -53,8 +53,8 @@ class KontrolerPocetneStranice extends Controller
         ];
 
         if (Auth::check()) {
-            $korisnik = Auth::user();
-            $filteri['smer_id'] = $korisnik->smerovi->pluck('smer_id')->toArray();
+            $prijavljenKorisnik = Auth::user();
+            $filteri['smer_id'] = $prijavljenKorisnik->smerovi->pluck('smer_id')->toArray();
         }
 
         $materijali = Materijal::filtriraj($filteri);

@@ -4,7 +4,7 @@ import { Tooltip } from '@mui/material';
 import { useEffect, useState } from "react";
 import PrijaviProblem from "./Alati/PrijaviProblem";
 import { FaRegUserCircle } from "react-icons/fa";
-import { FaShareAlt } from "react-icons/fa";
+import { FaShareAlt, FaRegTrashAlt  } from "react-icons/fa";
 import { GrDocumentZip } from "react-icons/gr";
 import skracenicaNivoaStudija from '../PomocniAlati/skracenicaNivoaStudija';
 import {prikaziToastNotifikaciju} from'../PomocniAlati/ToastNotifikacijaServis';
@@ -12,17 +12,21 @@ import TipToastNotifikacije from'../PomocniAlati/TipToastNotifikacije';
 import Dialog from "../Komponente/Dialog";
 import { TbFileTypeDocx } from "react-icons/tb";
 import { FaFileAlt } from "react-icons/fa";
-import { usePage } from "@inertiajs/react";
+import { router, usePage } from "@inertiajs/react";
+import ServisMaterijala from "../PomocniAlati/Servisi/ServisMaterijala";
 
 export default function KarticaMaterijala({materijal}){
 
     const { ulogovanKorisnik } = usePage().props;
-    const [prijava, podesiPrijavu] = useState(false)
+    const [dialogPrijave, podesDialogPrijave] = useState(false)
     const [izabraniMaterijal, podesiIzabraniMaterijal] = useState(false);
+    const [visiPristup, podesiVisiPristup] = useState(false)
+    const [dialogBrisanja, podesiDialogBrisanja] = useState(false);
 
-    const zatvoriPrijavu = () => {
-        podesiPrijavu(false)
-    }
+    useEffect(()=>{
+        if(ulogovanKorisnik && (ulogovanKorisnik?.uloga != "Gost" || ulogovanKorisnik?.korisnicki_email == materijal.korisnik))
+            podesiVisiPristup(true);
+    }, [])
 
     const preuzmiMaterijal = (putanjaFajla, nazivFajla) => {
         const link = document.createElement('a');
@@ -38,6 +42,20 @@ export default function KarticaMaterijala({materijal}){
         if (delovi.length < 2) return null; 
 
         return delovi.pop().toLowerCase();
+    }
+
+    const obradiBrisanje = () =>{
+        if(ulogovanKorisnik && visiPristup){
+            if(ulogovanKorisnik.status_verifikacije.verifikovan){
+                ServisMaterijala.obrisiMaterijal(materijal.materijal_id)
+            } else{
+                prikaziToastNotifikaciju("Korisnik mora biti verifikovan da bi izvršio ovu akciju", TipToastNotifikacije.Info)
+            }
+        } else {
+            prikaziToastNotifikaciju("Korisnik mora biti menadžer ili admin da bi izvršio ovu akciju", TipToastNotifikacije.Info)
+        }
+        router.reload()
+        podesiDialogBrisanja(false);
     }
 
 
@@ -102,18 +120,27 @@ export default function KarticaMaterijala({materijal}){
                     />
                 </Tooltip>
                 <Tooltip title="Prijavi">
-                <PiWarningCircleBold
-                    size={25}
-                    onClick={() => {
-                    podesiPrijavu(true)
-                    podesiIzabraniMaterijal(materijal.materijal_id)
-                    }}
-                    className="text-red-800 cursor-pointer hover:scale-110 transition-transform duration-200"
-                />
+                    <PiWarningCircleBold
+                        size={25}
+                        onClick={() => {
+                            podesDialogPrijave(true)
+                            podesiIzabraniMaterijal(materijal.materijal_id)
+                        }}
+                        className="text-red-800 cursor-pointer hover:scale-110 transition-transform duration-200"
+                    />
                 </Tooltip>
+                {visiPristup && 
+                    <Tooltip title={"Obriši"}>
+                        <FaRegTrashAlt 
+                            size={25}
+                            className="cursor-pointer text-red-400 hover:scale-110 transition-transform duration-200"
+                            onClick={() => podesiDialogBrisanja(true)}
+                        />
+                    </Tooltip>
+                }
             </div>
 
-            {(ulogovanKorisnik && (ulogovanKorisnik?.uloga != "Gost" || ulogovanKorisnik?.korisnicki_email == materijal.korisnik)) ? 
+            {visiPristup ? 
             (
                 <div className="flex justify-between items-center text-xs font-semibold">
                     <Tooltip title={materijal.korisnik}>
@@ -128,11 +155,29 @@ export default function KarticaMaterijala({materijal}){
             )}
             <Dialog
                 naslov={"Prijava materijala"}
-                sadrzaj={<PrijaviProblem podesiPrijavu={zatvoriPrijavu} materijalId={izabraniMaterijal}/>}
-                prikaziDialog={prijava}
-                podesiPrikaziDialog={podesiPrijavu}
+                sadrzaj={<PrijaviProblem podesiPrijavu={podesDialogPrijave} materijalId={izabraniMaterijal}/>}
+                prikaziDialog={dialogPrijave}
+                podesiPrikaziDialog={podesDialogPrijave}
             />
-            
+            <Dialog 
+                naslov={"Brisanje materijala"}
+                sadrzaj={
+                        <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col gap-2">
+                            <span>Da li ste sigurni da želite da obrišete materijal <span className="font-bold">{materijal.naziv}</span> ?</span>
+                            <div className="flex self-end">
+                                <button 
+                                    onClick={()=>{
+                                        obradiBrisanje()
+                                    }}
+                                    className="block mt-4 px-4 py-2 bg-red-500 text-white rounded-md cursor-pointer">
+                                    Obriši materijal
+                                </button>
+                            </div>
+                        </div>
+                    }
+                prikaziDialog={dialogBrisanja}
+                podesiPrikaziDialog={podesiDialogBrisanja}
+            />
         </div>
     )
 }

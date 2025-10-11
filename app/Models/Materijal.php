@@ -6,12 +6,15 @@ use App\Models\PodtipMaterijala;
 use App\Models\Predmet;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 
 class Materijal extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'materijal';
 
     protected $primaryKey = 'materijal_id';
@@ -19,6 +22,7 @@ class Materijal extends Model
     public $timestamps = true;
     const CREATED_AT = 'datum_dodavanja';
     const UPDATED_AT = NULL;
+    const DELETED_AT = 'datum_brisanja';
 
     protected $fillable = ['naziv', 'predmet_id','podtip_materijala_id', 'skolska_godina', 'korisnik_id', 'datum_dodavanja'];
 

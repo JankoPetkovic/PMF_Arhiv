@@ -3,7 +3,6 @@ import CustomSelect from "../Komponente/Alati/CustomSelect";
 import FajlUploader from "../Komponente/Alati/FajlUploader";
 import { prikaziToastNotifikaciju } from "../PomocniAlati/ToastNotifikacijaServis";
 import TipToastNotifikacije from "../PomocniAlati/TipToastNotifikacije";
-import ServisKorisnika from "../PomocniAlati/Servisi/ServisKorisnika"
 import ServisMaterijala from "../PomocniAlati/Servisi/ServisMaterijala";
 import ServisSmerova from "../PomocniAlati/Servisi/ServisSmerova";
 import ServisPredmeta from "../PomocniAlati/Servisi/ServisPredmeta";
@@ -13,8 +12,7 @@ import { useState, useEffect, useRef } from "react";
 import { Tooltip } from "@mui/material";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { IoCloudUpload } from "react-icons/io5";
-import { MdVerified } from "react-icons/md"
-import { usePage } from "@inertiajs/react";
+import { router, usePage } from "@inertiajs/react";
 
 export default function ObjavaMaterijala({podesiPrikazDialoga}) {
     const { ulogovanKorisnik } = usePage().props;
@@ -77,7 +75,6 @@ export default function ObjavaMaterijala({podesiPrikazDialoga}) {
 
 
     useEffect(() => {
-        console.log(ulogovanKorisnik);
         if(dostupneInformacije.dostupniDepartmani){
             azurirajZakljucavanjeSelecta('selectDepartmana', false)
         }
@@ -216,6 +213,7 @@ export default function ObjavaMaterijala({podesiPrikazDialoga}) {
             if(uspesnaObjava) {
                 prikaziToastNotifikaciju("Materijal je uspešno objavljen", TipToastNotifikacije.Uspesno);
             }
+            router.reload();
             podesiPrikazDialoga(false);
         }
     };

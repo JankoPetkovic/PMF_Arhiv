@@ -108,7 +108,7 @@ export default function Korisnik(podaci){
         }
 
         preuzmiMaterijale();
-    }, [izabraneInformacije]);
+    }, [izabraneInformacije.izabranaStranica, izabraneInformacije.izabranBrMaterijalaPoStranici]);
 
     return(
        <div className="relative min-h-screen">

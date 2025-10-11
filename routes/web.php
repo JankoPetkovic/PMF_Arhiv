@@ -50,7 +50,7 @@ Route::resource('podtipovi-materijala', KontrolerPodtipovaMaterijala::class);
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('korisnik', KontrolerKorisnika::class)->except(['create']);
-    Route::resource('materijali', KontrolerMaterijala::class)->only(['index', 'store'])->names(['index' => 'materijali.index', 'store' => 'materijali.sacuvaj']);
+    Route::resource('materijali', KontrolerMaterijala::class)->names(['index' => 'materijali.index', 'store' => 'materijali.sacuvaj']);
     Route::post('materijal.prijavi', [KontrolerMaterijala::class, 'prijaviMaterijal']);
 });
 

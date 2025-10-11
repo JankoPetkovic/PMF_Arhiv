@@ -67,21 +67,24 @@ class KontrolerKorisnika extends Controller
      */
     public function show(string $id)
     {
-        /** @var \App\Models\Korisnik $korisnik */
-        $korisnik = Auth::user();
-        $korisnik?->load('tipUloge');
-        if(($korisnik && $korisnik->korisnik_id == $id) || $korisnik?->tipUloge->naziv === 'Admin'){
-            $trazeniKorisnik = Korisnik::findOrFail($id);
-            $podaciKorisnika = $trazeniKorisnik->prikaziKorisnika();
-            $dostupniSmerovi = Smer::all()->toArray();
-            $dostupniPredmeti = Predmet::whereIn('smer_id', array_column($podaciKorisnika['smerovi_korisnika'], 'id'))->get()->toArray();
-            $podaci = [
-                'korisnik' => $podaciKorisnika,
-                'dostupniSmerovi' => $dostupniSmerovi,
-                'dostupniPredmeti' => $dostupniPredmeti,
-            ];
+        if(Auth::check()){
+            /** @var \App\Models\Korisnik $prijavljenKorisnik */
+            $prijavljenKorisnik = Auth::user();
+
+            if($prijavljenKorisnik->korisnik_id == $id || $prijavljenKorisnik->tipUloge->naziv === 'Admin'){
+                $trazeniKorisnik = Korisnik::findOrFail($id);
+                $podaciKorisnika = $trazeniKorisnik->prikaziKorisnika();
+                $dostupniSmerovi = Smer::all()->toArray();
+                $dostupniPredmeti = Predmet::whereIn('smer_id', array_column($podaciKorisnika['smerovi_korisnika'], 'id'))->get()->toArray();
+                $podaci = [
+                    'korisnik' => $podaciKorisnika,
+                    'dostupniSmerovi' => $dostupniSmerovi,
+                    'dostupniPredmeti' => $dostupniPredmeti,
+                ];
             return Inertia::render("Korisnik", $podaci);
-        } else {
+        } 
+        }
+        else {
             return redirect()->route('home');
         }
         
@@ -100,25 +103,33 @@ class KontrolerKorisnika extends Controller
      */
     public function update(Request $zahtev, string $id)
     {
-        $ulogovanKorisnik = Auth::user();
-        if (($ulogovanKorisnik->korisnik_id != $id) || $ulogovanKorisnik?->tipUloge->naziv != 'Admin') {
-            abort(403, 'Nemaš dozvolu da menjaš ovog korisnika.');
+        if(Auth::check()){
+            $prijavljenKorisnik = Auth::user();
+            if (($prijavljenKorisnik->korisnik_id != $id) || $prijavljenKorisnik?->tipUloge->naziv != 'Admin') {
+                abort(401, 'Nemaš dozvolu da menjaš ovog korisnika.');
+            }
+                $validacija = $zahtev->validate([
+                'ime' => 'sometimes|string|max:255',
+                'prezime' => 'sometimes|string|max:255',
+                'broj_indeksa' => 'sometimes|string|max:50',
+                'email' => 'sometimes|string|max:255',
+                'tip_uloge_korisnika_id' => 'sometimes|integer',
+                'datum_verifikacije' => 'sometimes|string|max:255',
+                'godina' => 'sometimes|string|max:255',
+                'izabraniSmerovi' => 'sometimes|array',
+                'izabraniSmerovi.*' => 'integer|exists:smer,smer_id',
+            ]);
+
+            $korisnik = Korisnik::findOrFail($id);
+            $korisnik->azurirajKorisnika($validacija);
+        } else {
+            return response()->json([
+                'message' => 'Korisnik nije prijavljen',
+            ], 401);
         }
+        
 
-        $validacija = $zahtev->validate([
-            'ime' => 'sometimes|string|max:255',
-            'prezime' => 'sometimes|string|max:255',
-            'broj_indeksa' => 'sometimes|string|max:50',
-            'email' => 'sometimes|string|max:255',
-            'tip_uloge_korisnika_id' => 'sometimes|integer',
-            'datum_verifikacije' => 'sometimes|string|max:255',
-            'godina' => 'sometimes|string|max:255',
-            'izabraniSmerovi' => 'sometimes|array',
-            'izabraniSmerovi.*' => 'integer|exists:smer,smer_id',
-        ]);
-
-        $korisnik = Korisnik::findOrFail($id);
-        $korisnik->azurirajKorisnika($validacija);
+        
     }
 
     /**
@@ -177,12 +188,18 @@ class KontrolerKorisnika extends Controller
     }
 
     public function prijaviProblem(Request $zahtev){
-        $posiljaoc = $zahtev->input('posiljaoc');
-        $opisPrijave = $zahtev->input('opisPrijave');
+        if(Auth::check()){
+            $prijavljenKorisnik = Auth::user();
+            $opisPrijave = $zahtev->input('opisPrijave');
 
-        Mail::to('jankopetkovic@pmf-arhiv.com')->send(new PrijaviProblem($posiljaoc, $opisPrijave));
+            Mail::to('jankopetkovic@pmf-arhiv.com')->send(new PrijaviProblem($prijavljenKorisnik->email, $opisPrijave));
 
-        return response()->json(['message' => 'Email sent successfully!']);
+            return response()->json(['message' => 'Email sent successfully!']);
+        } else {
+            return response()->json([
+                'message' => 'Korisnik nije prijavljen',
+            ], 401);
+        }
     }
 
     public function prijava(Request $zahtev){

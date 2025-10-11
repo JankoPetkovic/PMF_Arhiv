@@ -16,7 +16,8 @@ class CreateMaterijalTable extends Migration
             $table->unsignedInteger('podtip_materijala_id');
             $table->string('skolska_godina', 45);
             $table->unsignedInteger('korisnik_id');
-            $table->date('datum_dodavanja')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('datum_dodavanja')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('datum_brisanja')->nullable();
             $table->foreign('predmet_id')
                   ->references('predmet_id')
                   ->on('predmet')

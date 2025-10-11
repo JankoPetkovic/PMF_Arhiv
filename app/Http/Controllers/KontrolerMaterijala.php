@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 
 
@@ -99,13 +98,21 @@ class KontrolerMaterijala extends Controller
             $korisnickiMejl = $zahtev->input('korisnickiMejl');
             $fajl = $zahtev->file('fajl');
 
-            /** @var \App\Models\Korisnik $korisnik */
-            $korisnik = Auth::user();
-            $verifikacijaKorisnika = $korisnik->statusVerifikacije();
-
-            if(($korisnickiMejl != $korisnik->korisnicki_email) || (!$verifikacijaKorisnika['verifikovan'])){
+            if(Auth::check()){
+                /** @var \App\Models\Korisnik $prijavljenKorisnik */
+                $prijavljenKorisnik = Auth::user();
+            } else{
                 return response()->json([
-                    'message' => 'Neovlašlćeni korisnik',
+                    'message' => 'Korisnik mora biti prijavljen',
+                ], 401);
+            }
+            
+            
+            $verifikacijaKorisnika = $prijavljenKorisnik->statusVerifikacije();
+
+            if(($korisnickiMejl != $prijavljenKorisnik->email) || (!$verifikacijaKorisnika['verifikovan'])){
+                return response()->json([
+                    'message' => 'Neovlašćeni korisnik',
                 ], 401);
             }
 
@@ -132,7 +139,6 @@ class KontrolerMaterijala extends Controller
                 'message' => 'Greška u obradi podataka. Proveri format vrednosti.',
             ], 400);
         } catch (\Throwable $e) {
-            Log::error('Greška pri čuvanju materijala: ' . $e->getMessage(), ['exception' => $e]);
             return response()->json([
                 'message' => 'Došlo je do interne greške. Pokušaj ponovo kasnije.',
             ], 500);
@@ -167,19 +173,45 @@ class KontrolerMaterijala extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        if(Auth::check()){
+            $materijal = Materijal::findOrFail($id);
+            /** @var \App\Models\Korisnik $prijavljenKorisnik */
+            $prijavljenKorisnik = Auth::user();
+            if($materijal->korisnik_id != $prijavljenKorisnik->korisnik_id || $prijavljenKorisnik->uloga == "Gost"){
+                return response()->json([
+                    'message' => 'Neovlašćeni korisnik',
+                ], 401); 
+            }
+
+            $materijal->delete();
+            $prijavljenKorisnik->zabeleziAkcijuKorisnika("Brisanje", "Korisnik je obrisao materijal: ". $materijal->materijal_id);
+            return response()->json([
+                'message' => 'Materijal obrisan',
+            ], 204); 
+        } else {
+            return response()->json([
+                'message' => 'Korisnik nije prijavljen',
+            ], 401); 
+        }
+        
     }
 
     /**
      * Šalje mejl administratorima da provere prijavu.
      */
     public function prijaviMaterijal(Request $zahtev){
-        $posiljaoc = $zahtev->input('posiljaoc');
-        $materijalId = $zahtev->input('materijalId');
-        $opisPrijave = $zahtev->input('opisPrijave');
+        if(Auth::check()){
+            $prijavljenKorisnik = Auth::user();
+            $materijalId = $zahtev->input('materijalId');
+            $opisPrijave = $zahtev->input('opisPrijave');
 
-        Mail::to('jankopetkovic@pmf-arhiv.com')->send(new PrijaviMaterijal($posiljaoc, $materijalId, $opisPrijave));
+            Mail::to('jankopetkovic@pmf-arhiv.com')->send(new PrijaviMaterijal($prijavljenKorisnik->email, $materijalId, $opisPrijave));
 
-        return response()->json(['message' => 'Email sent successfully!']);
+            return response()->json(['message' => 'Mejl uspešno poslat!']);
+        } else {
+            return response()->json([
+                'message' => 'Korisnik nije prijavljen',
+            ], 401);
+        }
     }
 }

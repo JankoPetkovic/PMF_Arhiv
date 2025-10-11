@@ -18,7 +18,7 @@ export default class ServisMaterijala {
             }
             
         } catch (greska) {
-            prikaziToastNotifikaciju('Greska pri preuzimanju materijala', TipToastNotifikacije.Greska);
+            prikaziToastNotifikaciju('Greška pri preuzimanju materijala', TipToastNotifikacije.Greska);
             throw greska
         }
     }
@@ -31,7 +31,20 @@ export default class ServisMaterijala {
             }
             return false;
         } catch (greska) {
-            prikaziToastNotifikaciju("Greska prilikom objavljivanja materijala", TipToastNotifikacije.Greska);
+            prikaziToastNotifikaciju("Greška prilikom objavljivanja materijala", TipToastNotifikacije.Greska);
+            throw greska
+        }
+    }
+
+    static async obrisiMaterijal(id){
+        try{
+            const odgovor = await axios.delete(`/materijali/${id}`);
+            if(odgovor.status === 204){
+                prikaziToastNotifikaciju("Uspešno uklonjen materijal", TipToastNotifikacije.Uspesno)
+                return true;
+            }
+        } catch(greska){
+            prikaziToastNotifikaciju("Greška prilikom uklanjanja materijala", TipToastNotifikacije.Greska)
             throw greska
         }
     }
