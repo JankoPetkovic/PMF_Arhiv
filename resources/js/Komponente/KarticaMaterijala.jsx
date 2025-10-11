@@ -1,7 +1,7 @@
 import { FaRegFilePdf, FaDownload  } from "react-icons/fa6";
 import { PiWarningCircleBold } from "react-icons/pi";
 import { Tooltip } from '@mui/material';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PrijaviProblem from "./Alati/PrijaviProblem";
 import { FaRegUserCircle } from "react-icons/fa";
 import { FaShareAlt } from "react-icons/fa";
@@ -12,9 +12,11 @@ import TipToastNotifikacije from'../PomocniAlati/TipToastNotifikacije';
 import Dialog from "../Komponente/Dialog";
 import { TbFileTypeDocx } from "react-icons/tb";
 import { FaFileAlt } from "react-icons/fa";
+import { usePage } from "@inertiajs/react";
 
 export default function KarticaMaterijala({materijal}){
 
+    const { ulogovanKorisnik } = usePage().props;
     const [prijava, podesiPrijavu] = useState(false)
     const [izabraniMaterijal, podesiIzabraniMaterijal] = useState(false);
 
@@ -111,12 +113,19 @@ export default function KarticaMaterijala({materijal}){
                 </Tooltip>
             </div>
 
-            <div className="flex justify-between items-center text-xs font-semibold">
-                <Tooltip title={materijal.korisnik}>
-                <FaRegUserCircle size={18} className="hover:scale-110 transition-transform duration-200" />
-                </Tooltip>
-                <span>{materijal.datum_dodavanja}</span>
-            </div>
+            {(ulogovanKorisnik && (ulogovanKorisnik?.uloga != "Gost" || ulogovanKorisnik?.korisnicki_email == materijal.korisnik)) ? 
+            (
+                <div className="flex justify-between items-center text-xs font-semibold">
+                    <Tooltip title={materijal.korisnik}>
+                        <FaRegUserCircle size={18} className="hover:scale-110 transition-transform duration-200" />
+                    </Tooltip>
+                    <span>{materijal.datum_dodavanja}</span>
+                </div>
+            ) : (
+                <div className="flex justify-center items-center text-xs font-semibold">
+                    <span>{materijal.datum_dodavanja}</span>
+                </div>
+            )}
             <Dialog
                 naslov={"Prijava materijala"}
                 sadrzaj={<PrijaviProblem podesiPrijavu={zatvoriPrijavu} materijalId={izabraniMaterijal}/>}

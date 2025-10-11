@@ -80,20 +80,14 @@ export default function Korisnik(podaci){
             });
             azurirajPoljeDostupneInformacije('dostupniSmerovi', smerovi);
         }
-        const prezumiMaterijaleKorisnika = async () => {
-            const materijali = await ServisMaterijala.vratiMaterijale({
-                korisnik_id: korisnik.korisnik_id
-            });
-            azurirajPoljeDostupneInformacije('dostupniMaterijali', materijali.data);
-        }
         vratiSmerove();
-        prezumiMaterijaleKorisnika();
         azurirajZakljucavanjeSelecta('selectSmera', false)
     }, [])
 
     useEffect(() => {
         async function preuzmiMaterijale() {
             let filteri = {
+                korisnik_id: korisnik.korisnik_id,
                 stranica: izabraneInformacije.izabranaStranica + 1,
                 poStranici: izabraneInformacije.izabranBrMaterijalaPoStranici,
             };
