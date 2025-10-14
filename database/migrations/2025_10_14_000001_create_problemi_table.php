@@ -8,22 +8,22 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('korisnicke_akcije', function (Blueprint $table) {
+        Schema::create('problemi', function (Blueprint $table) {
             $table->increments('id');
 
             $table->integer('korisnik_id')->unsigned();
-            $table->integer('tip_korisnicke_akcije_id')->unsigned();
+            $table->integer('tip_problema_id')->unsigned();
             $table->string('poruka')->nullable();
-            $table->timestamp('vreme_akcije')->useCurrent();
+            $table->timestamp('vreme_upisa')->useCurrent();
 
             $table->foreign('korisnik_id')
                 ->references('korisnik_id')
                 ->on('korisnik')
                 ->onDelete('cascade');
 
-            $table->foreign('tip_korisnicke_akcije_id')
+            $table->foreign('tip_problema_id')
                 ->references('id')
-                ->on('tip_korisnicke_akcije')
+                ->on('tip_problema')
                 ->onDelete('cascade');
         });
     }

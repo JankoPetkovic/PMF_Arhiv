@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
             DepartmanSeeder::class,
             Nivo_studijaSeeder::class,
             SmerSeeder::class,
-            Tip_materijalaSeeder::class,
+            TipMaterijalaSeeder::class,
             KorisnikSeeder::class,
             Podtip_materijalaSeeder::class,
             PredmetSeeder1::class,
@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             PredmetSeeder3::class,
             PredmetSeeder4::class,
             TipKorisnickeAkcijeSeeder::class,
+            TipProblemaSeeder::class,
         ]);
     }
 }

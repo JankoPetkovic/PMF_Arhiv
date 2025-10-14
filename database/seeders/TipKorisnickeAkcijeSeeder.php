@@ -18,6 +18,7 @@ class TipKorisnickeAkcijeSeeder extends Seeder
             ['naziv' => 'Verifikacija'],
             ['naziv' => 'Prijavljivanje'],
             ['naziv' => 'Odjavljivanje'],
+            ['naziv' => 'Eksport'],
         ]);
     }
 }

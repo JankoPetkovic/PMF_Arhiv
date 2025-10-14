@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-class Tip_materijalaSeeder extends Seeder
+class TipMaterijalaSeeder extends Seeder
 {
     public function run(): void
     {

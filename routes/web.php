@@ -8,7 +8,6 @@ use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
 
 use App\Http\Controllers\KontrolerPocetneStranice;
-use App\Http\Controllers\ObjaviMaterijal;
 use App\Http\Controllers\KontrolerKorisnika;
 use App\Http\Controllers\KontrolerMaterijala;
 use App\Http\Controllers\KontrolerPredmeta;
@@ -17,6 +16,7 @@ use App\Http\Controllers\KontrolerNivoaStudija;
 use App\Http\Controllers\KontrolerDepartmana;
 use App\Http\Controllers\KontrolerSmerova;
 use App\Http\Controllers\KontrolerPodtipovaMaterijala;
+use App\Http\Controllers\KontrolerAdminKorisnika;
 
 //Kontroler pocetne stranice
 Route::get('/', [KontrolerPocetneStranice::class, 'index'])->name('home');
@@ -52,5 +52,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('korisnik', KontrolerKorisnika::class)->except(['create']);
     Route::resource('materijali', KontrolerMaterijala::class)->names(['index' => 'materijali.index', 'store' => 'materijali.sacuvaj']);
     Route::post('materijal.prijavi', [KontrolerMaterijala::class, 'prijaviMaterijal']);
+    Route::get('export-problema', [KontrolerAdminKorisnika::class, 'exportProblema']);
+    Route::get('export-strukture-fakulteta', [KontrolerAdminKorisnika::class, 'exportStrukturaFakulteta']);
 });
 

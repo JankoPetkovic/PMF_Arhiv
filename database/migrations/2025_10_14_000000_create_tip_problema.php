@@ -8,7 +8,7 @@ return new class extends Migration
 { 
     public function up(): void
     {
-        Schema::create('tip_korisnicke_akcije', function (Blueprint $table) {
+        Schema::create('tip_problema', function (Blueprint $table) {
             $table->increments('id');
             $table->string('naziv'); 
         });
