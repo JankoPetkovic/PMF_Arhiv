@@ -7,8 +7,8 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 use App\Models\Smer;
-use App\Models\TipMaterijala;
-use App\Models\Predmet;
+use App\Models\Departman;
+use App\Models\NivoStudija;
 
 class KontrolerSmerova extends Controller
 {
@@ -69,7 +69,36 @@ class KontrolerSmerova extends Controller
      */
     public function store(Request $zahtev)
     {
-        //
+        $validacija = $zahtev->validate([
+            'naziv' => 'required|string|max:255|unique:smer,naziv_smera',
+            'departman.naziv' => 'required|string|max:255',
+            'nivo_studija.nivo_studija' => 'required|string|max:100',
+        ]);
+
+        $departman = Departman::where('naziv', $validacija['departman']['naziv'])->first();
+        if (!$departman) {
+            return response()->json([
+                'message' => "Departman '{$validacija['departman']}' nije pronađen.",
+            ], 404);
+        }
+
+        $nivoStudija = NivoStudija::where('nivo_studija', $validacija['nivo_studija']['nivo_studija'])->first();
+        if (!$nivoStudija) {
+            return response()->json([
+                'message' => "Nivo studija '{$validacija['nivo_studija']['nivo_studija']}' nije pronađen.",
+            ], 404);
+        }
+
+        $smer = Smer::create([
+            'naziv_smera' => $validacija['naziv'],
+            'departman_id' => $departman->departman_id,
+            'nivo_studija_id' => $nivoStudija->nivo_studija_id,
+        ]);
+
+        return response()->json([
+            'message' => 'Smer je uspešno kreiran.',
+            'smer' => $smer,
+        ], 201);
     }
 
     /**

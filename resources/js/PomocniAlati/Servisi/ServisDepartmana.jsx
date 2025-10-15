@@ -13,4 +13,17 @@ export default class ServisDepartmana{
             throw greska
         }
     }
+    
+    static async dodajDepartman(naziv){
+        try{
+            const odgovor = await axios.post('/departmani', {
+                naziv: naziv
+            });
+            prikaziToastNotifikaciju(`Departman ${naziv} je uspešno kreiran`, TipToastNotifikacije.Uspesno);
+        } catch (greska) {
+            prikaziToastNotifikaciju('Greska pri preuzimanju departmana', TipToastNotifikacije.Greska);
+            throw greska
+        }
+    }
+
 }

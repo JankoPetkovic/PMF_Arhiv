@@ -30,20 +30,9 @@ Route::post('/posalji-verifikaciju', [KontrolerKorisnika::class, 'posaljiVerifik
 Route::get('/verifikuj-mejl/{id}',[KontrolerKorisnika::class, 'obradiVerifikaciju'])->name('korisnik.verifikuj');
 Route::post('/prijavi-problem', [KontrolerKorisnika::class, 'prijaviProblem']);
 
-//Kontroler Predmeta
-Route::resource('predmeti', KontrolerPredmeta::class);
 
 //Kontroler Tipova materijala
 Route::resource('tipovi-materijala', KontrolerTipaMaterijala::class);
-
-//Kontroler Nivoa studija
-Route::resource('nivo-studija', KontrolerNivoaStudija::class);
-
-//Kontroler departmana
-Route::resource('departmani', KontrolerDepartmana::class);
-
-//Kontroler Smerova
-Route::resource('smerovi', KontrolerSmerova::class);
 
 //Kontroler Podtipova materijala
 Route::resource('podtipovi-materijala', KontrolerPodtipovaMaterijala::class);
@@ -54,5 +43,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('materijal.prijavi', [KontrolerMaterijala::class, 'prijaviMaterijal']);
     Route::get('export-problema', [KontrolerAdminKorisnika::class, 'exportProblema']);
     Route::get('export-strukture-fakulteta', [KontrolerAdminKorisnika::class, 'exportStrukturaFakulteta']);
+    Route::get('export-korisnickih-akcija', [KontrolerAdminKorisnika::class, 'exportKorisnickihAkcija']);
+
+    //Kontroler departmana
+    Route::resource('departmani', KontrolerDepartmana::class);
+
+    //Kontroler Nivoa studija
+    Route::resource('nivo-studija', KontrolerNivoaStudija::class);
+
+    //Kontroler Smerova
+    Route::resource('smerovi', KontrolerSmerova::class);
+
+    //Kontroler Predmeta
+    Route::resource('predmeti', KontrolerPredmeta::class);
+
 });
 

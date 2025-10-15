@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Exports\ExportProblema;
+use App\Exports\ExportKorisnickihAkcija;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -50,5 +51,11 @@ class ServisIzvestaja
         ]);
 
         return $pdf->download('izvestaj_departmani.pdf');
+    }
+
+    public function generisiIzvestajKorisnickihAkcija()
+    {
+        $nazivFajla = 'korisnicke_akcije_' . now()->format('Y_m_d_H_i_s') . '.xlsx';
+        return Excel::download(new ExportKorisnickihAkcija, $nazivFajla);
     }
 }

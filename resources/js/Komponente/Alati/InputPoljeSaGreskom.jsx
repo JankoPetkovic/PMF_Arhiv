@@ -77,7 +77,7 @@ export default function InputPoljeSaGreskom({labela, vrednost, obradiPromenu, gr
     }
 
     return (
-        <div className="mb-3">
+        <div>
             <label className="block mb-1">{labela}</label>
             <input
                 type={tipPolja === 'number' ? 'text' : tipPolja}

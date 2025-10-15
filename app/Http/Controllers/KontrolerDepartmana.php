@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 use App\Models\Departman;
 
@@ -31,8 +32,29 @@ class KontrolerDepartmana extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $zahtev)
-    {
-        //
+    {   
+        /** @var \App\Models\Korisnik $prijavljenKorisnik */
+        $prijavljenKorisnik = Auth::user();
+        $validacija = $zahtev->validate([
+            'naziv' => 'required|string|max:255|unique:departman,naziv',
+        ]);
+
+        if($prijavljenKorisnik->tipUloge->naziv === "Admin"){
+            $departman = Departman::create([
+                'naziv' => $validacija['naziv']
+            ]);
+            $prijavljenKorisnik->zabeleziAkcijuKorisnika('Kreiranje', 'Kreiran departman: ' . $validacija['naziv']);
+            return $departman;
+        } else {
+            return response()->json([
+                'message' => 'Korisnik nema Admin privilegije',
+            ], 401);
+        }
+
+        
+
+        
+
     }
 
     /**

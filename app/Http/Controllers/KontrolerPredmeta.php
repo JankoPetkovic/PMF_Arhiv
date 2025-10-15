@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use App\Models\Predmet;
+use App\Models\Smer;
 
 class KontrolerPredmeta extends Controller
 {
@@ -61,7 +62,34 @@ class KontrolerPredmeta extends Controller
      */
     public function store(Request $zahtev)
     {
-        //
+        $validacija = $zahtev->validate([
+            'naziv' => 'required|string|max:255|unique:predmet,naziv',
+            'smer.naziv_smera' => 'required|string|max:255',
+            'godina.vrednost' => 'required|integer|max:3',
+        ]);
+
+        $smer = Smer::where('naziv_smera', $validacija['smer']['naziv_smera'])->first();
+        if (!$smer) {
+            return response()->json([
+                'message' => "Departman '{$validacija['departman']}' nije pronađen.",
+            ], 404);
+        }
+
+        if($validacija['godina']['vrednost'] < 0 || $validacija['godina']['vrednost'] > 4){
+            return response()->json([
+                'message' => "'{$validacija['godina']['naziv']}' nije pronađena.",
+            ], 404);
+        }
+        $predmet = Predmet::create([
+            'naziv' => $validacija['naziv'],
+            'smer_id' => $smer->smer_id,
+            'godina' => $validacija['godina']['vrednost'],
+        ]);
+
+        return response()->json([
+            'message' => 'Predmet je uspešno kreiran.',
+            'smer' => $predmet,
+        ], 201);
     }
 
     /**

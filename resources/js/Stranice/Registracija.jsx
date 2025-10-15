@@ -1,7 +1,5 @@
 import { useState } from "react";
 import axios from "axios";
-import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
-import { Tooltip } from "@mui/material";
 import InputPoljeSaGreskom from "../Komponente/Alati/InputPoljeSaGreskom";
 import { prikaziToastNotifikaciju } from "../PomocniAlati/ToastNotifikacijaServis";
 import TipToastNotifikacije from "../PomocniAlati/TipToastNotifikacije";

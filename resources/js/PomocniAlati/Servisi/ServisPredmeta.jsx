@@ -15,4 +15,27 @@ export default class ServisPredmeta{
             throw greska
         }
     }
+
+    static async dodajPredmet(opcije) {
+        try {
+            const odgovor = await axios.post('/predmeti', {
+                naziv: opcije.nazivPredmeta,
+                smer: opcije.smer,     
+                godina: opcije.godina,   
+            });
+
+            prikaziToastNotifikaciju(
+                `Predmet "${opcije.nazivPredmeta}" je uspešno kreiran.`,
+                TipToastNotifikacije.Uspesno
+            );
+
+            return odgovor.data;
+        } catch (greska) {
+            prikaziToastNotifikaciju(
+                'Greška pri dodavanju predmeta.',
+                TipToastNotifikacije.Greska
+            );
+            throw greska;
+        }
+    }
 }
