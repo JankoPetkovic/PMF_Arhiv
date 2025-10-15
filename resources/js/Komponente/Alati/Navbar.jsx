@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import SearchBox from "./SearchBox";
 import Logo from "./Logo";
 import { FaRegUserCircle } from "react-icons/fa";
 import { MdVerified, MdLogout  } from "react-icons/md";
@@ -57,8 +56,6 @@ export default function Navbar()
             <div className="w-30 ml-5">
                 <Logo/>
             </div>
-
-            {/* <SearchBox value={query} onChange={setQuery} placeholder="Pretraži materijale..."  /> */}
 
             <div className="flex flex-row justify-end items-center gap-2 mr-5">
                 {ulogovanKorisnik && (
