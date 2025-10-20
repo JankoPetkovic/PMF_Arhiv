@@ -38,6 +38,8 @@ export default function Registracija({podesiPrikaziDialog}) {
 
     
     try {
+
+      // TODO u servis da se ubaci
       const odgovor = await axios.post("/korisnik", {
         ime: podaci.ime,
         prezime: podaci.prezime,

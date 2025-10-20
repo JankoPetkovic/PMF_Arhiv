@@ -23,6 +23,7 @@ Route::get('/', [KontrolerPocetneStranice::class, 'index'])->name('home');
 
 //Kontroler Korisnika
 Route::get('korisnik/registracija', [KontrolerKorisnika::class, 'create'])->name('korisnik.create');
+Route::post('korisnik', [KontrolerKorisnika::class, 'store'])->name('korisnik.store');
 Route::post('/prijava', [KontrolerKorisnika::class, 'prijava']);
 Route::post('/odjava', [KontrolerKorisnika::class, 'odjava']); 
 Route::get('/status-verifikacije', [KontrolerKorisnika::class, 'statusVerifikacije']);
@@ -38,7 +39,7 @@ Route::resource('tipovi-materijala', KontrolerTipaMaterijala::class);
 Route::resource('podtipovi-materijala', KontrolerPodtipovaMaterijala::class);
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::resource('korisnik', KontrolerKorisnika::class)->except(['create']);
+    Route::resource('korisnik', KontrolerKorisnika::class)->except(['create', 'store']);
     Route::resource('materijali', KontrolerMaterijala::class)->names(['index' => 'materijali.index', 'store' => 'materijali.sacuvaj']);
     Route::post('materijal.prijavi', [KontrolerMaterijala::class, 'prijaviMaterijal']);
     Route::get('export-problema', [KontrolerAdminKorisnika::class, 'exportProblema']);
