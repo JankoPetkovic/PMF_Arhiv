@@ -177,7 +177,7 @@ class KontrolerMaterijala extends Controller
             $materijal = Materijal::findOrFail($id);
             /** @var \App\Models\Korisnik $prijavljenKorisnik */
             $prijavljenKorisnik = Auth::user();
-            if($materijal->korisnik_id != $prijavljenKorisnik->korisnik_id || $prijavljenKorisnik->uloga == "Gost"){
+            if($materijal->korisnik_id != $prijavljenKorisnik->korisnik_id && $prijavljenKorisnik->uloga == "Gost"){
                 return response()->json([
                     'message' => 'Neovlašćeni korisnik',
                 ], 401); 
