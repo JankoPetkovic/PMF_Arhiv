@@ -102,10 +102,11 @@ class KontrolerKorisnika extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $zahtev, string $id)
-    {
+    {   
+        $id = intval($id);
         if(Auth::check()){
             $prijavljenKorisnik = Auth::user();
-            if (($prijavljenKorisnik->korisnik_id != $id) || $prijavljenKorisnik?->tipUloge->naziv != 'Admin') {
+            if (($prijavljenKorisnik->korisnik_id != $id) && $prijavljenKorisnik?->tipUloge->naziv != 'Admin') {
                 abort(401, 'Nemaš dozvolu da menjaš ovog korisnika.');
             }
                 $validacija = $zahtev->validate([
