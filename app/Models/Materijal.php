@@ -47,9 +47,10 @@ class Materijal extends Model
                    $this->podtipMaterijala->tip->naziv .'/'. 
                    $this->podtipMaterijala->naziv .'/'.
                    $this->skolska_godina .'/'.
-                   $this->materijal_id .'_'. 
-                   $this->naziv;
-        return strtolower(str_replace(' ', '_', $putanja));
+                   $this->materijal_id .'_';
+        $putanja = strtolower(str_replace(' ', '_', $putanja));
+        $putanja = $putanja . $this->naziv;
+        return $putanja;
     }
 
     public static function filtriraj(array $filteri){
