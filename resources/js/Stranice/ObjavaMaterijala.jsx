@@ -7,6 +7,7 @@ import ServisMaterijala from "../PomocniAlati/Servisi/ServisMaterijala";
 import ServisSmerova from "../PomocniAlati/Servisi/ServisSmerova";
 import ServisPredmeta from "../PomocniAlati/Servisi/ServisPredmeta";
 import ServisPodtipovaMaterijala from "../PomocniAlati/Servisi/ServisPodtipovaMaterijala";
+import { FaInfoCircle } from "react-icons/fa";
 import { koristiGlobalniKontekst } from "../Konteksti";
 import { useState, useEffect, useRef } from "react";
 import { Tooltip } from "@mui/material";
@@ -410,7 +411,10 @@ export default function ObjavaMaterijala({podesiPrikazDialoga}) {
                     )}
                     {korak === 4 && (
                         <div className="flex flex-col justify-center gap-6 items-center">
-                            <div className="flex gap-4 justify-center">
+                            <div className="flex gap-4 justify-center items-center">
+                                <Tooltip title={'Maksimalna veličina materijala je 50MB. Podrzani tipovi fajlova su: .pdf, .doc i .docx, .ppt i .pptx, .zip, .txt, .odt, .png, .jpg i .jpeg'} arrow>
+                                    <FaInfoCircle size={30} className="text-blue-400"/>
+                                </Tooltip>
                                 <FajlUploader
                                     podesiFajl={(vrednost) => {
                                         azurirajPoljeIzabraneInformacije(

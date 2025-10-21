@@ -84,7 +84,7 @@ class KontrolerMaterijala extends Controller
                 'tipMaterijala' => ['required'],
                 'podtipMaterijala' => ['required'],
                 'akademskaGodina' => ['required'],
-                'fajl' => ['required', 'file', 'mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/zip,text/plain,application/vnd.oasis.opendocument.text,image/png,image/jpeg', 'max:20480'],
+                'fajl' => ['required', 'file', 'mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/zip,text/plain,application/vnd.oasis.opendocument.text,image/png,image/jpeg', 'max:51200'],
             ]);
 
             $departman = json_decode($zahtev->input('departman'), true);
