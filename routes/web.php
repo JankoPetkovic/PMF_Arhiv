@@ -37,26 +37,30 @@ Route::resource('tipovi-materijala', KontrolerTipaMaterijala::class);
 
 //Kontroler Podtipova materijala
 Route::resource('podtipovi-materijala', KontrolerPodtipovaMaterijala::class);
+Route::resource('smerovi', KontrolerSmerova::class)->only(['show']);
+Route::resource('materijali', KontrolerMaterijala::class)->only(['index']);
+Route::resource('departmani', KontrolerDepartmana::class)->only(['index']);
+Route::resource('predmeti', KontrolerPredmeta::class)->except(['store']);
+
+
+//Kontroler Nivoa studija
+Route::resource('nivo-studija', KontrolerNivoaStudija::class);
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('korisnik', KontrolerKorisnika::class)->except(['create', 'store']);
-    Route::resource('materijali', KontrolerMaterijala::class)->names(['index' => 'materijali.index', 'store' => 'materijali.sacuvaj']);
+    Route::resource('materijali', KontrolerMaterijala::class)->names(['store' => 'materijali.sacuvaj'])->except(['index']);
     Route::post('materijal.prijavi', [KontrolerMaterijala::class, 'prijaviMaterijal']);
     Route::get('export-problema', [KontrolerAdminKorisnika::class, 'exportProblema']);
     Route::get('export-strukture-fakulteta', [KontrolerAdminKorisnika::class, 'exportStrukturaFakulteta']);
     Route::get('export-korisnickih-akcija', [KontrolerAdminKorisnika::class, 'exportKorisnickihAkcija']);
 
     //Kontroler departmana
-    Route::resource('departmani', KontrolerDepartmana::class);
-
-    //Kontroler Nivoa studija
-    Route::resource('nivo-studija', KontrolerNivoaStudija::class);
-
+    Route::resource('departmani', KontrolerDepartmana::class)->only(['store']);
     //Kontroler Smerova
-    Route::resource('smerovi', KontrolerSmerova::class);
+    Route::resource('smerovi', KontrolerSmerova::class)->except(['show']);
 
     //Kontroler Predmeta
-    Route::resource('predmeti', KontrolerPredmeta::class);
+    Route::resource('predmeti', KontrolerPredmeta::class)->only(['store']);
 
 });
 
