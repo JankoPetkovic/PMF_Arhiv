@@ -76,6 +76,8 @@ class Korisnik extends Authenticatable
     }
 
     public function prikaziKorisnika(){
+        $this->loadMissing(['smerovi.departman', 'smerovi.nivoStudija']);
+
         $podaciKorisnika = [
             'korisnik_id' => $this->korisnik_id,
             'ime' => $this->ime,
@@ -87,6 +89,9 @@ class Korisnik extends Authenticatable
                     return [
                         'smer_id' => $smer->smer_id,
                         'naziv_smera' => $smer->naziv_smera,
+                        'departman_id' => $smer->departman_id,
+                        'departman' => $smer->departman->naziv,
+                        'nivo_studija_id' => $smer->nivo_studija_id,
                         'nivo_studija' => $smer->nivoStudija->nivo_studija,
                     ];
                 })->toArray(),
@@ -103,14 +108,19 @@ class Korisnik extends Authenticatable
         return $podaciKorisnika;
     }
 
-    public function azurirajKorisnika($podaci){
+    public function azurirajKorisnika($podaci) {
+        if (!empty($podaci['sifra'])) {
+            $podaci['sifra'] = Hash::make($podaci['sifra']);
+        }
+
         $updatePodaci = array_filter($podaci, function($vrednost, $kljuc) {
-            return in_array($kljuc, ['ime', 'prezime', 'broj_indeksa', 'email', 'datum_verifikacije', 'godina']) && $vrednost !== null;
+            $dozvoljeno = ['ime', 'prezime', 'broj_indeksa', 'email', 'datum_verifikacije', 'godina', 'sifra'];
+            return in_array($kljuc, $dozvoljeno) && $vrednost !== null;
         }, ARRAY_FILTER_USE_BOTH);
 
         $this->update($updatePodaci);
 
-        if (array_key_exists('izabraniSmerovi', $podaci)) {
+        if (isset($podaci['izabraniSmerovi'])) {
             $this->smerovi()->sync($podaci['izabraniSmerovi']);
         }
     }

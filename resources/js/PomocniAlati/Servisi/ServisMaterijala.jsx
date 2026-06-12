@@ -48,4 +48,17 @@ export default class ServisMaterijala {
             throw greska
         }
     }
+
+    static async azurirajMaterijal(id, podaci) {
+        try {
+            const odgovor = await axios.put(`/materijali/${id}`, podaci);
+            if (odgovor.status === 200) {
+                return true;
+            }
+            return false;
+        } catch (greska) {
+            prikaziToastNotifikaciju("Greška prilikom ažuriranja materijala",TipToastNotifikacije.Greska);
+            throw greska;
+        }
+    }
 }

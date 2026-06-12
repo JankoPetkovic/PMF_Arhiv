@@ -1,0 +1,6 @@
+{
+  "statusLine": {
+    "type": "command",
+    "command": "sh C:\\xampp8.2.12\\htdocs\\blanket_arhiv\\.claude\\statusline-command.sh"
+  }
+}

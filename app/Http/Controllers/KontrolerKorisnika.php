@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash; 
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
 
 use App\Http\Controllers\Controller;
@@ -13,6 +15,7 @@ use App\Models\Korisnik;
 use App\Models\Smer;
 use App\Models\Predmet;
 use App\Mail\PrijaviProblem;
+use App\Mail\ResetSifre;
 use Inertia\Inertia;
 
 
@@ -114,6 +117,7 @@ class KontrolerKorisnika extends Controller
                 'prezime' => 'sometimes|string|max:255',
                 'broj_indeksa' => 'sometimes|string|max:50',
                 'email' => 'sometimes|string|max:255',
+                'sifra' => 'sometimes|string|min:6|confirmed:sifra_potvrda',
                 'tip_uloge_korisnika_id' => 'sometimes|integer',
                 'datum_verifikacije' => 'sometimes|string|max:255',
                 'godina' => 'sometimes|string|max:255',
@@ -221,6 +225,84 @@ class KontrolerKorisnika extends Controller
         return response()->json($korisnik, 201);
     }
     
+    public function zatraziResetSifre(Request $zahtev)
+    {
+        $zahtev->validate(['email' => 'required|email']);
+
+        $korisnik = Korisnik::where('email', $zahtev->email)->first();
+
+        // Uvek vraćamo isti odgovor bez obzira da li korisnik postoji (sprečava enumeraciju korisnika)
+        if (!$korisnik) {
+            return response()->json(['message' => 'Ako nalog postoji, email je poslat.'], 200);
+        }
+
+        // Brisanje svih starih tokena za ovaj email
+        DB::table('password_reset_tokens')->where('email', $zahtev->email)->delete();
+
+        $token = Str::random(64);
+
+        DB::table('password_reset_tokens')->insert([
+            'email' => $zahtev->email,
+            'token' => hash('sha256', $token),
+            'created_at' => Carbon::now(),
+        ]);
+
+        $resetUrl = url('/reset-sifre/' . $token . '?email=' . urlencode($zahtev->email));
+
+        try {
+            Mail::to($zahtev->email)->send(new ResetSifre($zahtev->email, $resetUrl));
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Greška pri slanju emaila.'], 500);
+        }
+
+        return response()->json(['message' => 'Ako nalog postoji, email je poslat.'], 200);
+    }
+
+    public function prikaziFormResetSifre(Request $zahtev, string $token)
+    {
+        return Inertia::render('ResetSifre', [
+            'token' => $token,
+            'email' => $zahtev->query('email', ''),
+        ]);
+    }
+
+    public function resetujSifru(Request $zahtev)
+    {
+        $zahtev->validate([
+            'email' => 'required|email',
+            'token' => 'required|string',
+            'sifra' => 'required|string|min:6|confirmed:sifra_potvrda',
+        ]);
+
+        $zapis = DB::table('password_reset_tokens')
+            ->where('email', $zahtev->email)
+            ->first();
+
+        if (!$zapis || !hash_equals($zapis->token, hash('sha256', $zahtev->token))) {
+            return response()->json(['message' => 'Token nije validan.'], 422);
+        }
+
+        if (Carbon::parse($zapis->created_at)->addMinutes(60)->isPast()) {
+            DB::table('password_reset_tokens')->where('email', $zahtev->email)->delete();
+            return response()->json(['message' => 'Token je istekao. Zatražite novi email.'], 422);
+        }
+
+        $korisnik = Korisnik::where('email', $zahtev->email)->first();
+
+        if (!$korisnik) {
+            return response()->json(['message' => 'Korisnik nije pronađen.'], 404);
+        }
+
+        $korisnik->sifra = Hash::make($zahtev->sifra);
+        $korisnik->save();
+
+        DB::table('password_reset_tokens')->where('email', $zahtev->email)->delete();
+
+        $korisnik->zabeleziAkcijuKorisnika('ResetSifre', 'Korisnik je resetovao šifru.');
+
+        return response()->json(['message' => 'Šifra je uspešno promenjena.'], 200);
+    }
+
     public function odjava(Request $zahtev){
         $zahtev->user()->zabeleziAkcijuKorisnika('Odjavljivanje');
         Auth::logout();

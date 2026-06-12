@@ -10,9 +10,9 @@ class TipUlogeKorisnikaSeeder extends Seeder
     public function run(): void
     {
         DB::table('tip_uloge_korisnika')->insert([
-            ['naziv' => 'Gost'],
-            ['naziv' => 'Admin'],
-            ['naziv' => 'Menadžer'],
+            ['id' => 1, 'naziv' => 'Gost'],
+            ['id' => 2, 'naziv' => 'Admin'],
+            ['id' => 3, 'naziv' => 'Menadžer'],
         ]);
     }
 }

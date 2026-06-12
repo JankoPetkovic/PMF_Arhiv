@@ -30,6 +30,9 @@ Route::get('/status-verifikacije', [KontrolerKorisnika::class, 'statusVerifikaci
 Route::post('/posalji-verifikaciju', [KontrolerKorisnika::class, 'posaljiVerifikaciju']);
 Route::get('/verifikuj-mejl/{id}',[KontrolerKorisnika::class, 'obradiVerifikaciju'])->name('korisnik.verifikuj');
 Route::post('/prijavi-problem', [KontrolerKorisnika::class, 'prijaviProblem']);
+Route::post('/zatrazi-reset-sifre', [KontrolerKorisnika::class, 'zatraziResetSifre']);
+Route::get('/reset-sifre/{token}', [KontrolerKorisnika::class, 'prikaziFormResetSifre'])->name('reset-sifre');
+Route::post('/reset-sifre', [KontrolerKorisnika::class, 'resetujSifru']);
 
 
 //Kontroler Tipova materijala
@@ -48,7 +51,8 @@ Route::resource('nivo-studija', KontrolerNivoaStudija::class);
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('korisnik', KontrolerKorisnika::class)->except(['create', 'store']);
-    Route::resource('materijali', KontrolerMaterijala::class)->names(['store' => 'materijali.sacuvaj'])->except(['index']);
+    Route::resource('materijali', KontrolerMaterijala::class)->names(['store' => 'materijali.sacuvaj'])->except(['index', 'edit']);
+    Route::get('materijali/{id}/izmena', [KontrolerMaterijala::class, 'edit'])->name('materijali.edit');
     Route::post('materijal.prijavi', [KontrolerMaterijala::class, 'prijaviMaterijal']);
     Route::get('export-problema', [KontrolerAdminKorisnika::class, 'exportProblema']);
     Route::get('export-strukture-fakulteta', [KontrolerAdminKorisnika::class, 'exportStrukturaFakulteta']);

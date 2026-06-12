@@ -1,6 +1,7 @@
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import { Tooltip } from "@mui/material";
+import { useEffect } from "react";
 export default function CustomSelect({
     klase,
     opcije,
@@ -43,21 +44,27 @@ export default function CustomSelect({
                 options={opcije}
                 limitTags={brojIzabranihOpcija}
                 getOptionLabel={(opcija) =>
-                    opcija.naziv ||
-                    opcija.nivo_studija ||
-                    opcija.naziv_smera ||
-                    ""
+                    opcija[imeOpcije] + (nazivPlus ?" - " + opcija[nazivPlus] : '')
                 }
-                isOptionEqualToValue={(opcija, vrednost) =>
-                    (opcija.id ?? opcija.smer_id) === (vrednost.id ?? vrednost.smer_id)
-                }
+                isOptionEqualToValue={(opcija, vrednost) => {
+                    if (!opcija || !vrednost) return false;
+
+                    const oId = opcija.id ?? opcija.smer_id;
+                    const vId = vrednost.id ?? vrednost.smer_id;
+
+                    if (oId !== undefined && vId !== undefined) {
+                        return oId === vId;
+                    }
+
+                    return opcija.naziv === vrednost.naziv;
+                }}
                 value={vrednost || null}
                 multiple={viseOpcija}
                 onChange={selektujHandle}
                 size={velicina}
                 renderOption={(props, opcija) => (
                     <li {...props} key={opcija.id ?? opcija.smer_id}>
-                        {opcija[imeOpcije] + (spojiNaziv ? opcija[nazivPlus] : '')}
+                        {opcija[imeOpcije] + (nazivPlus ?" - " + opcija[nazivPlus] : '')}
                     </li>
                 )}
                 renderInput={(parametri) => (
@@ -79,9 +86,18 @@ export default function CustomSelect({
                 getOptionLabel={(opcija) =>
                     opcija[imeOpcije] + (nazivPlus ?" - " + opcija[nazivPlus] : '')
                 }
-                isOptionEqualToValue={(opcija, vrednost) =>
-                    (opcija.id ?? opcija.smer_id) === (vrednost.id ?? vrednost.smer_id)
-                }
+                isOptionEqualToValue={(opcija, vrednost) => {
+                    if (!opcija || !vrednost) return false;
+
+                    const oId = opcija.id ?? opcija.smer_id;
+                    const vId = vrednost.id ?? vrednost.smer_id;
+
+                    if (oId !== undefined && vId !== undefined) {
+                        return oId === vId;
+                    }
+
+                    return opcija.naziv === vrednost.naziv;
+                }}
                 value={vrednost || null}
                 multiple={viseOpcija}
                 onChange={selektujHandle}

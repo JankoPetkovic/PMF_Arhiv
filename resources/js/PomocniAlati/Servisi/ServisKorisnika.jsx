@@ -28,6 +28,17 @@ export default class ServisKorisnika {
         }
     }
 
+    static async zatraziResetSifre(email) {
+        try {
+            const odgovor = await axios.post('/zatrazi-reset-sifre', { email }, { withCredentials: true });
+            prikaziToastNotifikaciju("Email za promenu lozinke je poslat!", TipToastNotifikacije.Uspesno);
+            return odgovor.data;
+        } catch (greska) {
+            prikaziToastNotifikaciju("Greška pri slanju emaila za promenu lozinke.", TipToastNotifikacije.Greska);
+            throw greska;
+        }
+    }
+
     static async azurirajKorisnika(korisnikId, podaci) {
         try {
             const odgovor = await axios.put(`/korisnik/${korisnikId}`, podaci, {

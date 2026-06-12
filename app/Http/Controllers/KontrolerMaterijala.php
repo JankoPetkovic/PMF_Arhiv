@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use App\Models\Materijal;
 use App\Models\Korisnik;
 use App\Mail\PrijaviMaterijal;
+use Inertia\Inertia;
 
 class KontrolerMaterijala extends Controller
 {
@@ -157,7 +158,19 @@ class KontrolerMaterijala extends Controller
      */
     public function edit(string $id)
     {
-        //
+        if (!Auth::check()) {
+            return response()->json(['message' => 'Korisnik nije prijavljen'], 401);
+        }
+
+        $materijal = Materijal::findOrFail($id);
+        /** @var \App\Models\Korisnik $prijavljenKorisnik */
+        $prijavljenKorisnik = Auth::user();
+
+        if ($materijal->korisnik_id != $prijavljenKorisnik->korisnik_id && $prijavljenKorisnik->uloga == "Gost") {
+            return response()->json(['message' => 'Neovlašćeni korisnik'], 403);
+        }
+
+        return response()->json($materijal);
     }
 
     /**
@@ -165,8 +178,62 @@ class KontrolerMaterijala extends Controller
      */
     public function update(Request $zahtev, string $id)
     {
-        //
+        try {
+            $validiraniPodaci = $zahtev->validate([
+                'naziv'        => ['required', 'string', 'max:255'],
+                'predmet_id'   => ['required', 'integer'],
+                'podtipMaterijala'              => ['required', 'array'],
+                'podtipMaterijala.podtip_materijala_id' => ['required', 'integer'],
+                'skolskaGodina' => ['required', 'string', 'max:20'],
+            ]);
+
+            if (!Auth::check()) {
+                return response()->json([
+                    'message' => 'Korisnik mora biti prijavljen',
+                ], 401);
+            }
+
+            $materijal = Materijal::findOrFail($id);
+
+            /** @var \App\Models\Korisnik $prijavljenKorisnik */
+            $prijavljenKorisnik = Auth::user();
+
+            if ($materijal->korisnik_id != $prijavljenKorisnik->korisnik_id
+                && $prijavljenKorisnik->uloga == "Gost") {
+
+                return response()->json([
+                    'message' => 'Neovlašćeni korisnik',
+                ], 403);
+            }
+
+            $materijal->naziv               = $validiraniPodaci['naziv'];
+            $materijal->predmet_id          = $validiraniPodaci['predmet_id'];
+            $materijal->podtip_materijala_id = $validiraniPodaci['podtipMaterijala']['podtip_materijala_id'];
+            $materijal->skolska_godina      = $validiraniPodaci['skolskaGodina'];
+
+            $materijal->save();
+
+            return response()->json([
+                'message' => 'Uspešno ažurirano.',
+                'materijal' => $materijal
+            ], 200);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => 'Neispravni podaci.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\JsonException | \ErrorException $e) {
+            return response()->json([
+                'message' => 'Greška u obradi podataka. Proveri format vrednosti.',
+            ], 400);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'message' => 'Došlo je do interne greške. Pokušaj ponovo kasnije.',
+            ], 500);
+        }
     }
+
 
     /**
      * Remove the specified resource from storage.

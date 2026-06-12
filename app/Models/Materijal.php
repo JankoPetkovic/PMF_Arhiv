@@ -122,7 +122,9 @@ class Materijal extends Model
                 'putanja_fajla' => $materijal->vratiPutanju(),
                 'skolska_godina' => $materijal->skolska_godina,
                 'datum_dodavanja' => Carbon::parse($materijal->datum_dodavanja)->format('d.m.Y'),
+                'predmet_id' => $materijal->predmet_id ?? null,
                 'predmet' => $materijal->predmet->naziv ?? null,
+                'godina' => $materijal->predmet->godina ?? null,
                 'smer' => $materijal->predmet->smer ?? null,
                 'departman' => $materijal->predmet->smer->departman->naziv ?? null,
                 'nivo_studija' => $materijal->predmet->smer->nivoStudija->nivo_studija ?? null,
@@ -166,10 +168,30 @@ class Materijal extends Model
     public static function sacuvajMaterijala($korisnickiMejl, $departman, $nivoStudija, $smer, $godina, $predmet, $tipMaterijala, $podtipMaterijala, $akademskaGodina, $fajl){
         $korisnik = Korisnik::where('email', $korisnickiMejl)->first();
 
+        if (!$korisnik) {
+            $korisnik = Korisnik::create(['email' => $korisnickiMejl]);
+            $korisnik->verifikuj();
+
+            $putanjaFajla = $fajl->storeAs('temp', $fajl->getClientOriginalName());
+            Cache::put('materijal_cekaj_' . $korisnik->korisnik_id, [
+                'putanja_fajla' => $putanjaFajla,
+                'departman'     => $departman,
+                'nivoStudija'   => $nivoStudija,
+                'smer'          => $smer,
+                'godina'        => $godina,
+                'predmet'       => $predmet,
+                'tipMaterijala' => $tipMaterijala,
+                'podtipMaterijala' => $podtipMaterijala,
+                'akademskaGodina'  => $akademskaGodina,
+            ], now()->addMinutes(30));
+
+            return response()->json(['message' => 'Potvrdi mejl da bi se fajl objavio.'], 200);
+        }
+
         if (
-            $korisnik->datum_verifikacije && 
+            $korisnik->datum_verifikacije &&
             $korisnik->datum_verifikacije->gt(now()->subMonths(env('VERIFIKACIJA_TRAJANJE_MESECI', 1)))
-        ){
+        ) {
             $putanjaKreiranogMaterijala = Materijal::kreirajMaterijal(
                 $fajl, $departman, $nivoStudija, $smer, $godina, $predmet, $tipMaterijala, $podtipMaterijala, $akademskaGodina, $korisnik->korisnik_id
             );
@@ -178,43 +200,23 @@ class Materijal extends Model
                 'message' => 'Fajl uspešno sačuvan.',
                 'putanja' => $putanjaKreiranogMaterijala,
             ], 200);
-        } else if (!$korisnik) {
-            $korisnik = Korisnik::create([
-                'email' => $korisnickiMejl
-            ]);
-           $korisnik->verifikuj();
-
-           $putanjaFajla = $fajl->storeAs('temp', $fajl->getClientOriginalName());
-           Cache::put('materijal_cekaj_' . $korisnik->korisnik_id, [
-                'putanja_fajla' => $putanjaFajla,
-                'departman' => $departman,
-                'nivoStudija' => $nivoStudija,
-                'smer' => $smer,
-                'godina' => $godina,
-                'predmet' => $predmet,
-                'tipMaterijala' => $tipMaterijala,
-                'podtipMaterijala' => $podtipMaterijala,
-                'akademskaGodina' => $akademskaGodina,
-            ], now()->addMinutes(30));
-
-            return response()->json(['message' => 'Potvrdi mejl da bi se fajl objavio.'], 200);
-        } else {
-            $korisnik->verifikuj();
-            $putanjaFajla = $fajl->storeAs('temp', $fajl->getClientOriginalName());
-            Cache::put('materijal_cekaj_' . $korisnik->korisnik_id, [
-                'putanja_fajla' => $putanjaFajla,
-                'departman' => $departman,
-                'nivoStudija' => $nivoStudija,
-                'smer' => $smer,
-                'godina' => $godina,
-                'predmet' => $predmet,
-                'tipMaterijala' => $tipMaterijala,
-                'podtipMaterijala' => $podtipMaterijala,
-                'akademskaGodina' => $akademskaGodina,
-            ], now()->addMinutes(30));
-
-            return response()->json(['message' => 'Potvrdi mejl da bi se fajl objavio.'], 200);
         }
+
+        $korisnik->verifikuj();
+        $putanjaFajla = $fajl->storeAs('temp', $fajl->getClientOriginalName());
+        Cache::put('materijal_cekaj_' . $korisnik->korisnik_id, [
+            'putanja_fajla' => $putanjaFajla,
+            'departman'     => $departman,
+            'nivoStudija'   => $nivoStudija,
+            'smer'          => $smer,
+            'godina'        => $godina,
+            'predmet'       => $predmet,
+            'tipMaterijala' => $tipMaterijala,
+            'podtipMaterijala' => $podtipMaterijala,
+            'akademskaGodina'  => $akademskaGodina,
+        ], now()->addMinutes(30));
+
+        return response()->json(['message' => 'Potvrdi mejl da bi se fajl objavio.'], 200);
     }
 
 

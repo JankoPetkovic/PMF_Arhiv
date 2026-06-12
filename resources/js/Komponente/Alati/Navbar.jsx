@@ -10,6 +10,7 @@ import { BiSupport } from "react-icons/bi";
 import VerifikacijaDialog from "../VerifikacijaDialog"
 import PrijaviProblem from "./PrijaviProblem";
 import PrijaviSe from "../PrijaviSe";
+import ZaboravljenaSifra from "../ZaboravljenaSifra";
 import { router, usePage } from '@inertiajs/react';
 import Registracija from "../../Stranice/Registracija";
 import { prikaziToastNotifikaciju } from "../../PomocniAlati/ToastNotifikacijaServis";
@@ -23,6 +24,7 @@ export default function Navbar()
     const [prikazDialogaPodrske, podesiPrikazDialogaPodrske] = useState(false);
     const [prikazDialogaPrijave, podesiPrikazDialogaPrijave] = useState(false);
     const [prikazDialogaRegistracije, podesiPrikazDialogaRegistracije] = useState(false);
+    const [ekranPrijave, podesiEkranPrijave] = useState('prijava'); // 'prijava' | 'reset-sifre'
     const { ulogovanKorisnik } = usePage().props;
     const { url } = usePage();
     const naKorisnickojStranici = /^\/korisnik\/\d+$/.test(url);
@@ -47,8 +49,21 @@ export default function Navbar()
     }
 
     const otvoriRegistraciju = () => {
-        podesiPrikazDialogaPrijave(false);     
-        podesiPrikazDialogaRegistracije(true);   
+        podesiPrikazDialogaPrijave(false);
+        podesiPrikazDialogaRegistracije(true);
+    };
+
+    const otvoriResetSifre = () => {
+        podesiEkranPrijave('reset-sifre');
+    };
+
+    const vratiNaPrijavu = () => {
+        podesiEkranPrijave('prijava');
+    };
+
+    const zatvoriDialogPrijave = (vrednost) => {
+        podesiPrikazDialogaPrijave(vrednost);
+        if (!vrednost) podesiEkranPrijave('prijava');
     };
 
     return(
@@ -125,12 +140,19 @@ export default function Navbar()
             <Dialog naslov={'Objavi Materijal'} prikaziDialog={prikaziDialogDodavanja} podesiPrikaziDialog={podesiPrikazDialogaDodavanja} sadrzaj={<ObjavaMaterijala podesiPrikazDialoga={podesiPrikazDialogaDodavanja}/>}/>
             <Dialog naslov={'Verifikacija'} prikaziDialog={prikazDialogaVerifikacije} podesiPrikaziDialog={podesiPrikazDialogaVerifikacije} sadrzaj={<VerifikacijaDialog podesiPrikazDialoga={podesiPrikazDialogaVerifikacije}/>}/>
             <Dialog naslov={'Podrška'} prikaziDialog={prikazDialogaPodrske} podesiPrikaziDialog={podesiPrikazDialogaPodrske} sadrzaj={<PrijaviProblem podesiPrikazDialoga={podesiPrikazDialogaPodrske}/>}/>
-            <Dialog naslov={"Prijavi se"} prikaziDialog={prikazDialogaPrijave} podesiPrikaziDialog={podesiPrikazDialogaPrijave} sadrzaj={
-                <PrijaviSe
-                    prikaziDialog={prikazDialogaPrijave}
-                    podesiPrikaziDialog={podesiPrikazDialogaPrijave}
-                    otvoriRegistraciju={otvoriRegistraciju} 
-                />
+            <Dialog
+                naslov={ekranPrijave === 'reset-sifre' ? 'Zaboravljena šifra' : 'Prijavi se'}
+                prikaziDialog={prikazDialogaPrijave}
+                podesiPrikaziDialog={zatvoriDialogPrijave}
+                sadrzaj={
+                    ekranPrijave === 'reset-sifre'
+                        ? <ZaboravljenaSifra nazad={vratiNaPrijavu} podesiPrikaziDialog={zatvoriDialogPrijave} />
+                        : <PrijaviSe
+                            prikaziDialog={prikazDialogaPrijave}
+                            podesiPrikaziDialog={zatvoriDialogPrijave}
+                            otvoriRegistraciju={otvoriRegistraciju}
+                            otvoriResetSifre={otvoriResetSifre}
+                          />
                 }
             />
             <Dialog naslov="Registracija" prikaziDialog={prikazDialogaRegistracije} podesiPrikaziDialog={podesiPrikazDialogaRegistracije} sadrzaj={<Registracija podesiPrikaziDialog={podesiPrikazDialogaRegistracije}/>}/>

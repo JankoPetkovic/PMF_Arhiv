@@ -37,12 +37,14 @@ export default function Home({ smerovi, flash, dostupniDepartmani, dostupniNivoi
     
     <div className="relative z-10">
       <Navbar />
-      <div className="flex justify-center items-center mt-20">
-        <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg z-20 max-w-5xl w-full">
+      <div className="max-w-7xl w-full mx-auto px-4">
+        <div className="relative z-50 mt-20 bg-white/70 backdrop-blur-sm rounded-xl shadow-lg">
           <Departmani smerovi={smerovi} />
         </div>
       </div>
-      <PrikazMaterijala materijali={dostupniMaterijali.data} tekst={tekstMaterijala} />
+      <div className="mt-6 max-w-[90vw] mx-auto">
+        <PrikazMaterijala materijali={dostupniMaterijali.data} tekst={tekstMaterijala} />
+      </div>
     </div>
   </div>
 

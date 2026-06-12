@@ -11,14 +11,14 @@ class TipKorisnickeAkcijeSeeder extends Seeder
     public function run(): void
     {
         DB::table('tip_korisnicke_akcije')->insert([
-            ['naziv' => 'Čitanje'],
-            ['naziv' => 'Brisanje'],
-            ['naziv' => 'Ažuriranje'],
-            ['naziv' => 'Kreiranje'],
-            ['naziv' => 'Verifikacija'],
-            ['naziv' => 'Prijavljivanje'],
-            ['naziv' => 'Odjavljivanje'],
-            ['naziv' => 'Eksport'],
+            ['id' => 1, 'naziv' => 'Čitanje'],
+            ['id' => 2, 'naziv' => 'Brisanje'],
+            ['id' => 3, 'naziv' => 'Ažuriranje'],
+            ['id' => 4, 'naziv' => 'Kreiranje'],
+            ['id' => 5, 'naziv' => 'Verifikacija'],
+            ['id' => 6, 'naziv' => 'Prijavljivanje'],
+            ['id' => 7, 'naziv' => 'Odjavljivanje'],
+            ['id' => 8, 'naziv' => 'Eksport'],
         ]);
     }
 }

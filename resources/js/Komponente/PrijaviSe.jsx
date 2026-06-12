@@ -7,7 +7,7 @@ import TipToastNotifikacije from "../PomocniAlati/TipToastNotifikacije";
 import { router } from "@inertiajs/react";
 
 
-export default function PrijaviSe({otvoriRegistraciju, podesiPrikaziDialog}) {
+export default function PrijaviSe({otvoriRegistraciju, podesiPrikaziDialog, otvoriResetSifre}) {
   const [podaci, podesiPodatke] = useState({
     email: "",
     sifra: ""
@@ -55,7 +55,16 @@ export default function PrijaviSe({otvoriRegistraciju, podesiPrikaziDialog}) {
           </div>
 
           <div className="mb-6 relative">
-            <label className="block text-gray-700 mb-2">Šifra</label>
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-gray-700">Šifra</label>
+              <button
+                type="button"
+                className="text-sm text-blue-500 hover:underline cursor-pointer"
+                onClick={otvoriResetSifre}
+              >
+                Zaboravili ste šifru?
+              </button>
+            </div>
             <input
                 type={prikaziSifru ? "text" : "password"}
                 value={podaci.sifra}

@@ -1,77 +1,93 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from '@inertiajs/react';
-export default function Departmani({smerovi})
-{
-  const [activeDropdown, setActiveDropdown] = useState(null);
+import { FaChevronDown, FaChevronRight } from "react-icons/fa";
 
-  const toggleDropdown = (index) => {
-    if (activeDropdown === index) {
-      setActiveDropdown(null);
-    } else {
-      setActiveDropdown(index);
-    }
-  };
+export default function Departmani({ smerovi }) {
+    const [activeDepartman, setActiveDepartman] = useState(null);
+    const [openNivoi, setOpenNivoi] = useState({});
+    const containerRef = useRef(null);
 
-  const [openNivoi, setOpenNivoi] = useState({});
+    useEffect(() => {
+        const handler = (e) => {
+            if (containerRef.current && !containerRef.current.contains(e.target)) {
+                setActiveDepartman(null);
+                setOpenNivoi({});
+            }
+        };
+        document.addEventListener("mousedown", handler);
+        return () => document.removeEventListener("mousedown", handler);
+    }, []);
 
-  const toggleNivo = (nivo) => {
-    setOpenNivoi((prev) => ({
-      ...prev,
-      [nivo]: !prev[nivo],
-    }));
-  };
+    const toggleDepartman = (id) => {
+        setActiveDepartman(prev => prev === id ? null : id);
+        setOpenNivoi({});
+    };
 
-    
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:flex gap-4 rounded-xl p-4 shadow-[12px_12px_14px_-1px_rgba(0,_0,_0,_0.1)]">
-      {smerovi.map(departman => (
-        <div key={departman.departman_id} className="relative">
-          <button 
-            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-100 rounded-md cursor-pointer hover:scale-105 transition-transform duration-200"
-            onClick={() => toggleDropdown(departman.departman_id)}
-            onMouseEnter={() => setActiveDropdown(departman.departman_id)}
-          >
-            <img
-              src={`/storage/ikonice/${departman.departman_naziv.toLowerCase().replace(/ /g, "_")}.svg`}
-              className="w-8 h-8"
-              alt={departman.departman_naziv}
-            />
-            <span className="whitespace-nowrap">{departman.departman_naziv}</span>
-          </button>
+    const toggleNivo = (nivo) => {
+        setOpenNivoi(prev => ({ ...prev, [nivo]: !prev[nivo] }));
+    };
 
-          {activeDropdown === departman.departman_id && (
-            <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-[12px_12px_14px_-1px_rgba(0,_0,_0,_0.1)] z-10">
-              <ul onMouseLeave={() => setActiveDropdown(null)}>
-                {Object.entries(departman.nivo_studija).map(([nivo, smerovi]) => (
-                  <li key={nivo}>
+    return (
+        <div ref={containerRef} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 p-4">
+            {smerovi.map(departman => (
+                <div key={departman.departman_id} className="relative">
                     <button
-                      className="p-2 hover:bg-blue-100 cursor-pointer rounded-lg w-full text-left"
-                      onClick={() => toggleNivo(nivo)}
+                        onClick={() => toggleDepartman(departman.departman_id)}
+                        className={`w-full h-full flex items-center px-4 py-3 rounded-xl transition-all duration-150 cursor-pointer select-none ${
+                            activeDepartman === departman.departman_id
+                                ? 'bg-blue-500 text-white shadow-sm'
+                                : 'hover:bg-blue-50 text-gray-700'
+                        }`}
                     >
-                      {nivo}
+                        <div className="flex items-center gap-2.5 flex-1 justify-center">
+                            <img
+                                src={`/storage/ikonice/${departman.departman_naziv.toLowerCase().replace(/ /g, "_")}.svg`}
+                                className="w-7 h-7 shrink-0"
+                                alt=""
+                            />
+                            <span className="text-base font-medium">{departman.departman_naziv}</span>
+                        </div>
+                        <FaChevronDown
+                            size={13}
+                            className={`shrink-0 transition-transform duration-150 ${activeDepartman === departman.departman_id ? 'rotate-180' : ''}`}
+                        />
                     </button>
-                    {openNivoi[nivo] && (
-                      <ul className="ml-4 mt-2 list-disc text-gray-700 p-2">
-                        {smerovi.map((smer) => (
-                          <li key={smer.id} className="hover:bg-blue-100 rounded-lg p-1">
-                            <Link
-                              href={`/smerovi/${smer.id}`}
-                              className="text-blue-500"
-                            >
-                              {smer.naziv}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-};
 
+                    {activeDepartman === departman.departman_id && (
+                        <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 min-w-[220px] bg-white border border-gray-100 rounded-xl shadow-xl z-[9999] overflow-hidden">
+                            {Object.entries(departman.nivo_studija).map(([nivo, nivoSmerovi]) => (
+                                <div key={nivo} className="border-b border-gray-50 last:border-0">
+                                    <button
+                                        onClick={() => toggleNivo(nivo)}
+                                        className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-gray-50 text-xs font-semibold text-gray-400 uppercase tracking-wide cursor-pointer"
+                                    >
+                                        {nivo}
+                                        <FaChevronRight
+                                            size={10}
+                                            className={`transition-transform duration-150 ${openNivoi[nivo] ? 'rotate-90' : ''}`}
+                                        />
+                                    </button>
+                                    {openNivoi[nivo] && (
+                                        <ul className="px-2 pb-2">
+                                            {nivoSmerovi.map(smer => (
+                                                <li key={smer.id}>
+                                                    <Link
+                                                        href={`/smerovi/${smer.id}`}
+                                                        className="block px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded-lg"
+                                                        onClick={() => setActiveDepartman(null)}
+                                                    >
+                                                        {smer.naziv}
+                                                    </Link>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            ))}
+        </div>
+    );
+}

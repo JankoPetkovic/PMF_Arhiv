@@ -59,6 +59,9 @@ export default function Korisnik(podaci){
         noviPredmetGodina: "",
     })
 
+    const [resetEmailPoslat, podesiResetEmailPoslat] = useState(false);
+    const [ucitavanjeReseta, podesiUcitavanjeReseta] = useState(false);
+
     const azurirajPolje = (setter, nazivPolja, vrednost) => {
         setter((prosli) => ({
             ...prosli,
@@ -132,6 +135,17 @@ export default function Korisnik(podaci){
             { withCredentials: true }
         );
     }
+
+    const obradiSlanjeLinka = async () => {
+        podesiUcitavanjeReseta(true);
+        try {
+            await ServisKorisnika.zatraziResetSifre(korisnik.korisnicki_email);
+            podesiResetEmailPoslat(true);
+        } catch (_) {}
+        finally {
+            podesiUcitavanjeReseta(false);
+        }
+    };
 
     const produziVerifikaciju = () => {
         ServisKorisnika.verifikujKorisnika(korisnik.korisnicki_email)
@@ -238,10 +252,37 @@ export default function Korisnik(podaci){
                             />
                             <button
                                 onClick={obradiCuvanjePromena}
-                                className="mt-6 w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 shadow-md"
+                                className="mt-6 w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 shadow-md cursor-pointer"
                             >
                                 Sačuvaj
                             </button>
+
+                            <hr className="my-6 border-gray-300" />
+                            <h3 className="text-xl font-bold text-gray-800 mb-4 text-center mt-6">
+                                Promena lozinke
+                            </h3>
+
+                            {resetEmailPoslat ? (
+                                <div className="p-4 bg-green-50 rounded-lg border border-green-200 text-center">
+                                    <p className="text-green-700 font-medium">Email je poslat!</p>
+                                    <p className="text-green-600 text-sm mt-1">
+                                        Proverite inbox na adresi <strong>{korisnik.korisnicki_email}</strong> i kliknite na link za promenu lozinke. Link važi 60 minuta.
+                                    </p>
+                                </div>
+                            ) : (
+                                <>
+                                    <p className="text-gray-500 text-sm mb-4">
+                                        Poslaćemo email sa linkom za postavljanje nove lozinke na adresu <strong>{korisnik.korisnicki_email}</strong>.
+                                    </p>
+                                    <button
+                                        onClick={obradiSlanjeLinka}
+                                        disabled={ucitavanjeReseta}
+                                        className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 shadow-md cursor-pointer disabled:cursor-not-allowed"
+                                    >
+                                        {ucitavanjeReseta ? "Slanje..." : "Pošalji link za promenu lozinke"}
+                                    </button>
+                                </>
+                            )}
                         </div>
                     </div>
                     {korisnik.uloga == "Admin" && 
@@ -447,14 +488,6 @@ export default function Korisnik(podaci){
                             >
                                 Preuzmi listu problema 
                             </a>
-
-                            {/* <a
-                                href="/export-korisnickih-akcija"
-                                className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition"
-                            >
-                                Preuzmi listu korisničkih akcija
-                            </a>*/}
-
                             <a
                                 href="/export-strukture-fakulteta"
                                 className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
@@ -465,33 +498,33 @@ export default function Korisnik(podaci){
                     </div>}
 
                 </div>
-                <div className="flex">
-                    {ucitavanje ? (
-                        <div className="flex justify-center items-center w-full mt-30">
-                            <CircularProgress color="error" size={80}/>
-                        </div>
-                    ) : (
-                        <div className="p-4 w-full">
-                            <PrikazMaterijala  
-                                materijali={dostupneInformacije.dostupniMaterijali} 
-                                tekst={"Materijali korisnika " + korisnik.ime +" "+ korisnik.prezime + ": "}
-                            />
-                            <TablePagination
-                                component="div"
-                                count={dostupneInformacije.brDostupnihMaterijala}
-                                page={izabraneInformacije.izabranaStranica}
-                                onPageChange={(dogadjaj, novaStranica) => {
-                                    azurirajPoljeIzabraneInformacije('izabranaStranica', novaStranica);
-                                }}
-                                rowsPerPage={izabraneInformacije.izabranBrMaterijalaPoStranici}
-                                onRowsPerPageChange={obradiPromenuBrMaterijalaPoStranici}
-                                labelRowsPerPage="Materijala po stranici:"
-                                rowsPerPageOptions={[5, 10, 20, 50]}
-                            />
-                        </div>
-                    )}
-                </div> 
-                
+            </div>
+
+            <div className="mt-6 max-w-[90vw] mx-auto">
+                {ucitavanje ? (
+                    <div className="flex justify-center items-center w-full mt-30">
+                        <CircularProgress color="error" size={80}/>
+                    </div>
+                ) : (
+                    <>
+                        <PrikazMaterijala
+                            materijali={dostupneInformacije.dostupniMaterijali}
+                            tekst={"Materijali korisnika " + korisnik.ime +" "+ korisnik.prezime + ": "}
+                        />
+                        <TablePagination
+                            component="div"
+                            count={dostupneInformacije.brDostupnihMaterijala}
+                            page={izabraneInformacije.izabranaStranica}
+                            onPageChange={(dogadjaj, novaStranica) => {
+                                azurirajPoljeIzabraneInformacije('izabranaStranica', novaStranica);
+                            }}
+                            rowsPerPage={izabraneInformacije.izabranBrMaterijalaPoStranici}
+                            onRowsPerPageChange={obradiPromenuBrMaterijalaPoStranici}
+                            labelRowsPerPage="Materijala po stranici:"
+                            rowsPerPageOptions={[5, 10, 20, 50]}
+                        />
+                    </>
+                )}
             </div>
         </div>
     </div>

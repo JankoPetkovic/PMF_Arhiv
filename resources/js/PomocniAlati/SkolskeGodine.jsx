@@ -13,7 +13,7 @@ export function generisiSkolskeGodine(pocetnaGodina = 2014) {
         godina++
     ) {
         const sledecaGodinaKratko = (godina + 1).toString().slice(-2);
-        const naziv = `${godina}/${sledecaGodinaKratko}`;
+        const naziv = `${godina}-${sledecaGodinaKratko}`;
         godine.push({ naziv });
     }
 
