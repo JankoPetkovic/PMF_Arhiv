@@ -3,9 +3,11 @@ import { prikaziToastNotifikaciju } from "../ToastNotifikacijaServis";
 import TipToastNotifikacije from "../TipToastNotifikacije";
 
 export default class ServisDriveImporta {
-    static async vratiFajlove(folderId) {
+    static async vratiFajlove(folderId, smerId = null) {
         try {
-            const odgovor = await axios.get('/admin/drive/fajlovi', { params: { folder_id: folderId } });
+            const params = { folder_id: folderId };
+            if (smerId) params.smer_id = smerId;
+            const odgovor = await axios.get('/admin/drive/fajlovi', { params });
             return odgovor.data;
         } catch (greska) {
             const poruka = greska.response?.data?.message || 'Greška pri učitavanju Drive foldera';

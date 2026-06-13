@@ -13,6 +13,7 @@ use App\Models\Departman;
 use App\Models\NivoStudija;
 use App\Models\TipMaterijala;
 use App\Models\Materijal;
+use App\Models\ParlamentObjava;
 
 class KontrolerPocetneStranice extends Controller
 {
@@ -59,12 +60,19 @@ class KontrolerPocetneStranice extends Controller
 
         $materijali = Materijal::filtriraj($filteri);
 
+        $najnovijeObjave = ParlamentObjava::with('autor')
+            ->orderByDesc('datum_objave')
+            ->limit(10)
+            ->get()
+            ->map(fn($o) => $o->zaPrikaz());
+
         return Inertia::render('Home', [
-            'smerovi' => $podaci, 
+            'smerovi' => $podaci,
             'dostupniDepartmani' => $departmani,
             'dostupniNivoiStudija' => $nivoiStudija,
             'dostupniTipoviMaterijala' => $tipoviMaterijala,
-            'dostupniMaterijali' => $materijali, 
+            'dostupniMaterijali' => $materijali,
+            'najnovijeObjave' => $najnovijeObjave,
         ]);
     }
 

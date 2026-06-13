@@ -13,12 +13,15 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash; 
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 use App\Models\Smer;
 use App\Models\Predmet;
 
 class Korisnik extends Authenticatable
 {
+    use HasFactory;
+
     protected $table = 'korisnik';
 
     protected $primaryKey = 'korisnik_id';
@@ -49,6 +52,15 @@ class Korisnik extends Authenticatable
     public function tipUloge()
     {
         return $this->belongsTo(TipUlogeKorisnika::class, 'tip_uloge_korisnika_id', 'id');
+    }
+
+    /**
+     * Naziv uloge korisnika (npr. "Admin", "Gost"), izveden iz relacije tipUloge.
+     * Omogućava korišćenje $korisnik->uloga kroz aplikaciju.
+     */
+    public function getUlogaAttribute(): ?string
+    {
+        return $this->tipUloge?->naziv;
     }
 
     public static function kreirajKorisnika($podaci){

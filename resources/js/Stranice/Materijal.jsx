@@ -6,6 +6,7 @@ import { generisiSkolskeGodine } from '../PomocniAlati/SkolskeGodine';
 import ServisPodtipovaMaterijala from '../PomocniAlati/Servisi/ServisPodtipovaMaterijala';
 import PrikazMaterijala from '../Komponente/PrikazMaterijala';
 import { koristiGlobalniKontekst } from '../Konteksti';
+import { pretplatiSeNaPromenuMaterijala } from '../PomocniAlati/dogadjajiMaterijala';
 import Drawer from '@mui/material/Drawer';
 import { IoMdOptions } from "react-icons/io";
 import { Tooltip, CircularProgress, Badge } from '@mui/material';
@@ -135,44 +136,54 @@ export default function Materijal({predmeti, smer, tipoviMaterijala}) {
         }
     }, [dostupneInformacije.dostupniPodTipoviMaterijala])
 
-    useEffect(() => {
-        async function preuzmiMaterijale() {
-            const url = window.location.pathname.split('/');
+    async function preuzmiMaterijale() {
+        const url = window.location.pathname.split('/');
 
-            let filteri = {
-                predmet_id: izabraneInformacije.izabranPredmet,
-                podtip_materijala_id: izabraneInformacije.izabraniPodTipMaterijala,
-                smer_id: url[url.length - 1],
-                godina: izabraneInformacije.izabranaGodina.vrednost,
-                tip_materijala_id: izabraneInformacije.izabraniTipMaterijala.tip_materijala_id,
-                skolska_godina: izabraneInformacije.izabranaSkolskaGodina.naziv,
-                kolonaSortiranja: izabraneInformacije.izabranaOpcijaSortiranja.kolonaSortiranja,
-                pravacSortiranja: izabraneInformacije.izabranaOpcijaSortiranja.pravacSortiranja,
-                stranica: izabraneInformacije.izabranaStranica + 1,
-                poStranici: izabraneInformacije.izabranBrMaterijalaPoStranici,
-            };
+        let filteri = {
+            predmet_id: izabraneInformacije.izabranPredmet,
+            podtip_materijala_id: izabraneInformacije.izabraniPodTipMaterijala,
+            smer_id: url[url.length - 1],
+            godina: izabraneInformacije.izabranaGodina.vrednost,
+            tip_materijala_id: izabraneInformacije.izabraniTipMaterijala.tip_materijala_id,
+            skolska_godina: izabraneInformacije.izabranaSkolskaGodina.naziv,
+            kolonaSortiranja: izabraneInformacije.izabranaOpcijaSortiranja.kolonaSortiranja,
+            pravacSortiranja: izabraneInformacije.izabranaOpcijaSortiranja.pravacSortiranja,
+            stranica: izabraneInformacije.izabranaStranica + 1,
+            poStranici: izabraneInformacije.izabranBrMaterijalaPoStranici,
+        };
 
-            try {
-                podesiUcitavanje(true);
-                azurirajPoljeDostupneInformacije('dostupniMaterijali', '');
+        try {
+            podesiUcitavanje(true);
+            azurirajPoljeDostupneInformacije('dostupniMaterijali', '');
 
-                const odgovor = await ServisMaterijala.vratiMaterijale(filteri);
+            const odgovor = await ServisMaterijala.vratiMaterijale(filteri);
 
-                azurirajPoljeDostupneInformacije('dostupniMaterijali', odgovor.data);
-                azurirajPoljeDostupneInformacije('brDostupnihMaterijala', odgovor.total);
-            } catch (err) {
-                return
-            } finally {
-                podesiUcitavanje(false);
-            }
+            azurirajPoljeDostupneInformacije('dostupniMaterijali', odgovor.data);
+            azurirajPoljeDostupneInformacije('brDostupnihMaterijala', odgovor.total);
+        } catch (err) {
+            return
+        } finally {
+            podesiUcitavanje(false);
         }
+    }
 
+    useEffect(() => {
         if (zaustaviPrviRenderMaterijal.current) {
             zaustaviPrviRenderMaterijal.current = false;
             return;
         }
 
         preuzmiMaterijale();
+    }, [izabraneInformacije]);
+
+    // Osveži listu kad se materijal doda/izmeni/obriše bilo gde u aplikaciji.
+    useEffect(() => {
+        return pretplatiSeNaPromenuMaterijala(() => preuzmiMaterijale());
+    }, [izabraneInformacije]);
+
+    // Osveži listu kad se materijal doda/izmeni/obriše bilo gde u aplikaciji.
+    useEffect(() => {
+        return pretplatiSeNaPromenuMaterijala(() => preuzmiMaterijale());
     }, [izabraneInformacije]);
 
     // Opcije za pretraživi select predmeta (uvek sa "Svi predmeti" na vrhu).
