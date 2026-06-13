@@ -20,7 +20,7 @@ class KontrolerDriveImporta extends Controller
         return $korisnik && $korisnik->tipUloge->naziv === 'Admin';
     }
 
-    private function napraviDriveKlijent(): \Google\Service\Drive
+    protected function napraviDriveKlijent(): \Google\Service\Drive
     {
         $client = new \Google\Client();
         $client->setAuthConfig(storage_path('app/google-credentials.json'));
@@ -67,7 +67,7 @@ class KontrolerDriveImporta extends Controller
         return null;
     }
 
-    private function listaFajlova(\Google\Service\Drive $drive, string $folderId, string $putanja = ''): array
+    protected function listaFajlova(\Google\Service\Drive $drive, string $folderId, string $putanja = ''): array
     {
         $rezultati = [];
         $pageToken = null;
@@ -121,7 +121,10 @@ class KontrolerDriveImporta extends Controller
             return response()->json(['message' => 'Nedovoljna prava pristupa'], 403);
         }
 
-        $request->validate(['folder_id' => 'required|string|max:200']);
+        $request->validate([
+            'folder_id' => 'required|string|max:200',
+            'smer_id'   => 'sometimes|integer',
+        ]);
 
         set_time_limit(0);
 
@@ -129,7 +132,12 @@ class KontrolerDriveImporta extends Controller
             $drive = $this->napraviDriveKlijent();
             $svi   = $this->listaFajlova($drive, $request->input('folder_id'));
 
+            // Kada je prosleđen smer_id, ograničavamo i listu predmeta i
+            // pogađanje (predloziPredmet) samo na taj smer.
+            $smerId = $request->input('smer_id');
+
             $predmeti = Predmet::with(['smer.departman', 'smer.nivoStudija'])
+                ->when($smerId, fn($upit) => $upit->where('smer_id', $smerId))
                 ->get()
                 ->map(fn($p) => [
                     'predmet_id'      => $p->predmet_id,

@@ -4,12 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Predmet;
 use App\Models\Departman;
 use App\Models\NivoStudija;
 
 class Smer extends Model
 {
+    use HasFactory;
+
     protected $table = 'smer';
 
     protected $primaryKey = 'smer_id';

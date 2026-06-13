@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class PodtipMaterijala extends Model
 {
+    use HasFactory;
+
     protected $table = 'podtip_materijala';
 
     protected $primaryKey = 'podtip_materijala_id';

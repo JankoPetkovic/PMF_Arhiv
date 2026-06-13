@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 
 
@@ -261,6 +262,25 @@ class KontrolerMaterijala extends Controller
             ], 401); 
         }
         
+    }
+
+    /**
+     * Kratak link za deljenje materijala.
+     * Ruta: GET /m/{id}/{slug?} (ime: materijali.deli).
+     * Slug je samo kozmetički (radi SEO/čitljivosti URL-a) i ne utiče na rezultat.
+     * Servira fajl materijala sa public diska.
+     */
+    public function deli(string $id, ?string $slug = null)
+    {
+        $materijal = Materijal::findOrFail($id);
+
+        $putanja = $materijal->vratiPutanju();
+
+        if (!Storage::disk('public')->exists($putanja)) {
+            abort(404);
+        }
+
+        return Storage::disk('public')->response($putanja, $materijal->naziv);
     }
 
     /**

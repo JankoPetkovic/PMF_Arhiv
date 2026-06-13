@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class TipMaterijala extends Model
 {
+    use HasFactory;
+
     protected $table = 'tip_materijala';
 
     protected $primaryKey = 'tip_materijala_id';

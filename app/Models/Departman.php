@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use HasFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Departman extends Model
 {
+    use HasFactory;
+
     protected $table = 'departman';
 
     protected $primaryKey = 'departman_id';

@@ -43,6 +43,9 @@ Route::resource('tipovi-materijala', KontrolerTipaMaterijala::class);
 Route::resource('podtipovi-materijala', KontrolerPodtipovaMaterijala::class);
 Route::resource('smerovi', KontrolerSmerova::class)->only(['show']);
 Route::resource('materijali', KontrolerMaterijala::class)->only(['index']);
+
+// Kratak link za deljenje materijala
+Route::get('m/{id}/{slug?}', [KontrolerMaterijala::class, 'deli'])->name('materijali.deli');
 Route::resource('departmani', KontrolerDepartmana::class)->only(['index']);
 Route::resource('predmeti', KontrolerPredmeta::class)->except(['store']);
 
