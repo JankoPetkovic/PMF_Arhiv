@@ -8,6 +8,7 @@
     "require": {
         "php": "^8.2",
         "barryvdh/laravel-dompdf": "^3.1",
+        "google/apiclient": "^2.15",
         "inertiajs/inertia-laravel": "^2.0",
         "laravel/framework": "^11.0",
         "laravel/tinker": "^2.10.1",
@@ -37,7 +38,8 @@
     "scripts": {
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "@php artisan package:discover --ansi"
+            "@php artisan package:discover --ansi",
+            "Google\\Task\\Composer::cleanup"
         ],
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
@@ -58,7 +60,17 @@
     "extra": {
         "laravel": {
             "dont-discover": []
-        }
+        },
+        "google/apiclient-services": ["Drive"]
+    },
+    "audit": {
+        "ignore": [
+            "PKSA-mdq4-51ck-6kdq",
+            "PKSA-8qx3-n5y5-vvnd",
+            "PKSA-q46n-4fdk-zjr4",
+            "PKSA-qzrn-rnz3-85w1",
+            "PKSA-w7xr-vk7n-rstm"
+        ]
     },
     "config": {
         "optimize-autoloader": true,
