@@ -17,6 +17,7 @@ use App\Http\Controllers\KontrolerDepartmana;
 use App\Http\Controllers\KontrolerSmerova;
 use App\Http\Controllers\KontrolerPodtipovaMaterijala;
 use App\Http\Controllers\KontrolerAdminKorisnika;
+use App\Http\Controllers\KontrolerDriveImporta;
 
 //Kontroler pocetne stranice
 Route::get('/', [KontrolerPocetneStranice::class, 'index'])->name('home');
@@ -57,6 +58,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('export-problema', [KontrolerAdminKorisnika::class, 'exportProblema']);
     Route::get('export-strukture-fakulteta', [KontrolerAdminKorisnika::class, 'exportStrukturaFakulteta']);
     Route::get('export-korisnickih-akcija', [KontrolerAdminKorisnika::class, 'exportKorisnickihAkcija']);
+
+    // Admin: Drive import
+    Route::get('/admin/import-drive', [KontrolerDriveImporta::class, 'prikaziStranu'])->name('admin.import-drive');
+    Route::get('/admin/drive/fajlovi', [KontrolerDriveImporta::class, 'vratiSadrzajFoldera']);
+    Route::post('/admin/drive/uvezi', [KontrolerDriveImporta::class, 'uveziFajlove']);
 
     //Kontroler departmana
     Route::resource('departmani', KontrolerDepartmana::class)->only(['store']);
