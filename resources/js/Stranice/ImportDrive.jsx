@@ -40,6 +40,10 @@ export default function ImportDrive() {
     const [predmeti, setPredmeti] = useState([]);
     const [stranica, setStranica] = useState(0);
 
+    // filteri
+    const [filterNaziv, setFilterNaziv] = useState('');
+    const [filterDuplikati, setFilterDuplikati] = useState('svi'); // 'svi' | 'samo' | 'bez'
+
     // bulk akcije
     const [bulkPredmet, setBulkPredmet] = useState(null);
     const [bulkTip, setBulkTip] = useState(null);
@@ -66,6 +70,9 @@ export default function ImportDrive() {
         if (!bulkTip) { setBulkPodtip(null); setBulkPodtipovi([]); return; }
         uzmiPodtipove(bulkTip.tip_materijala_id).then(setBulkPodtipovi);
     }, [bulkTip]);
+
+    // vrati se na prvu stranicu kad se promeni filter
+    useEffect(() => { setStranica(0); }, [filterNaziv, filterDuplikati]);
 
     const ucitajFajlove = async () => {
         const id = extractFolderId(folderInput);
@@ -129,6 +136,7 @@ export default function ImportDrive() {
 
         let ukupnoUspesnih = 0;
         let sveGreske = [];
+        const uvezeniIds = [];
 
         for (let i = 0; i < stavkeZaUvoz.length; i += BATCH_VELICINA) {
             const batch = stavkeZaUvoz.slice(i, i + BATCH_VELICINA);
@@ -142,9 +150,15 @@ export default function ImportDrive() {
                 })));
                 ukupnoUspesnih += rez.uspesnih;
                 sveGreske = [...sveGreske, ...rez.gresaka];
+                const greskeNazivi = new Set(rez.gresaka.map(g => g.naziv));
+                batch.forEach(s => { if (!greskeNazivi.has(s.naziv)) uvezeniIds.push(s.id); });
             } catch (_) {}
             setUvozBrojac({ obradjeno: Math.min(i + BATCH_VELICINA, stavkeZaUvoz.length), ukupno: stavkeZaUvoz.length });
         }
+
+        // ukloni uspešno uvezene fajlove iz liste da se ne uvezu ponovo
+        const uvezeniSet = new Set(uvezeniIds);
+        setStavke(prev => prev.filter(s => !uvezeniSet.has(s.id)));
 
         setRezultati({ uspesnih: ukupnoUspesnih, gresaka: sveGreske });
         setUvoziPodatke(false);
@@ -155,8 +169,15 @@ export default function ImportDrive() {
     const preskocenih = stavke.filter(s => !s.izabrana).length;
     const nedostajuPodaci = stavke.filter(s => s.izabrana && !stavkaJeSpremna(s)).length;
 
-    const straniceFajlovi = stavke.slice(stranica * PO_STRANICI, (stranica + 1) * PO_STRANICI);
-    const ukupnoStranica = Math.ceil(stavke.length / PO_STRANICI);
+    const filtriraneStavke = stavke.filter(s => {
+        if (filterNaziv && !s.naziv.toLowerCase().includes(filterNaziv.toLowerCase())) return false;
+        if (filterDuplikati === 'samo' && !s.vecPostoji) return false;
+        if (filterDuplikati === 'bez' && s.vecPostoji) return false;
+        return true;
+    });
+
+    const straniceFajlovi = filtriraneStavke.slice(stranica * PO_STRANICI, (stranica + 1) * PO_STRANICI);
+    const ukupnoStranica = Math.ceil(filtriraneStavke.length / PO_STRANICI);
 
     // ── Korak 1: Unos folder ID ──────────────────────────────────────────────
     if (korak === 1) {
@@ -253,16 +274,27 @@ export default function ImportDrive() {
                             )}
                         </div>
 
-                        <div className="flex gap-3">
+                        <div className="flex flex-wrap gap-3">
+                            <button
+                                onClick={() => { setRezultati(null); setStranica(0); setKorak(2); }}
+                                disabled={stavke.length === 0}
+                                className={`flex-1 min-w-[10rem] py-2.5 rounded-lg text-sm font-medium ${
+                                    stavke.length === 0
+                                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                        : 'bg-blue-500 text-white hover:bg-blue-600 cursor-pointer'
+                                }`}
+                            >
+                                Nastavi sa uvozom
+                            </button>
                             <button
                                 onClick={() => { setKorak(1); setStavke([]); setFolderInput(''); setRezultati(null); }}
-                                className="flex-1 py-2.5 rounded-lg text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer"
+                                className="flex-1 min-w-[10rem] py-2.5 rounded-lg text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer"
                             >
-                                Uvezi još
+                                Izađi iz drive-a
                             </button>
                             <button
                                 onClick={() => router.visit('/')}
-                                className="flex-1 py-2.5 rounded-lg text-sm font-medium bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
+                                className="flex-1 min-w-[10rem] py-2.5 rounded-lg text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer"
                             >
                                 Na početnu
                             </button>
@@ -317,13 +349,13 @@ export default function ImportDrive() {
                             </p>
                             <div className="flex gap-3 mt-1">
                                 <button
-                                    onClick={() => setStavke(prev => prev.map(s => ({ ...s, izabrana: true })))}
+                                    onClick={() => { const idsNaStranici = new Set(straniceFajlovi.map(s => s.id)); setStavke(prev => prev.map(s => idsNaStranici.has(s.id) ? { ...s, izabrana: true } : s)); }}
                                     className="text-xs text-blue-500 hover:text-blue-700 cursor-pointer"
                                 >
                                     Čekiraj sve
                                 </button>
                                 <button
-                                    onClick={() => setStavke(prev => prev.map(s => ({ ...s, izabrana: false })))}
+                                    onClick={() => { const idsNaStranici = new Set(straniceFajlovi.map(s => s.id)); setStavke(prev => prev.map(s => idsNaStranici.has(s.id) ? { ...s, izabrana: false } : s)); }}
                                     className="text-xs text-gray-400 hover:text-gray-600 cursor-pointer"
                                 >
                                     Odčekiraj sve
@@ -408,6 +440,49 @@ export default function ImportDrive() {
                     </div>
                 </div>
 
+                {/* Filteri */}
+                <div className="flex flex-wrap gap-3 items-center mb-3">
+                    <input
+                        type="text"
+                        value={filterNaziv}
+                        onChange={e => setFilterNaziv(e.target.value)}
+                        placeholder="Filtriraj po nazivu fajla..."
+                        className="w-64 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-blue-400"
+                    />
+                    <div className="flex rounded-lg border border-gray-300 overflow-hidden text-xs">
+                        {[
+                            { kljuc: 'svi', tekst: 'Svi' },
+                            { kljuc: 'samo', tekst: 'Samo duplikati' },
+                            { kljuc: 'bez', tekst: 'Bez duplikata' },
+                        ].map(opcija => (
+                            <button
+                                key={opcija.kljuc}
+                                onClick={() => setFilterDuplikati(opcija.kljuc)}
+                                className={`px-3 py-1.5 cursor-pointer transition-colors ${
+                                    filterDuplikati === opcija.kljuc
+                                        ? 'bg-blue-500 text-white'
+                                        : 'bg-white text-gray-600 hover:bg-gray-50'
+                                }`}
+                            >
+                                {opcija.tekst}
+                            </button>
+                        ))}
+                    </div>
+                    {(filterNaziv || filterDuplikati !== 'svi') && (
+                        <>
+                            <span className="text-xs text-gray-400">
+                                Prikazano: <strong>{filtriraneStavke.length}</strong> / {stavke.length}
+                            </span>
+                            <button
+                                onClick={() => { setFilterNaziv(''); setFilterDuplikati('svi'); }}
+                                className="text-xs text-gray-400 hover:text-gray-600 cursor-pointer underline"
+                            >
+                                Poništi filtere
+                            </button>
+                        </>
+                    )}
+                </div>
+
                 {/* Tabela */}
                 <div className="bg-white rounded-lg border border-gray-200 overflow-x-auto">
                     <table className="w-full text-sm">
@@ -423,7 +498,13 @@ export default function ImportDrive() {
                             </tr>
                         </thead>
                         <tbody>
-                            {straniceFajlovi.map((stavka) => (
+                            {straniceFajlovi.length === 0 ? (
+                                <tr>
+                                    <td colSpan={7} className="px-3 py-8 text-center text-sm text-gray-400">
+                                        Nema fajlova koji odgovaraju filteru
+                                    </td>
+                                </tr>
+                            ) : straniceFajlovi.map((stavka) => (
                                 <RedTabele
                                     key={stavka.id}
                                     stavka={stavka}
@@ -484,7 +565,7 @@ function RedTabele({ stavka, predmeti, tipoviMaterijala, skolskeGodine, onAzurir
                         {stavka.naziv}
                     </p>
                     {stavka.vecPostoji && (
-                        <Tooltip title="Fajl sa ovim imenom već postoji u arhivu" arrow placement="top">
+                        <Tooltip title="Materijal sa istim imenom i predmetom već postoji u arhivu" arrow placement="top">
                             <span>
                                 <FaExclamationTriangle className="text-red-500 shrink-0" size={12} />
                             </span>

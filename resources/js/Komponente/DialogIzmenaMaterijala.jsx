@@ -39,8 +39,9 @@ export default function DialogIzmenaMaterijala({ materijal, podesiPrikazDialoga 
     const [sacuvavanje, podesiSacuvavanje] = useState(false);
 
     const mozeSnimiti = () =>
-        naziv.trim() && izabranaGodina && izabraniPredmet &&
-        izabraniTip && izabraniPodtip && izabranaSkolskaGodina;
+        naziv.trim() && izabranaGodina && izabraniPredmet?.predmet_id &&
+        izabraniTip?.tip_materijala_id && izabraniPodtip?.podtip_materijala_id &&
+        izabranaSkolskaGodina;
 
     const obradiIzmenu = async () => {
         if (!mozeSnimiti() || sacuvavanje) return;

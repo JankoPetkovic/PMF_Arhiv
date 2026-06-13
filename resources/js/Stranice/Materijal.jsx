@@ -5,6 +5,7 @@ import ServisMaterijala from '../PomocniAlati/Servisi/ServisMaterijala';
 import { generisiSkolskeGodine } from '../PomocniAlati/SkolskeGodine';
 import ServisPodtipovaMaterijala from '../PomocniAlati/Servisi/ServisPodtipovaMaterijala';
 import PrikazMaterijala from '../Komponente/PrikazMaterijala';
+import { koristiGlobalniKontekst } from '../Konteksti';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Drawer from '@mui/material/Drawer';
@@ -14,7 +15,19 @@ import TablePagination from '@mui/material/TablePagination';
 
 export default function Materijal({predmeti, smer, tipoviMaterijala}) {
 
+    const { podesiPodatke } = koristiGlobalniKontekst();
+
     const dostupneSkolskeGodine = generisiSkolskeGodine();
+
+    // Napuni globalni kontekst tipovima materijala da dijalog izmene
+    // (DialogIzmenaMaterijala) ima opcije za tip/podtip i kad se uđe direktno
+    // na stranicu smera (bez prethodne posete početnoj strani).
+    useEffect(() => {
+        podesiPodatke(prethodni => ({
+            ...prethodni,
+            dostupniTipoviMaterijala: tipoviMaterijala,
+        }));
+    }, [tipoviMaterijala]);
 
     const[filteri, podesiFIltere] = useState(false)
     

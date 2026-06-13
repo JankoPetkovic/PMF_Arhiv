@@ -145,11 +145,14 @@ class KontrolerDriveImporta extends Controller
                 ->toArray();
 
             $nazivi = array_column($svi, 'naziv');
-            $postojeciNazivi = array_flip(
-                Materijal::whereIn('naziv', $nazivi)->pluck('naziv')->toArray()
-            );
+            // Skup postojećih materijala ključevan po "naziv|predmet_id" — duplikat
+            // se prepoznaje samo ako se poklope i ime i predmet.
+            $postojeci = [];
+            foreach (Materijal::whereIn('naziv', $nazivi)->get(['naziv', 'predmet_id']) as $m) {
+                $postojeci[$m->naziv . '|' . $m->predmet_id] = true;
+            }
 
-            $obradjeni = array_map(function ($fajl) use ($predmeti, $postojeciNazivi) {
+            $obradjeni = array_map(function ($fajl) use ($predmeti, $postojeci) {
                 $segmenti = $fajl['putanja'] ? explode('/', $fajl['putanja']) : [];
                 $godina   = $this->extractGodina($segmenti);
 
@@ -160,6 +163,11 @@ class KontrolerDriveImporta extends Controller
 
                 $predlozenPredmet = $this->predloziPredmet($segmenti, $predmetiFilter ?: $predmeti);
 
+                // Označi kao mogući duplikat samo ako postoji materijal sa istim
+                // imenom i istim (predloženim) predmetom.
+                $vecPostoji = $predlozenPredmet
+                    && isset($postojeci[$fajl['naziv'] . '|' . $predlozenPredmet['predmet_id']]);
+
                 return [
                     'drive_id'          => $fajl['id'],
                     'naziv'             => $fajl['naziv'],
@@ -167,7 +175,7 @@ class KontrolerDriveImporta extends Controller
                     'putanja'           => $fajl['putanja'],
                     'predlozena_godina' => $godina,
                     'predlozen_predmet' => $predlozenPredmet,
-                    'vec_postoji'       => isset($postojeciNazivi[$fajl['naziv']]),
+                    'vec_postoji'       => $vecPostoji,
                 ];
             }, $svi);
 
