@@ -301,4 +301,30 @@ class KontrolerMaterijala extends Controller
             ], 401);
         }
     }
+
+    /**
+     * Kratak link za deljenje materijala — servira fajl bez otkrivanja
+     * cele putanje u arhivu. URL ostaje oblika /m/{id}/{naziv-predmeta}.
+     */
+    public function deli(string $id)
+    {
+        $materijal = Materijal::with([
+            'predmet.smer.departman',
+            'predmet.smer.nivoStudija',
+            'podtipMaterijala.tip',
+        ])->find($id);
+
+        if (!$materijal) {
+            abort(404);
+        }
+
+        $putanja = $materijal->vratiPutanju();
+
+        if (!Storage::disk('public')->exists($putanja)) {
+            abort(404);
+        }
+
+        // Default disposition je 'inline' — fajl se otvara u browseru kao i ranije.
+        return Storage::disk('public')->response($putanja, $materijal->naziv);
+    }
 }

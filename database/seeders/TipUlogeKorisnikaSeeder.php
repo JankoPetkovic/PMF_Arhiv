@@ -13,6 +13,7 @@ class TipUlogeKorisnikaSeeder extends Seeder
             ['id' => 1, 'naziv' => 'Gost'],
             ['id' => 2, 'naziv' => 'Admin'],
             ['id' => 3, 'naziv' => 'Menadžer'],
+            ['id' => 4, 'naziv' => 'Predstavnik parlamenta'],
         ]);
     }
 }

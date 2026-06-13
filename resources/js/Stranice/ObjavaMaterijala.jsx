@@ -6,6 +6,7 @@ import ServisMaterijala from "../PomocniAlati/Servisi/ServisMaterijala";
 import ServisSmerova from "../PomocniAlati/Servisi/ServisSmerova";
 import { koristiGlobalniKontekst } from "../Konteksti";
 import { useMetapodaciMaterijala } from "../PomocniAlati/Hooks/useMetapodaciMaterijala";
+import { objaviPromenuMaterijala } from "../PomocniAlati/dogadjajiMaterijala";
 import { useState, useEffect } from "react";
 import { Tooltip } from "@mui/material";
 import { FaArrowLeft, FaFileAlt, FaTimes, FaEdit } from "react-icons/fa";
@@ -196,6 +197,10 @@ export default function ObjavaMaterijala({ podesiPrikazDialoga }) {
                     : `${uspesnih} materijala su uspešno objavljena`,
                 TipToastNotifikacije.Uspesno
             );
+        }
+
+        if (uspesnih > 0) {
+            objaviPromenuMaterijala();
         }
 
         router.reload();

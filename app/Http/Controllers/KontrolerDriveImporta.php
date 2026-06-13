@@ -123,7 +123,7 @@ class KontrolerDriveImporta extends Controller
 
         $request->validate([
             'folder_id' => 'required|string|max:200',
-            'smer_id'   => 'sometimes|integer',
+            'smer_id'   => 'nullable|integer|exists:smer,smer_id',
         ]);
 
         set_time_limit(0);
@@ -132,8 +132,6 @@ class KontrolerDriveImporta extends Controller
             $drive = $this->napraviDriveKlijent();
             $svi   = $this->listaFajlova($drive, $request->input('folder_id'));
 
-            // Kada je prosleđen smer_id, ograničavamo i listu predmeta i
-            // pogađanje (predloziPredmet) samo na taj smer.
             $smerId = $request->input('smer_id');
 
             $predmeti = Predmet::with(['smer.departman', 'smer.nivoStudija'])

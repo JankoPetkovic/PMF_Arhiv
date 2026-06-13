@@ -4,6 +4,7 @@ import Navbar from "../Komponente/Alati/Navbar";
 import CustomSelect from "../Komponente/Alati/CustomSelect";
 import ServisDriveImporta from "../PomocniAlati/Servisi/ServisDriveImporta";
 import ServisPodtipovaMaterijala from "../PomocniAlati/Servisi/ServisPodtipovaMaterijala";
+import ServisSmerova from "../PomocniAlati/Servisi/ServisSmerova";
 import { generisiSkolskeGodine } from "../PomocniAlati/SkolskeGodine";
 import { prikaziToastNotifikaciju } from "../PomocniAlati/ToastNotifikacijaServis";
 import TipToastNotifikacije from "../PomocniAlati/TipToastNotifikacije";
@@ -40,6 +41,10 @@ export default function ImportDrive() {
     const [predmeti, setPredmeti] = useState([]);
     const [stranica, setStranica] = useState(0);
 
+    // smer za koji se uvozi (ograničava pogađanje predmeta)
+    const [smerovi, setSmerovi] = useState([]);
+    const [izabranSmer, setIzabranSmer] = useState(null);
+
     // filteri
     const [filterNaziv, setFilterNaziv] = useState('');
     const [filterDuplikati, setFilterDuplikati] = useState('svi'); // 'svi' | 'samo' | 'bez'
@@ -74,12 +79,19 @@ export default function ImportDrive() {
     // vrati se na prvu stranicu kad se promeni filter
     useEffect(() => { setStranica(0); }, [filterNaziv, filterDuplikati]);
 
+    // učitaj smerove za izbor
+    useEffect(() => {
+        ServisSmerova.vratiSmerove({ poStranici: 100 })
+            .then(lista => setSmerovi(Array.isArray(lista) ? lista : []))
+            .catch(() => setSmerovi([]));
+    }, []);
+
     const ucitajFajlove = async () => {
         const id = extractFolderId(folderInput);
-        if (!id) return;
+        if (!id || !izabranSmer) return;
         setUcitava(true);
         try {
-            const data = await ServisDriveImporta.vratiFajlove(id);
+            const data = await ServisDriveImporta.vratiFajlove(id, izabranSmer.smer_id);
             setPredmeti(data.predmeti.map(p => ({ ...p, id: p.predmet_id })));
             setStavke(data.fajlovi.map((f) => ({
                 id: crypto.randomUUID(),
@@ -93,7 +105,7 @@ export default function ImportDrive() {
                 podtip: null,
                 podtipovi: [],
                 skolskaGodina: null,
-                izabrana: true,
+                izabrana: false,
                 vecPostoji: f.vec_postoji || false,
             })));
             setStranica(0);
@@ -106,6 +118,16 @@ export default function ImportDrive() {
 
     const azurirajStavku = (id, izmene) => {
         setStavke(prev => prev.map(s => s.id === id ? { ...s, ...izmene } : s));
+    };
+
+    // Ručno označavanje/skidanje statusa "već dodat". Kad se označi kao dodat,
+    // automatski se isključuje iz uvoza.
+    const prebaciVecPostoji = (id) => {
+        setStavke(prev => prev.map(s => {
+            if (s.id !== id) return s;
+            const novo = !s.vecPostoji;
+            return { ...s, vecPostoji: novo, izabrana: novo ? false : s.izabrana };
+        }));
     };
 
     const azurirajTip = async (id, noviTip) => {
@@ -201,13 +223,29 @@ export default function ImportDrive() {
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Smer za koji uvozite
+                                </label>
+                                <CustomSelect
+                                    klase="w-full"
+                                    opcije={smerovi}
+                                    vrednost={izabranSmer}
+                                    podesiSelektovaneOpcije={setIzabranSmer}
+                                    labela="Izaberi smer"
+                                    imeOpcije="naziv_smera"
+                                    nazivPlus="departman"
+                                />
+                                <p className="text-xs text-gray-400 mt-1">Predmeti se pogađaju samo iz izabranog smera</p>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
                                     Link ili ID Google Drive foldera
                                 </label>
                                 <input
                                     type="text"
                                     value={folderInput}
                                     onChange={e => setFolderInput(e.target.value)}
-                                    onKeyDown={e => e.key === 'Enter' && folderInput.trim() && ucitajFajlove()}
+                                    onKeyDown={e => e.key === 'Enter' && folderInput.trim() && izabranSmer && ucitajFajlove()}
                                     placeholder="https://drive.google.com/drive/folders/..."
                                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
                                 />
@@ -216,9 +254,9 @@ export default function ImportDrive() {
 
                             <button
                                 onClick={ucitajFajlove}
-                                disabled={!folderInput.trim() || ucitava}
+                                disabled={!folderInput.trim() || !izabranSmer || ucitava}
                                 className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                                    folderInput.trim() && !ucitava
+                                    folderInput.trim() && izabranSmer && !ucitava
                                         ? 'bg-blue-500 text-white hover:bg-blue-600 cursor-pointer'
                                         : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                                 }`}
@@ -513,6 +551,7 @@ export default function ImportDrive() {
                                     skolskeGodine={skolskeGodine}
                                     onAzurirajTip={azurirajTip}
                                     onAzuriraj={azurirajStavku}
+                                    onPrebaciVecPostoji={prebaciVecPostoji}
                                 />
                             ))}
                         </tbody>
@@ -546,7 +585,7 @@ export default function ImportDrive() {
     );
 }
 
-function RedTabele({ stavka, predmeti, tipoviMaterijala, skolskeGodine, onAzurirajTip, onAzuriraj }) {
+function RedTabele({ stavka, predmeti, tipoviMaterijala, skolskeGodine, onAzurirajTip, onAzuriraj, onPrebaciVecPostoji }) {
     const spreman = stavkaJeSpremna(stavka);
 
     return (
@@ -564,11 +603,23 @@ function RedTabele({ stavka, predmeti, tipoviMaterijala, skolskeGodine, onAzurir
                     <p className="font-medium text-gray-800 text-xs leading-tight max-w-[220px] truncate" title={stavka.naziv}>
                         {stavka.naziv}
                     </p>
-                    {stavka.vecPostoji && (
-                        <Tooltip title="Materijal sa istim imenom i predmetom već postoji u arhivu" arrow placement="top">
-                            <span>
-                                <FaExclamationTriangle className="text-red-500 shrink-0" size={12} />
-                            </span>
+                    {stavka.vecPostoji ? (
+                        <Tooltip title="Označeno kao već dodato — klikni da skineš oznaku" arrow placement="top">
+                            <button
+                                onClick={() => onPrebaciVecPostoji(stavka.id)}
+                                className="flex items-center gap-1 shrink-0 px-1.5 py-0.5 rounded bg-red-50 text-red-600 text-[10px] font-medium hover:bg-red-100 cursor-pointer"
+                            >
+                                <FaExclamationTriangle size={10} /> Već dodat
+                            </button>
+                        </Tooltip>
+                    ) : (
+                        <Tooltip title="Označi kao već dodato u arhiv" arrow placement="top">
+                            <button
+                                onClick={() => onPrebaciVecPostoji(stavka.id)}
+                                className="shrink-0 px-1.5 py-0.5 rounded text-[10px] text-gray-400 hover:text-red-600 hover:bg-red-50 cursor-pointer"
+                            >
+                                Označi kao dodat
+                            </button>
                         </Tooltip>
                     )}
                 </div>

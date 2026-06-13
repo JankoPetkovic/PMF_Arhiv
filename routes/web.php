@@ -18,9 +18,15 @@ use App\Http\Controllers\KontrolerSmerova;
 use App\Http\Controllers\KontrolerPodtipovaMaterijala;
 use App\Http\Controllers\KontrolerAdminKorisnika;
 use App\Http\Controllers\KontrolerDriveImporta;
+use App\Http\Controllers\KontrolerParlamentObjava;
 
 //Kontroler pocetne stranice
 Route::get('/', [KontrolerPocetneStranice::class, 'index'])->name('home');
+
+// Kratak link za deljenje materijala (npr. /m/123/matematika-1)
+Route::get('/m/{id}/{slug?}', [KontrolerMaterijala::class, 'deli'])
+    ->where('id', '[0-9]+')
+    ->name('materijali.deli');
 
 //Kontroler Korisnika
 Route::get('korisnik/registracija', [KontrolerKorisnika::class, 'create'])->name('korisnik.create');
@@ -53,6 +59,9 @@ Route::resource('predmeti', KontrolerPredmeta::class)->except(['store']);
 //Kontroler Nivoa studija
 Route::resource('nivo-studija', KontrolerNivoaStudija::class);
 
+// Objave parlamenta — javni pregled (carousel vodi ovde)
+Route::get('/parlament', [KontrolerParlamentObjava::class, 'index'])->name('parlament.index');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('korisnik', KontrolerKorisnika::class)->except(['create', 'store']);
     Route::resource('materijali', KontrolerMaterijala::class)->names(['store' => 'materijali.sacuvaj'])->except(['index', 'edit']);
@@ -66,6 +75,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/admin/import-drive', [KontrolerDriveImporta::class, 'prikaziStranu'])->name('admin.import-drive');
     Route::get('/admin/drive/fajlovi', [KontrolerDriveImporta::class, 'vratiSadrzajFoldera']);
     Route::post('/admin/drive/uvezi', [KontrolerDriveImporta::class, 'uveziFajlove']);
+
+    // Admin: upravljanje ulogama korisnika
+    Route::get('/admin/korisnici', [KontrolerAdminKorisnika::class, 'prikaziUpravljanjeUlogama'])->name('admin.korisnici');
+    Route::patch('/admin/korisnici/{id}/uloga', [KontrolerAdminKorisnika::class, 'dodeliUlogu']);
+
+    // Objave parlamenta — upravljanje (samo predstavnik, provera u kontroleru)
+    Route::post('/parlament', [KontrolerParlamentObjava::class, 'store']);
+    Route::post('/parlament/{id}', [KontrolerParlamentObjava::class, 'update']); // POST zbog multipart (slika)
+    Route::delete('/parlament/{id}', [KontrolerParlamentObjava::class, 'destroy']);
 
     //Kontroler departmana
     Route::resource('departmani', KontrolerDepartmana::class)->only(['store']);
