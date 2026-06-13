@@ -87,6 +87,7 @@ export default function ImportDrive() {
                 podtipovi: [],
                 skolskaGodina: null,
                 izabrana: true,
+                vecPostoji: f.vec_postoji || false,
             })));
             setStranica(0);
             setKorak(2);
@@ -478,9 +479,18 @@ function RedTabele({ stavka, predmeti, tipoviMaterijala, skolskeGodine, onAzurir
                 />
             </td>
             <td className="px-3 py-2">
-                <p className="font-medium text-gray-800 text-xs leading-tight max-w-[220px] truncate" title={stavka.naziv}>
-                    {stavka.naziv}
-                </p>
+                <div className="flex items-center gap-1.5">
+                    <p className="font-medium text-gray-800 text-xs leading-tight max-w-[220px] truncate" title={stavka.naziv}>
+                        {stavka.naziv}
+                    </p>
+                    {stavka.vecPostoji && (
+                        <Tooltip title="Fajl sa ovim imenom već postoji u arhivu" arrow placement="top">
+                            <span>
+                                <FaExclamationTriangle className="text-red-500 shrink-0" size={12} />
+                            </span>
+                        </Tooltip>
+                    )}
+                </div>
                 <p className="text-gray-400 text-xs truncate max-w-[220px]" title={stavka.putanja}>
                     {stavka.putanja || '/'} {stavka.velicina ? `· ${formatirajVelicinu(stavka.velicina)}` : ''}
                 </p>

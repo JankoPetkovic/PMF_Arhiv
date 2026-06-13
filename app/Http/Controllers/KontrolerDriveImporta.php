@@ -144,7 +144,12 @@ class KontrolerDriveImporta extends Controller
                 ])
                 ->toArray();
 
-            $obradjeni = array_map(function ($fajl) use ($predmeti) {
+            $nazivi = array_column($svi, 'naziv');
+            $postojeciNazivi = array_flip(
+                Materijal::whereIn('naziv', $nazivi)->pluck('naziv')->toArray()
+            );
+
+            $obradjeni = array_map(function ($fajl) use ($predmeti, $postojeciNazivi) {
                 $segmenti = $fajl['putanja'] ? explode('/', $fajl['putanja']) : [];
                 $godina   = $this->extractGodina($segmenti);
 
@@ -162,6 +167,7 @@ class KontrolerDriveImporta extends Controller
                     'putanja'           => $fajl['putanja'],
                     'predlozena_godina' => $godina,
                     'predlozen_predmet' => $predlozenPredmet,
+                    'vec_postoji'       => isset($postojeciNazivi[$fajl['naziv']]),
                 ];
             }, $svi);
 
