@@ -121,7 +121,10 @@ class KontrolerDriveImporta extends Controller
             return response()->json(['message' => 'Nedovoljna prava pristupa'], 403);
         }
 
-        $request->validate(['folder_id' => 'required|string|max:200']);
+        $request->validate([
+            'folder_id' => 'required|string|max:200',
+            'smer_id'   => 'nullable|integer|exists:smer,smer_id',
+        ]);
 
         set_time_limit(0);
 
@@ -129,7 +132,10 @@ class KontrolerDriveImporta extends Controller
             $drive = $this->napraviDriveKlijent();
             $svi   = $this->listaFajlova($drive, $request->input('folder_id'));
 
+            $smerId = $request->input('smer_id');
+
             $predmeti = Predmet::with(['smer.departman', 'smer.nivoStudija'])
+                ->when($smerId, fn($upit) => $upit->where('smer_id', $smerId))
                 ->get()
                 ->map(fn($p) => [
                     'predmet_id'      => $p->predmet_id,

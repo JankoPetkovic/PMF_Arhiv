@@ -15,6 +15,7 @@ import { FaFileAlt, FaRegEdit} from "react-icons/fa";
 import { router, usePage } from "@inertiajs/react";
 import ServisMaterijala from "../PomocniAlati/Servisi/ServisMaterijala";
 import DialogIzmenaMaterijala from "./DialogIzmenaMaterijala";
+import { objaviPromenuMaterijala } from "../PomocniAlati/dogadjajiMaterijala";
 
 export default function KarticaMaterijala({materijal}){
 
@@ -62,6 +63,7 @@ export default function KarticaMaterijala({materijal}){
         try {
             await ServisMaterijala.obrisiMaterijal(materijal.materijal_id);
             podesiDialogBrisanja(false);
+            objaviPromenuMaterijala();
             router.reload();
         } finally {
             podesiUcitavaBrisanje(false);
@@ -78,15 +80,27 @@ export default function KarticaMaterijala({materijal}){
         docx: <TbFileTypeDocx size={60} className='cursor-pointer w-14 h-14 object-contain text-blue-500' />,
     };
 
+    const napraviSlug = (tekst) =>
+        (tekst || 'materijal')
+            .toString()
+            .toLowerCase()
+            .replace(/č|ć/g, 'c').replace(/š/g, 's').replace(/ž/g, 'z').replace(/đ/g, 'dj')
+            .normalize('NFD').replace(/[̀-ͯ]/g, '')
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+
     const obradiDeljenje = () => {
+        const kratakLink =
+            `${window.location.origin}/m/${materijal.materijal_id}/${napraviSlug(materijal.predmet)}`;
+
         if (navigator.share) {
             navigator.share({
             title: 'Materijal',
             text: 'Pogledaj ovaj materijal:',
-            url: window.location.origin + `/storage/${materijal.putanja_fajla}`,
+            url: kratakLink,
             })
         } else {
-            navigator.clipboard.writeText(window.location.origin + `/storage/${materijal.putanja_fajla}`);
+            navigator.clipboard.writeText(kratakLink);
             prikaziToastNotifikaciju("Link do materijala je kopiran u privremenu memoriju", TipToastNotifikacije.Info)
         }
     }

@@ -6,6 +6,7 @@ import ServisMaterijala from "../PomocniAlati/Servisi/ServisMaterijala";
 import { prikaziToastNotifikaciju } from "../PomocniAlati/ToastNotifikacijaServis";
 import TipToastNotifikacije from "../PomocniAlati/TipToastNotifikacije";
 import { router } from "@inertiajs/react";
+import { objaviPromenuMaterijala } from "../PomocniAlati/dogadjajiMaterijala";
 
 export default function DialogIzmenaMaterijala({ materijal, podesiPrikazDialoga }) {
     const { podaci } = koristiGlobalniKontekst();
@@ -55,6 +56,7 @@ export default function DialogIzmenaMaterijala({ materijal, podesiPrikazDialoga 
             });
             if (ok) {
                 prikaziToastNotifikaciju("Materijal uspešno ažuriran", TipToastNotifikacije.Uspesno);
+                objaviPromenuMaterijala();
                 router.reload();
                 podesiPrikazDialoga(false);
             }

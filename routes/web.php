@@ -22,6 +22,11 @@ use App\Http\Controllers\KontrolerDriveImporta;
 //Kontroler pocetne stranice
 Route::get('/', [KontrolerPocetneStranice::class, 'index'])->name('home');
 
+// Kratak link za deljenje materijala (npr. /m/123/matematika-1)
+Route::get('/m/{id}/{slug?}', [KontrolerMaterijala::class, 'deli'])
+    ->where('id', '[0-9]+')
+    ->name('materijali.deli');
+
 //Kontroler Korisnika
 Route::get('korisnik/registracija', [KontrolerKorisnika::class, 'create'])->name('korisnik.create');
 Route::post('korisnik', [KontrolerKorisnika::class, 'store'])->name('korisnik.store');

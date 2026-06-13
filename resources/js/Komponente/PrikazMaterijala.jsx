@@ -1,9 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PretragaMaterijala from "./Alati/PretragaMaterijala";
 import KarticaMaterijala from "./KarticaMaterijala";
 
 export default function PrikazMaterijala({ materijali: inicijalniMaterijali, tekst = "" }) {
     const [materijali, podesiMaterijale] = useState(inicijalniMaterijali);
+
+    // Sinhronizuj lokalno stanje kad se prosleđena lista promeni (npr. posle
+    // osvežavanja nakon dodavanja/izmene/brisanja materijala).
+    useEffect(() => {
+        podesiMaterijale(inicijalniMaterijali);
+    }, [inicijalniMaterijali]);
 
     return (
         <div className="flex flex-col gap-4 w-full h-content-panel mb-10 rounded-xl shadow-card p-4">
