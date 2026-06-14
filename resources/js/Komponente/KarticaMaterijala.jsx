@@ -1,15 +1,16 @@
 import { FaDownload } from "react-icons/fa6";
-import { PiWarningCircleBold } from "react-icons/pi";
-import { Tooltip } from '@mui/material';
+import { Tooltip, IconButton, Menu, MenuItem } from '@mui/material';
+import { BsThreeDotsVertical } from "react-icons/bs";
+import OcenaZvezdice from "./Alati/OcenaZvezdice";
 import { useEffect, useState } from "react";
 import PrijaviProblem from "./Alati/PrijaviProblem";
 import { FaRegUserCircle } from "react-icons/fa";
-import { FaShareAlt, FaRegTrashAlt  } from "react-icons/fa";
+import { FaShareAlt } from "react-icons/fa";
 import skracenicaNivoaStudija from '../PomocniAlati/skracenicaNivoaStudija';
 import {prikaziToastNotifikaciju} from'../PomocniAlati/ToastNotifikacijaServis';
 import TipToastNotifikacije from'../PomocniAlati/TipToastNotifikacije';
 import Dialog from "../Komponente/Dialog";
-import { FaFileAlt, FaRegEdit} from "react-icons/fa";
+import { FaFileAlt } from "react-icons/fa";
 import { router, usePage } from "@inertiajs/react";
 import ServisMaterijala from "../PomocniAlati/Servisi/ServisMaterijala";
 import DialogIzmenaMaterijala from "./DialogIzmenaMaterijala";
@@ -24,8 +25,28 @@ export default function KarticaMaterijala({materijal}){
     const [dialogBrisanja, podesiDialogBrisanja] = useState(false);
     const [dialogIzmene, podesiDialogIzmene] = useState(false);
     const [ucitavaBrisanje, podesiUcitavaBrisanje] = useState(false);
+    const [meniAnchor, podesiMeniAnchor] = useState(null);
+
+    // Ocene
+    const [prosecnaOcena, podesiProsecnuOcenu] = useState(materijal.prosecna_ocena ?? 0);
+    const [brojOcena, podesiBrojOcena] = useState(materijal.broj_ocena ?? 0);
+    const [mojaOcena, podesiMojuOcenu] = useState(materijal.moja_ocena ?? null);
 
     const klaseIkonica = "cursor-pointer hover:scale-110 transition-transform duration-200";
+
+    const oceniMaterijal = async (vrednost) => {
+        if (!ulogovanKorisnik) {
+            prikaziToastNotifikaciju("Morate biti prijavljeni da biste ocenili", TipToastNotifikacije.Info);
+            return;
+        }
+        try {
+            const rez = await ServisMaterijala.oceniMaterijal(materijal.materijal_id, vrednost);
+            podesiProsecnuOcenu(rez.prosecna_ocena);
+            podesiBrojOcena(rez.broj_ocena);
+            podesiMojuOcenu(rez.moja_ocena);
+            prikaziToastNotifikaciju("Ocena zabeležena", TipToastNotifikacije.Uspesno);
+        } catch (_) {}
+    };
 
     useEffect(()=>{
         const dozvoljeno = !!ulogovanKorisnik &&
@@ -110,12 +131,12 @@ export default function KarticaMaterijala({materijal}){
     }
 
     return(
-        <div className="hover:scale-110 transition-transform duration-200 shadow-card rounded-xl p-4 w-[210px] h-[300px] flex flex-col gap-6 bg-white/70 backdrop-blur-sm">
-            <div className="text-xs font-semibold mb-1">
-                <p>{skracenicaNivoaStudija(materijal.nivo_studija)} / {materijal.smer.naziv_smera} / {materijal.predmet} / {materijal.skolska_godina}</p> 
+        <div className="hover:scale-105 transition-transform duration-200 shadow-card rounded-xl p-4 w-[210px] min-h-[330px] flex flex-col gap-3 bg-white/70 backdrop-blur-sm">
+            <div className="text-xs font-semibold">
+                <p>{skracenicaNivoaStudija(materijal.nivo_studija)} / {materijal.smer.naziv_smera} / {materijal.predmet} / {materijal.skolska_godina}</p>
             </div>
 
-         <div className="flex items-center justify-center">
+            <div className="flex-1 flex items-center justify-center min-h-0">
                 <a
                     href={`/storage/${materijal.putanja_fajla}`}
                     target="_blank"
@@ -127,17 +148,29 @@ export default function KarticaMaterijala({materijal}){
                         ? <img src={`/file-icons/${ikonicaFajla}.svg`} alt={`${ikonicaFajla} fajl`} className="cursor-pointer w-[74px] h-[74px] object-contain" />
                         : <FaFileAlt size={60} className='cursor-pointer w-14 h-14 object-contain text-gray-500' />}
                     </Tooltip>
-                    
-                    <p className="text-sm break-all whitespace-normal leading-tight">
+
+                    <p className="text-sm break-all whitespace-normal leading-tight line-clamp-2">
                     {materijal.naziv}
                     </p>
                 </a>
             </div>
 
-            <div className="flex justify-center items-center gap-4 mt-auto mb-2">
+            {/* Ocena materijala */}
+            <div className="flex justify-center">
+                <OcenaZvezdice
+                    prosek={prosecnaOcena}
+                    broj={brojOcena}
+                    moja={mojaOcena}
+                    mozeOceniti={!!ulogovanKorisnik}
+                    naOceni={oceniMaterijal}
+                />
+            </div>
+
+            {/* Akcije: preuzmi, podeli, ⋮ (ostalo) */}
+            <div className="flex justify-center items-center gap-5">
                 <Tooltip title="Preuzmi">
                     <FaDownload
-                    size={25}
+                    size={24}
                     onClick={() => preuzmiMaterijal(materijal.putanja_fajla, materijal.naziv)}
                     className={`${klaseIkonica} text-emerald-500`}
                     />
@@ -145,45 +178,49 @@ export default function KarticaMaterijala({materijal}){
 
                 <Tooltip title="Podeli">
                     <FaShareAlt
-                    size={25}
+                    size={24}
                     onClick={obradiDeljenje}
                     className={`${klaseIkonica} text-blue-500`}
                     />
                 </Tooltip>
 
-                <Tooltip title="Prijavi">
-                    <PiWarningCircleBold
-                    size={25}
-                    onClick={() => {
-                        podesDialogPrijave(true);
-                        podesiIzabraniMaterijal(materijal.materijal_id);
-                    }}
-                    className={`${klaseIkonica} text-red-800`}
-                    />
+                <Tooltip title="Više">
+                    <IconButton size="small" onClick={(e) => podesiMeniAnchor(e.currentTarget)} className="!p-1">
+                        <BsThreeDotsVertical size={18} className="text-gray-600" />
+                    </IconButton>
                 </Tooltip>
 
-                {visiPristup && (
-                    <>
-                    <Tooltip title="Obriši">
-                        <FaRegTrashAlt
-                        size={25}
-                        onClick={() => podesiDialogBrisanja(true)}
-                        className={`${klaseIkonica} text-red-400`}
-                        />
-                    </Tooltip>
+                <Menu anchorEl={meniAnchor} open={!!meniAnchor} onClose={() => podesiMeniAnchor(null)}>
+                    <MenuItem
+                        onClick={() => {
+                            podesDialogPrijave(true);
+                            podesiIzabraniMaterijal(materijal.materijal_id);
+                            podesiMeniAnchor(null);
+                        }}
+                        sx={{ fontSize: 14 }}
+                    >
+                        Prijavi problem
+                    </MenuItem>
+                    {visiPristup && (
+                        <MenuItem
+                            onClick={() => { podesiDialogIzmene(true); podesiMeniAnchor(null); }}
+                            sx={{ fontSize: 14 }}
+                        >
+                            Izmeni
+                        </MenuItem>
+                    )}
+                    {visiPristup && (
+                        <MenuItem
+                            onClick={() => { podesiDialogBrisanja(true); podesiMeniAnchor(null); }}
+                            sx={{ fontSize: 14, color: '#dc2626' }}
+                        >
+                            Obriši
+                        </MenuItem>
+                    )}
+                </Menu>
+            </div>
 
-                    <Tooltip title="Izmeni">
-                        <FaRegEdit
-                        size={25}
-                        onClick={() => podesiDialogIzmene(true)} // verovatno ovo želiš umesto brisanja
-                        className={`${klaseIkonica} text-yellow-500`}
-                        />
-                    </Tooltip>
-                    </>
-                )}
-                </div>
-
-            {visiPristup ? 
+            {visiPristup ?
             (
                 <div className="flex justify-between items-center text-xs font-semibold">
                     <Tooltip title={materijal.korisnik}>
@@ -222,6 +259,7 @@ export default function KarticaMaterijala({materijal}){
             />
             <Dialog
                 naslov={"Izmena materijala: " + materijal.naziv}
+                sirina="w-[95vw] sm:w-[512px]"
                 sadrzaj={<DialogIzmenaMaterijala materijal={materijal} podesiPrikazDialoga={podesiDialogIzmene}/>}
                 prikaziDialog={dialogIzmene}
                 podesiPrikaziDialog={podesiDialogIzmene}

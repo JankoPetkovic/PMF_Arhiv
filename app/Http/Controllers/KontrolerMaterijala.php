@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 
 
 use App\Models\Materijal;
+use App\Models\OcenaMaterijala;
 use App\Models\Korisnik;
 use App\Mail\PrijaviMaterijal;
 use Inertia\Inertia;
@@ -361,6 +362,39 @@ class KontrolerMaterijala extends Controller
         }
 
         return Storage::disk('public')->response($putanja, $materijal->naziv);
+    }
+
+    /**
+     * Ocenjivanje materijala (1–5). Jedan korisnik = jedna ocena (upsert).
+     */
+    public function oceni(Request $zahtev, string $id)
+    {
+        if (!Auth::check()) {
+            return response()->json(['message' => 'Korisnik mora biti prijavljen'], 401);
+        }
+
+        $validirano = $zahtev->validate([
+            'ocena' => ['required', 'integer', 'min:1', 'max:5'],
+        ]);
+
+        $materijal = Materijal::find($id);
+        if (!$materijal) {
+            return response()->json(['message' => 'Materijal nije pronađen'], 404);
+        }
+
+        OcenaMaterijala::updateOrCreate(
+            ['materijal_id' => $materijal->materijal_id, 'korisnik_id' => Auth::id()],
+            ['ocena' => $validirano['ocena'], 'datum' => now()]
+        );
+
+        $prosek = OcenaMaterijala::where('materijal_id', $materijal->materijal_id)->avg('ocena');
+        $broj   = OcenaMaterijala::where('materijal_id', $materijal->materijal_id)->count();
+
+        return response()->json([
+            'prosecna_ocena' => $prosek !== null ? round((float) $prosek, 2) : 0,
+            'broj_ocena'     => $broj,
+            'moja_ocena'     => (int) $validirano['ocena'],
+        ], 200);
     }
 
     /**

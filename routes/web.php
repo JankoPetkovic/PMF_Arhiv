@@ -50,6 +50,7 @@ Route::resource('tipovi-materijala', KontrolerTipaMaterijala::class);
 Route::resource('podtipovi-materijala', KontrolerPodtipovaMaterijala::class);
 Route::resource('smerovi', KontrolerSmerova::class)->only(['show']);
 Route::get('materijali/eksport', [KontrolerMaterijala::class, 'eksportujMaterijale'])->name('materijali.eksport');
+Route::post('materijali/{id}/ocena', [KontrolerMaterijala::class, 'oceni'])->middleware('auth');
 Route::resource('materijali', KontrolerMaterijala::class)->only(['index']);
 
 Route::resource('departmani', KontrolerDepartmana::class)->only(['index']);

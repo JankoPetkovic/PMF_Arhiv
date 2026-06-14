@@ -24,6 +24,20 @@ export default function CustomSelect({
         podesiSelektovaneOpcije(vrednosti);
     };
 
+    // Jedinstven identitet opcije — bira NAJSPECIFIČNIJI id (npr. predmet_id pre
+    // smer_id), jer svi predmeti istog smera dele isti smer_id i inače bi MUI
+    // sve opcije prikazao kao izabrane.
+    const vratiKljuc = (o) =>
+        o?.id ?? o?.predmet_id ?? o?.podtip_materijala_id ?? o?.tip_materijala_id
+        ?? o?.smer_id ?? o?.departman_id ?? o?.nivo_studija_id ?? o?.naziv;
+
+    const istaOpcija = (opcija, vrednost) => {
+        if (!opcija || !vrednost) return false;
+        const a = vratiKljuc(opcija);
+        const b = vratiKljuc(vrednost);
+        return a !== undefined && b !== undefined ? a === b : opcija === vrednost;
+    };
+
     return zakljucana ? (
         <Tooltip 
             title={tooltipTekst}
@@ -46,18 +60,7 @@ export default function CustomSelect({
                 getOptionLabel={(opcija) =>
                     opcija[imeOpcije] + (nazivPlus ?" - " + opcija[nazivPlus] : '')
                 }
-                isOptionEqualToValue={(opcija, vrednost) => {
-                    if (!opcija || !vrednost) return false;
-
-                    const oId = opcija.id ?? opcija.smer_id;
-                    const vId = vrednost.id ?? vrednost.smer_id;
-
-                    if (oId !== undefined && vId !== undefined) {
-                        return oId === vId;
-                    }
-
-                    return opcija.naziv === vrednost.naziv;
-                }}
+                isOptionEqualToValue={istaOpcija}
                 value={vrednost || null}
                 multiple={viseOpcija}
                 onChange={selektujHandle}
@@ -91,18 +94,7 @@ export default function CustomSelect({
                 getOptionLabel={(opcija) =>
                     opcija[imeOpcije] + (nazivPlus ?" - " + opcija[nazivPlus] : '')
                 }
-                isOptionEqualToValue={(opcija, vrednost) => {
-                    if (!opcija || !vrednost) return false;
-
-                    const oId = opcija.id ?? opcija.smer_id;
-                    const vId = vrednost.id ?? vrednost.smer_id;
-
-                    if (oId !== undefined && vId !== undefined) {
-                        return oId === vId;
-                    }
-
-                    return opcija.naziv === vrednost.naziv;
-                }}
+                isOptionEqualToValue={istaOpcija}
                 value={vrednost || null}
                 multiple={viseOpcija}
                 onChange={selektujHandle}

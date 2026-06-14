@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class Materijal extends Model
@@ -38,6 +39,10 @@ class Materijal extends Model
 
     public function korisnik(){
         return $this->belongsTo(Korisnik::class, 'korisnik_id');
+    }
+
+    public function ocene(){
+        return $this->hasMany(OcenaMaterijala::class, 'materijal_id', 'materijal_id');
     }
 
     public function vratiPutanju(){
@@ -126,7 +131,13 @@ class Materijal extends Model
             'predmet.smer.nivoStudija',
             'podtipMaterijala.tip',
             'korisnik'
-        ]);
+        ])->withAvg('ocene', 'ocena')->withCount('ocene');
+
+        // Učitaj samo ocenu trenutnog korisnika (za "moja_ocena"), bez N+1.
+        if (Auth::check()) {
+            $korisnikId = Auth::id();
+            $upit->with(['ocene' => fn($q) => $q->where('korisnik_id', $korisnikId)]);
+        }
 
         self::primeniFiltere($upit, $filteri);
 
@@ -156,6 +167,11 @@ class Materijal extends Model
                 'tip' => $materijal->podtipMaterijala->tip->naziv ?? null,
                 'podtip' => $materijal->podtipMaterijala->naziv ?? null,
                 'korisnik' => $materijal->korisnik->email ?? null,
+                'prosecna_ocena' => $materijal->ocene_avg_ocena !== null ? round((float) $materijal->ocene_avg_ocena, 2) : 0,
+                'broj_ocena' => $materijal->ocene_count ?? 0,
+                'moja_ocena' => $materijal->relationLoaded('ocene')
+                    ? ($materijal->ocene->first()->ocena ?? null)
+                    : null,
             ];
         });
 

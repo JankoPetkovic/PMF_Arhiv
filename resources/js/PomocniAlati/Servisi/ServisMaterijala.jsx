@@ -61,4 +61,18 @@ export default class ServisMaterijala {
             throw greska;
         }
     }
+
+    // Vraća { prosecna_ocena, broj_ocena, moja_ocena }
+    static async oceniMaterijal(id, ocena) {
+        try {
+            const odgovor = await axios.post(`/materijali/${id}/ocena`, { ocena });
+            return odgovor.data;
+        } catch (greska) {
+            const poruka = greska.response?.status === 401
+                ? "Morate biti prijavljeni da biste ocenili"
+                : "Greška prilikom ocenjivanja";
+            prikaziToastNotifikaciju(poruka, TipToastNotifikacije.Greska);
+            throw greska;
+        }
+    }
 }
