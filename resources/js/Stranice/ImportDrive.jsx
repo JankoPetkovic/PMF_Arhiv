@@ -623,7 +623,7 @@ function RedTabele({ stavka, predmeti, tipoviMaterijala, skolskeGodine, onAzurir
                         </Tooltip>
                     )}
                 </div>
-                <p className="text-gray-400 text-xs truncate max-w-[220px]" title={stavka.putanja}>
+                <p className="text-gray-400 text-xs break-words" title={stavka.putanja}>
                     {stavka.putanja || '/'} {stavka.velicina ? `· ${formatirajVelicinu(stavka.velicina)}` : ''}
                 </p>
             </td>
