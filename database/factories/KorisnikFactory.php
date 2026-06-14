@@ -49,6 +49,16 @@ class KorisnikFactory extends Factory
     }
 
     /**
+     * Korisnik sa ulogom Predstavnik parlamenta.
+     */
+    public function predstavnik(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'tip_uloge_korisnika_id' => self::ulogaId('Predstavnik parlamenta'),
+        ]);
+    }
+
+    /**
      * Neverifikovan korisnik.
      */
     public function neverifikovan(): static

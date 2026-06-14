@@ -19,6 +19,7 @@ use App\Http\Controllers\KontrolerPodtipovaMaterijala;
 use App\Http\Controllers\KontrolerAdminKorisnika;
 use App\Http\Controllers\KontrolerDriveImporta;
 use App\Http\Controllers\KontrolerParlamentObjava;
+use App\Http\Controllers\KontrolerAnkete;
 
 //Kontroler pocetne stranice
 Route::get('/', [KontrolerPocetneStranice::class, 'index'])->name('home');
@@ -31,12 +32,12 @@ Route::get('/m/{id}/{slug?}', [KontrolerMaterijala::class, 'deli'])
 //Kontroler Korisnika
 Route::get('korisnik/registracija', [KontrolerKorisnika::class, 'create'])->name('korisnik.create');
 Route::post('korisnik', [KontrolerKorisnika::class, 'store'])->name('korisnik.store');
-Route::post('/prijava', [KontrolerKorisnika::class, 'prijava']);
+Route::post('/prijava', [KontrolerKorisnika::class, 'prijava'])->middleware('throttle:10,1');
 Route::post('/odjava', [KontrolerKorisnika::class, 'odjava']); 
 Route::get('/status-verifikacije', [KontrolerKorisnika::class, 'statusVerifikacije']);
 Route::post('/posalji-verifikaciju', [KontrolerKorisnika::class, 'posaljiVerifikaciju']);
 Route::get('/verifikuj-mejl/{id}',[KontrolerKorisnika::class, 'obradiVerifikaciju'])->name('korisnik.verifikuj');
-Route::post('/prijavi-problem', [KontrolerKorisnika::class, 'prijaviProblem']);
+Route::post('/prijavi-problem', [KontrolerKorisnika::class, 'prijaviProblem'])->middleware('throttle:10,1');
 Route::post('/zatrazi-reset-sifre', [KontrolerKorisnika::class, 'zatraziResetSifre']);
 Route::get('/reset-sifre/{token}', [KontrolerKorisnika::class, 'prikaziFormResetSifre'])->name('reset-sifre');
 Route::post('/reset-sifre', [KontrolerKorisnika::class, 'resetujSifru']);
@@ -51,8 +52,6 @@ Route::resource('smerovi', KontrolerSmerova::class)->only(['show']);
 Route::get('materijali/eksport', [KontrolerMaterijala::class, 'eksportujMaterijale'])->name('materijali.eksport');
 Route::resource('materijali', KontrolerMaterijala::class)->only(['index']);
 
-// Kratak link za deljenje materijala
-Route::get('m/{id}/{slug?}', [KontrolerMaterijala::class, 'deli'])->name('materijali.deli');
 Route::resource('departmani', KontrolerDepartmana::class)->only(['index']);
 Route::resource('predmeti', KontrolerPredmeta::class)->except(['store']);
 
@@ -63,6 +62,8 @@ Route::resource('nivo-studija', KontrolerNivoaStudija::class);
 // Objave parlamenta — javni pregled (carousel vodi ovde). Ceo feature iza flag-a.
 if (config('parlament.prikazi')) {
     Route::get('/parlament', [KontrolerParlamentObjava::class, 'index'])->name('parlament.index');
+    // Slanje odgovora na anketu — javno (identitet se prikuplja u formi).
+    Route::post('/anketa/{anketaId}/odgovor', [KontrolerAnkete::class, 'posaljiOdgovor'])->middleware('throttle:20,1');
 }
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -88,6 +89,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/parlament', [KontrolerParlamentObjava::class, 'store']);
         Route::post('/parlament/{id}', [KontrolerParlamentObjava::class, 'update']); // POST zbog multipart (slika)
         Route::delete('/parlament/{id}', [KontrolerParlamentObjava::class, 'destroy']);
+
+        // Ankete (poll-ovi) na objavama
+        Route::post('/parlament/{objavaId}/anketa', [KontrolerAnkete::class, 'sacuvaj']);
+        Route::delete('/parlament/{objavaId}/anketa', [KontrolerAnkete::class, 'obrisi']);
+        Route::get('/anketa/{anketaId}/rezultati', [KontrolerAnkete::class, 'eksport'])->name('anketa.rezultati');
+        Route::get('/anketa/{anketaId}/rezime', [KontrolerAnkete::class, 'rezime']);
     }
 
     //Kontroler departmana

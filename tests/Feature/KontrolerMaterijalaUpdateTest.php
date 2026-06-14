@@ -18,7 +18,7 @@ class KontrolerMaterijalaUpdateTest extends TestCase
         $materijal = Materijal::factory()->create(['korisnik_id' => $vlasnik->korisnik_id]);
 
         $odgovor = $this->actingAs($vlasnik)->putJson(
-            route('materijali.update', ['materijal' => $materijal->materijal_id]),
+            route('materijali.update', ['materijali' => $materijal->materijal_id]),
             [
                 'naziv'         => 'Novi naziv',
                 'predmet_id'    => $materijal->predmet_id,
@@ -39,7 +39,7 @@ class KontrolerMaterijalaUpdateTest extends TestCase
         $podtip = PodtipMaterijala::factory()->create();
 
         $odgovor = $this->actingAs($vlasnik)->putJson(
-            route('materijali.update', ['materijal' => $materijal->materijal_id]),
+            route('materijali.update', ['materijali' => $materijal->materijal_id]),
             [
                 'naziv'         => 'Izmenjeni naziv',
                 'predmet_id'    => $materijal->predmet_id,
@@ -66,7 +66,7 @@ class KontrolerMaterijalaUpdateTest extends TestCase
         $podtip = PodtipMaterijala::factory()->create();
 
         $odgovor = $this->actingAs($drugiGost)->putJson(
-            route('materijali.update', ['materijal' => $materijal->materijal_id]),
+            route('materijali.update', ['materijali' => $materijal->materijal_id]),
             [
                 'naziv'         => 'Pokusaj izmene',
                 'predmet_id'    => $materijal->predmet_id,

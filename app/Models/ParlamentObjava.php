@@ -5,12 +5,13 @@ namespace App\Models;
 use App\Models\Korisnik;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 
 class ParlamentObjava extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'parlament_objava';
 
@@ -26,6 +27,11 @@ class ParlamentObjava extends Model
     public function autor()
     {
         return $this->belongsTo(Korisnik::class, 'korisnik_id', 'korisnik_id');
+    }
+
+    public function anketa()
+    {
+        return $this->hasOne(Anketa::class, 'parlament_objava_id', 'parlament_objava_id');
     }
 
     /**
@@ -47,6 +53,7 @@ class ParlamentObjava extends Model
             'datum_objave'        => $this->datum_objave
                 ? Carbon::parse($this->datum_objave)->format('d.m.Y')
                 : null,
+            'anketa'              => $this->anketa ? $this->anketa->zaPrikaz() : null,
         ];
     }
 }

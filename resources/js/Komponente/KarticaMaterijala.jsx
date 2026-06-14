@@ -1,16 +1,14 @@
-import { FaRegFilePdf, FaDownload  } from "react-icons/fa6";
+import { FaDownload } from "react-icons/fa6";
 import { PiWarningCircleBold } from "react-icons/pi";
 import { Tooltip } from '@mui/material';
 import { useEffect, useState } from "react";
 import PrijaviProblem from "./Alati/PrijaviProblem";
 import { FaRegUserCircle } from "react-icons/fa";
 import { FaShareAlt, FaRegTrashAlt  } from "react-icons/fa";
-import { GrDocumentZip } from "react-icons/gr";
 import skracenicaNivoaStudija from '../PomocniAlati/skracenicaNivoaStudija';
 import {prikaziToastNotifikaciju} from'../PomocniAlati/ToastNotifikacijaServis';
 import TipToastNotifikacije from'../PomocniAlati/TipToastNotifikacije';
 import Dialog from "../Komponente/Dialog";
-import { TbFileTypeDocx } from "react-icons/tb";
 import { FaFileAlt, FaRegEdit} from "react-icons/fa";
 import { router, usePage } from "@inertiajs/react";
 import ServisMaterijala from "../PomocniAlati/Servisi/ServisMaterijala";
@@ -72,14 +70,19 @@ export default function KarticaMaterijala({materijal}){
     }
 
 
-    const fileIcons = {
-        pdf: <FaRegFilePdf size={60} color="red" className="cursor-pointer w-14 h-14 object-contain" />,
-        png: <img src={`/storage/${materijal.putanja_fajla}`} alt="PNG fajl" className="w-14 h-14 object-contain" />,
-        jpg: <img src={`/storage/${materijal.putanja_fajla}`} alt="JPG fajl" className="w-14 h-14 object-contain" />,
-        zip: <GrDocumentZip size={60} color='red' className="cursor-pointer w-14 h-14 object-contain" />,
-        doc: <TbFileTypeDocx size={60} className='cursor-pointer w-14 h-14 object-contain text-blue-500' />,
-        docx: <TbFileTypeDocx size={60} className='cursor-pointer w-14 h-14 object-contain text-blue-500' />,
+    // Mapiranje ekstenzije -> naziv SVG ikonice u /public/file-icons.
+    const tipUIkonicu = {
+        pdf: 'pdf',
+        doc: 'doc', docx: 'docx',
+        ppt: 'ppt', pptx: 'pptx',
+        txt: 'txt',
+        odt: 'odt',
+        zip: 'zip', rar: 'zip',
+        png: 'png',
+        jpg: 'jpg', jpeg: 'jpg',
     };
+
+    const ikonicaFajla = tipUIkonicu[vratiTipFajla(materijal.naziv)] ?? null;
 
     const napraviSlug = (tekst) =>
         (tekst || 'materijal')
@@ -120,7 +123,9 @@ export default function KarticaMaterijala({materijal}){
                     className="flex flex-col items-center gap-2 w-full text-center"
                 >
                     <Tooltip title="Otvori">
-                    {fileIcons[vratiTipFajla(materijal.naziv)] || <FaFileAlt size={60}  className='cursor-pointer w-14 h-14 object-contain text-gray-500' />}
+                    {ikonicaFajla
+                        ? <img src={`/file-icons/${ikonicaFajla}.svg`} alt={`${ikonicaFajla} fajl`} className="cursor-pointer w-[74px] h-[74px] object-contain" />
+                        : <FaFileAlt size={60} className='cursor-pointer w-14 h-14 object-contain text-gray-500' />}
                     </Tooltip>
                     
                     <p className="text-sm break-all whitespace-normal leading-tight">

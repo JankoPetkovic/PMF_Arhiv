@@ -61,7 +61,7 @@ class KontrolerPocetneStranice extends Controller
         $materijali = Materijal::filtriraj($filteri);
 
         $najnovijeObjave = config('parlament.prikazi')
-            ? ParlamentObjava::with('autor')
+            ? ParlamentObjava::with(['autor', 'anketa.pitanja.opcije'])
                 ->orderByDesc('datum_objave')
                 ->limit(10)
                 ->get()

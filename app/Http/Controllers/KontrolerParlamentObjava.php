@@ -17,22 +17,29 @@ class KontrolerParlamentObjava extends Controller
     {
         /** @var \App\Models\Korisnik|null $korisnik */
         $korisnik = Auth::user();
-        return $korisnik && $korisnik->tipUloge && $korisnik->tipUloge->naziv === self::ULOGA;
+        // Admin je superuser — može sve što i predstavnik parlamenta.
+        return $korisnik && $korisnik->tipUloge
+            && in_array($korisnik->tipUloge->naziv, [self::ULOGA, 'Admin'], true);
     }
 
     /**
      * Lista objava + stranica za upravljanje (kreiranje/izmena/brisanje za predstavnike).
      */
-    public function index()
+    public function index(Request $zahtev)
     {
-        $objave = ParlamentObjava::with('autor')
+        $stranica = max(1, (int) $zahtev->input('stranica', 1));
+
+        $p = ParlamentObjava::with(['autor', 'anketa.pitanja.opcije'])
             ->orderByDesc('datum_objave')
-            ->get()
-            ->map(fn($o) => $o->zaPrikaz());
+            ->paginate(10, ['*'], 'stranica', $stranica);
 
         return Inertia::render('ParlamentObjave', [
-            'objave'        => $objave,
+            'objave'        => collect($p->items())->map(fn($o) => $o->zaPrikaz())->values(),
             'mozeUpravljati' => $this->jePredstavnik(),
+            'paginacija'    => [
+                'trenutna' => $p->currentPage(),
+                'ukupno'   => $p->lastPage(),
+            ],
         ]);
     }
 
@@ -46,7 +53,7 @@ class KontrolerParlamentObjava extends Controller
             'naslov'  => ['required', 'string', 'max:255'],
             'sadrzaj' => ['nullable', 'string'],
             'link'    => ['nullable', 'url', 'max:2048'],
-            'slika'   => ['nullable', 'image', 'max:5120'], // do 5 MB
+            'slika'   => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'], // do 5 MB, bez SVG
         ]);
 
         $putanjaSlike = null;
@@ -85,7 +92,7 @@ class KontrolerParlamentObjava extends Controller
             'naslov'       => ['required', 'string', 'max:255'],
             'sadrzaj'      => ['nullable', 'string'],
             'link'         => ['nullable', 'url', 'max:2048'],
-            'slika'        => ['nullable', 'image', 'max:5120'],
+            'slika'        => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
             'ukloni_sliku' => ['sometimes', 'boolean'],
         ]);
 

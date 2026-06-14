@@ -206,7 +206,7 @@ export default function Korisnik(podaci){
         <div className="relative z-10">
             <Navbar />
             <div className="flex flex-col justify-center items-center mt-20 px-4">
-                <div className="flex flex-col lg:flex-row gap-6 w-full max-w-6xl">
+                <div className="flex flex-col lg:flex-row justify-center items-center lg:items-start gap-6 w-full max-w-6xl">
                     <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-2xl z-20 max-w-3xl w-full p-5 sm:p-8">
                         <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
                             Podaci o studentu

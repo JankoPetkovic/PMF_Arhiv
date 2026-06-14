@@ -3,12 +3,35 @@ import { usePage, router } from "@inertiajs/react";
 import Navbar from "../Komponente/Alati/Navbar";
 import Dialog from "../Komponente/Dialog";
 import ServisParlamenta from "../PomocniAlati/Servisi/ServisParlamenta";
+import ServisAnkete from "../PomocniAlati/Servisi/ServisAnkete";
+import AnketaGraditelj, { PRAZNA_ANKETA, anketaUStanje } from "../Komponente/Parlament/AnketaGraditelj";
+import AnketaForma from "../Komponente/Parlament/AnketaForma";
+import RezimeAnkete from "../Komponente/Parlament/RezimeAnkete";
 import { prikaziToastNotifikaciju } from "../PomocniAlati/ToastNotifikacijaServis";
 import TipToastNotifikacije from "../PomocniAlati/TipToastNotifikacije";
-import { FaPlus, FaRegEdit, FaRegTrashAlt, FaExternalLinkAlt, FaRegUserCircle } from "react-icons/fa";
+import { FaPlus, FaRegEdit, FaRegTrashAlt, FaExternalLinkAlt, FaRegUserCircle, FaPoll, FaDownload } from "react-icons/fa";
+
+function gradiAnketuPayload(stanje) {
+    return {
+        naslov: stanje.naslov || null,
+        rok_trajanja: stanje.rok_trajanja || null,
+        dozvoli_vise: !!stanje.dozvoli_vise,
+        pitanja: stanje.pitanja
+            .filter((p) => p.tekst.trim())
+            .map((p) => ({
+                tekst: p.tekst.trim(),
+                tip: p.tip,
+                obavezno: p.obavezno,
+                dozvoli_drugo: p.tip !== "slobodan" ? p.dozvoli_drugo : false,
+                opcije: p.tip === "slobodan" ? [] : p.opcije.filter((o) => o.trim()).map((o) => ({ tekst: o.trim() })),
+            })),
+    };
+}
 
 export default function ParlamentObjave() {
-    const { objave = [], mozeUpravljati = false } = usePage().props;
+    const { objave = [], mozeUpravljati = false, paginacija = { trenutna: 1, ukupno: 1 } } = usePage().props;
+
+    const idiNaStranicu = (s) => router.get('/parlament', { stranica: s }, { preserveScroll: true, preserveState: false });
 
     const [dialogForme, podesiDialogForme] = useState(false);
     const [objavaZaIzmenu, podesiObjavuZaIzmenu] = useState(null);
@@ -71,6 +94,26 @@ export default function ParlamentObjave() {
                                 onObrisi={() => podesiDialogBrisanja(o)}
                             />
                         ))}
+                    </div>
+                )}
+
+                {paginacija.ukupno > 1 && (
+                    <div className="flex items-center justify-center gap-3 mt-6">
+                        <button
+                            onClick={() => idiNaStranicu(paginacija.trenutna - 1)}
+                            disabled={paginacija.trenutna <= 1}
+                            className="px-3 py-1.5 rounded-lg border border-gray-300 text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 cursor-pointer"
+                        >
+                            ←
+                        </button>
+                        <span className="text-sm text-gray-600">{paginacija.trenutna} / {paginacija.ukupno}</span>
+                        <button
+                            onClick={() => idiNaStranicu(paginacija.trenutna + 1)}
+                            disabled={paginacija.trenutna >= paginacija.ukupno}
+                            className="px-3 py-1.5 rounded-lg border border-gray-300 text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 cursor-pointer"
+                        >
+                            →
+                        </button>
                     </div>
                 )}
             </div>
@@ -153,6 +196,26 @@ function KarticaObjave({ objava, mozeUpravljati, onIzmeni, onObrisi }) {
                     <span>{objava.autor || 'Nepoznat autor'}</span>
                     {objava.datum_objave && <span>· {objava.datum_objave}</span>}
                 </div>
+
+                {objava.anketa && (
+                    <div className="mt-4">
+                        {mozeUpravljati && (
+                            <div className="flex items-center justify-between flex-wrap gap-2 text-xs text-gray-500 mb-1">
+                                <span className="inline-flex items-center gap-1.5">
+                                    <FaPoll size={12} /> Anketa · {objava.anketa.broj_odgovora} odgovora
+                                </span>
+                                <a
+                                    href={`/anketa/${objava.anketa.anketa_id}/rezultati`}
+                                    className="inline-flex items-center gap-1.5 text-emerald-600 hover:text-emerald-800 font-medium"
+                                >
+                                    <FaDownload size={11} /> Preuzmi rezultate (CSV)
+                                </a>
+                            </div>
+                        )}
+                        {mozeUpravljati && <RezimeAnkete anketaId={objava.anketa.anketa_id} />}
+                        <AnketaForma anketa={objava.anketa} />
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -164,6 +227,7 @@ function FormaObjave({ objava, zatvori }) {
     const [link, podesiLink] = useState(objava?.link ?? "");
     const [slika, podesiSliku] = useState(null);
     const [ukloniSliku, podesiUkloniSliku] = useState(false);
+    const [anketaStanje, podesiAnketaStanje] = useState(() => objava?.anketa ? anketaUStanje(objava.anketa) : PRAZNA_ANKETA());
     const [cuva, podesiCuva] = useState(false);
 
     const imaPostojecuSliku = !!objava?.slika && !ukloniSliku && !slika;
@@ -182,11 +246,26 @@ function FormaObjave({ objava, zatvori }) {
             if (slika) fd.append("slika", slika);
             if (objava && ukloniSliku) fd.append("ukloni_sliku", "1");
 
-            if (objava) {
-                await ServisParlamenta.izmeni(objava.parlament_objava_id, fd);
-            } else {
-                await ServisParlamenta.kreiraj(fd);
+            const rez = objava
+                ? await ServisParlamenta.izmeni(objava.parlament_objava_id, fd)
+                : await ServisParlamenta.kreiraj(fd);
+
+            const objavaId = objava?.parlament_objava_id ?? rez?.objava?.parlament_objava_id;
+
+            // Sačuvaj/obriši anketu (greška ankete ne sme da blokira zatvaranje).
+            if (objavaId) {
+                try {
+                    if (anketaStanje.imaAnketu) {
+                        const payload = gradiAnketuPayload(anketaStanje);
+                        if (payload.pitanja.length > 0) {
+                            await ServisAnkete.sacuvaj(objavaId, payload);
+                        }
+                    } else if (objava?.anketa) {
+                        await ServisAnkete.obrisi(objavaId);
+                    }
+                } catch (_) {}
             }
+
             zatvori();
             router.reload();
         } catch (_) {
@@ -251,6 +330,8 @@ function FormaObjave({ objava, zatvori }) {
                     className="w-full text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-600 file:cursor-pointer"
                 />
             </div>
+
+            <AnketaGraditelj stanje={anketaStanje} podesiStanje={podesiAnketaStanje} />
 
             <div className="flex justify-end pt-1">
                 <button

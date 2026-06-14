@@ -10,7 +10,9 @@ class TipKorisnickeAkcijeSeeder extends Seeder
 
     public function run(): void
     {
-        DB::table('tip_korisnicke_akcije')->insert([
+        // insertOrIgnore: data-migracije su možda već ubacile neke tipove (9–11),
+        // pa preskačemo duplikate umesto da pucamo na fresh migrate --seed.
+        DB::table('tip_korisnicke_akcije')->insertOrIgnore([
             ['id' => 1, 'naziv' => 'Čitanje'],
             ['id' => 2, 'naziv' => 'Brisanje'],
             ['id' => 3, 'naziv' => 'Ažuriranje'],
