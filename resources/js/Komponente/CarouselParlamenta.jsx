@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { router } from "@inertiajs/react";
 import { FaChevronLeft, FaChevronRight, FaExternalLinkAlt } from "react-icons/fa";
+import { formatirajSadrzaj } from "../PomocniAlati/formatirajTekst";
 
 export default function CarouselParlamenta({ objave = [] }) {
     const [aktivni, podesiAktivni] = useState(0);
@@ -50,9 +51,10 @@ export default function CarouselParlamenta({ objave = [] }) {
                     <div className="p-5 flex flex-col justify-center min-w-0">
                         <h3 className="text-xl font-semibold text-gray-800">{objava.naslov}</h3>
                         {objava.sadrzaj && (
-                            <p className="text-sm text-gray-600 mt-2 line-clamp-3 whitespace-pre-line">
-                                {objava.sadrzaj}
-                            </p>
+                            <p
+                                className="text-sm text-gray-600 mt-2 line-clamp-3"
+                                dangerouslySetInnerHTML={{ __html: formatirajSadrzaj(objava.sadrzaj) }}
+                            />
                         )}
                         <div className="flex items-center gap-3 text-xs text-gray-400 mt-3">
                             <span>{objava.autor || 'Parlament'}</span>

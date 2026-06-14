@@ -7,6 +7,8 @@ import ServisAnkete from "../PomocniAlati/Servisi/ServisAnkete";
 import AnketaGraditelj, { PRAZNA_ANKETA, anketaUStanje } from "../Komponente/Parlament/AnketaGraditelj";
 import AnketaForma from "../Komponente/Parlament/AnketaForma";
 import RezimeAnkete from "../Komponente/Parlament/RezimeAnkete";
+import EditorTeksta from "../Komponente/Parlament/EditorTeksta";
+import { formatirajSadrzaj } from "../PomocniAlati/formatirajTekst";
 import { prikaziToastNotifikaciju } from "../PomocniAlati/ToastNotifikacijaServis";
 import TipToastNotifikacije from "../PomocniAlati/TipToastNotifikacije";
 import { FaPlus, FaRegEdit, FaRegTrashAlt, FaExternalLinkAlt, FaRegUserCircle, FaPoll, FaDownload } from "react-icons/fa";
@@ -177,7 +179,10 @@ function KarticaObjave({ objava, mozeUpravljati, onIzmeni, onObrisi }) {
                 </div>
 
                 {objava.sadrzaj && (
-                    <p className="text-sm text-gray-700 mt-2 whitespace-pre-line">{objava.sadrzaj}</p>
+                    <p
+                        className="text-sm text-gray-700 mt-2"
+                        dangerouslySetInnerHTML={{ __html: formatirajSadrzaj(objava.sadrzaj) }}
+                    />
                 )}
 
                 {objava.link && (
@@ -289,12 +294,11 @@ function FormaObjave({ objava, zatvori }) {
 
             <div>
                 <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Tekst</label>
-                <textarea
-                    value={sadrzaj}
-                    onChange={(e) => podesiSadrzaj(e.target.value)}
-                    rows={5}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400 resize-y"
+                <EditorTeksta
+                    vrednost={sadrzaj}
+                    podesiVrednost={podesiSadrzaj}
                     placeholder="Sadržaj objave (opciono)"
+                    rows={5}
                 />
             </div>
 
