@@ -599,8 +599,8 @@ function RedTabele({ stavka, predmeti, tipoviMaterijala, skolskeGodine, onAzurir
                 />
             </td>
             <td className="px-3 py-2">
-                <div className="flex items-center gap-1.5">
-                    <p className="font-medium text-gray-800 text-xs leading-tight max-w-[220px] truncate" title={stavka.naziv}>
+                <div className="flex items-start gap-1.5">
+                    <p className="font-medium text-gray-800 text-xs leading-tight flex-1 min-w-0 break-words" title={stavka.naziv}>
                         {stavka.naziv}
                     </p>
                     {stavka.vecPostoji ? (
