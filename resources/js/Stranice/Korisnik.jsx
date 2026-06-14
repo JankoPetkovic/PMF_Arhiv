@@ -206,8 +206,8 @@ export default function Korisnik(podaci){
         <div className="relative z-10">
             <Navbar />
             <div className="flex flex-col justify-center items-center mt-20 px-4">
-                <div className="flex gap-6">
-                    <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-2xl z-20 max-w-3xl w-full p-8">
+                <div className="flex flex-col lg:flex-row gap-6 w-full max-w-6xl">
+                    <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-2xl z-20 max-w-3xl w-full p-5 sm:p-8">
                         <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
                             Podaci o studentu
                         </h2>
@@ -286,7 +286,7 @@ export default function Korisnik(podaci){
                         </div>
                     </div>
                     {korisnik.uloga == "Admin" && 
-                    <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-2xl z-20 max-w-3xl w-full p-8">
+                    <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-2xl z-20 max-w-3xl w-full p-5 sm:p-8">
                         <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
                             Admin podešavanja
                         </h2>
@@ -453,7 +453,7 @@ export default function Korisnik(podaci){
                                 </button>
                             </div>
                         }
-                        <div className="flex gap-4 mt-4">
+                        <div className="flex flex-wrap gap-4 mt-4">
                             <a
                                 href="/export-problema"
                                 className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition"
@@ -477,11 +477,11 @@ export default function Korisnik(podaci){
                         </div>
                     </div>}
                     {korisnik.uloga == "Menadzer" && 
-                    <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-2xl z-20 max-w-3xl w-full p-8">
+                    <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-2xl z-20 max-w-3xl w-full p-5 sm:p-8">
                         <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
                             Mendžerska podešavanja
                         </h2>
-                        <div className="flex gap-4 mt-4">
+                        <div className="flex flex-wrap gap-4 mt-4">
                             <a
                                 href="/export-problema"
                                 className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition"

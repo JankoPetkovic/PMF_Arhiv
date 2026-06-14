@@ -62,11 +62,16 @@ export default function CustomSelect({
                 multiple={viseOpcija}
                 onChange={selektujHandle}
                 size={velicina}
-                renderOption={(props, opcija) => (
-                    <li {...props} key={opcija.id ?? opcija.smer_id}>
-                        {opcija[imeOpcije] + (nazivPlus ?" - " + opcija[nazivPlus] : '')}
-                    </li>
-                )}
+                renderOption={(props, opcija) => {
+                    // MUI-jev key je garantovano jedinstven (uključuje indeks),
+                    // za razliku od npr. smer_id koji je isti za sve predmete istog smera.
+                    const { key: muiKey, ...ostalo } = props;
+                    return (
+                        <li {...ostalo} key={muiKey}>
+                            {opcija[imeOpcije] + (nazivPlus ?" - " + opcija[nazivPlus] : '')}
+                        </li>
+                    );
+                }}
                 renderInput={(parametri) => (
                     <TextField
                     {...parametri}
@@ -102,11 +107,16 @@ export default function CustomSelect({
                 multiple={viseOpcija}
                 onChange={selektujHandle}
                 size={velicina}
-                renderOption={(props, opcija) => (
-                    <li {...props} key={opcija.id ?? opcija.smer_id}>
-                        {opcija[imeOpcije] + (nazivPlus ?" - " + opcija[nazivPlus] : '')}
-                    </li>
-                )}
+                renderOption={(props, opcija) => {
+                    // MUI-jev key je garantovano jedinstven (uključuje indeks),
+                    // za razliku od npr. smer_id koji je isti za sve predmete istog smera.
+                    const { key: muiKey, ...ostalo } = props;
+                    return (
+                        <li {...ostalo} key={muiKey}>
+                            {opcija[imeOpcije] + (nazivPlus ?" - " + opcija[nazivPlus] : '')}
+                        </li>
+                    );
+                }}
                 renderInput={(parametri) => (
                     <TextField
                     {...parametri}

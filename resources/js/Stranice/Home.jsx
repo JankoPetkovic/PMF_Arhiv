@@ -5,9 +5,10 @@ import { prikaziToastNotifikaciju } from "../PomocniAlati/ToastNotifikacijaServi
 import TipToastNotifikacije from "../PomocniAlati/TipToastNotifikacije";
 import { koristiGlobalniKontekst } from "../Konteksti";
 import PrikazMaterijala from "../Komponente/PrikazMaterijala";
+import CarouselParlamenta from "../Komponente/CarouselParlamenta";
 import { usePage } from '@inertiajs/react';
 
-export default function Home({ smerovi, flash, dostupniDepartmani, dostupniNivoiStudija, dostupniTipoviMaterijala, dostupniMaterijali}){
+export default function Home({ smerovi, flash, dostupniDepartmani, dostupniNivoiStudija, dostupniTipoviMaterijala, dostupniMaterijali, najnovijeObjave = []}){
   const {podesiPodatke} = koristiGlobalniKontekst();
   const { ulogovanKorisnik } = usePage().props;
   const [tekstMaterijala, podesiTekstMaterijal] = useState('Najnoviji materijali: ')
@@ -43,6 +44,7 @@ export default function Home({ smerovi, flash, dostupniDepartmani, dostupniNivoi
         </div>
       </div>
       <div className="mt-6 max-w-[90vw] mx-auto">
+        <CarouselParlamenta objave={najnovijeObjave} />
         <PrikazMaterijala materijali={dostupniMaterijali.data} tekst={tekstMaterijala} />
       </div>
     </div>

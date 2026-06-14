@@ -37,7 +37,8 @@ class ParlamentObjava extends Model
             'parlament_objava_id' => $this->parlament_objava_id,
             'naslov'              => $this->naslov,
             'sadrzaj'             => $this->sadrzaj,
-            'slika'               => $this->slika ? Storage::disk('public')->url($this->slika) : null,
+            // Relativna /storage/ putanja (radi bez obzira na host/port, kao i materijali).
+            'slika'               => $this->slika ? '/storage/' . $this->slika : null,
             'link'                => $this->link,
             'autor'               => $this->autor
                 ? trim(($this->autor->ime ?? '') . ' ' . ($this->autor->prezime ?? '')) ?: $this->autor->email

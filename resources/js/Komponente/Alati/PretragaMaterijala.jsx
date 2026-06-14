@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { FaSearch } from "react-icons/fa";
 import axios from "axios";
 
-export default function PretragaMaterijala({ podesiRezultate, inicijalniMaterijali }) {
+export default function PretragaMaterijala({ podesiRezultate, inicijalniMaterijali, klase = "relative w-full max-w-md mx-auto mb-6" }) {
     const [pretraga, podesiPretragu] = useState("");
     const [timer, podesiTimer] = useState(null);
     const prviRender = useRef(true);
@@ -36,7 +36,7 @@ export default function PretragaMaterijala({ podesiRezultate, inicijalniMaterija
     }, [pretraga]);
 
     return (
-        <div className="relative w-full max-w-md mx-auto mb-6">
+        <div className={klase}>
             <input
                 type="text"
                 value={pretraga}

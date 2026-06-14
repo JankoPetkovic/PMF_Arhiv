@@ -4,6 +4,7 @@ import { Tooltip } from "@mui/material";
 import axios from "axios";
 import { prikaziToastNotifikaciju } from "../PomocniAlati/ToastNotifikacijaServis";
 import TipToastNotifikacije from "../PomocniAlati/TipToastNotifikacije";
+import { objaviPromenuMaterijala } from "../PomocniAlati/dogadjajiMaterijala";
 import { router } from "@inertiajs/react";
 
 
@@ -24,6 +25,7 @@ export default function PrijaviSe({otvoriRegistraciju, podesiPrikaziDialog, otvo
       podesiPrikaziDialog(false)
       prikaziToastNotifikaciju("Dobrodošao/la - " + odgovor.data.ime, TipToastNotifikacije.Uspesno)
       router.reload();
+      objaviPromenuMaterijala();
     } catch(greska){
       if (greska.response?.status === 401) {
         prikaziToastNotifikaciju("Neispravan email ili lozinka", TipToastNotifikacije.Greska)

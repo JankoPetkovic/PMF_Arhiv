@@ -4,7 +4,7 @@ import { FaRegUserCircle } from "react-icons/fa";
 import { MdVerified, MdLogout  } from "react-icons/md";
 import Dialog from "../Dialog";
 import ObjavaMaterijala from "../../Stranice/ObjavaMaterijala";
-import { FaUpload, FaGoogleDrive } from "react-icons/fa";
+import { FaUpload, FaGoogleDrive, FaBullhorn, FaUsersCog } from "react-icons/fa";
 import { Tooltip } from "@mui/material";
 import { BiSupport } from "react-icons/bi";
 import VerifikacijaDialog from "../VerifikacijaDialog"
@@ -96,6 +96,15 @@ export default function Navbar()
                         )
                 )}
 
+                <Tooltip title="Objave parlamenta" arrow>
+                    <div
+                        className='border-2 rounded-lg p-2 border-amber-500 cursor-pointer hover:scale-110 transition-transform duration-200'
+                        onClick={() => router.visit('/parlament')}
+                    >
+                        <FaBullhorn className='text-amber-500' size={30} />
+                    </div>
+                </Tooltip>
+
                 {ulogovanKorisnik?.uloga === 'Admin' && (
                     <Tooltip title="Drive import" arrow>
                         <div
@@ -103,6 +112,17 @@ export default function Navbar()
                             onClick={() => router.visit('/admin/import-drive')}
                         >
                             <FaGoogleDrive className='text-purple-500' size={30} />
+                        </div>
+                    </Tooltip>
+                )}
+
+                {ulogovanKorisnik?.uloga === 'Admin' && (
+                    <Tooltip title="Administracija korisnika" arrow>
+                        <div
+                            className='border-2 rounded-lg p-2 border-slate-500 cursor-pointer hover:scale-110 transition-transform duration-200'
+                            onClick={() => router.visit('/admin/korisnici')}
+                        >
+                            <FaUsersCog className='text-slate-600' size={30} />
                         </div>
                     </Tooltip>
                 )}

@@ -55,13 +55,8 @@ class Materijal extends Model
         return $putanja;
     }
 
-    public static function filtriraj(array $filteri){
-        $upit = self::with([
-            'predmet.smer.departman',
-            'predmet.smer.nivoStudija',
-            'podtipMaterijala.tip',
-            'korisnik'
-        ]);
+    // Primena zajedničkih WHERE filtera (koristi i filtriraj i zaEksport).
+    private static function primeniFiltere($upit, array $filteri){
         if (!empty($filteri['smer_id'])) {
             $upit->whereHas('predmet', function ($podupit) use ($filteri) {
                 $smerovi = is_array($filteri['smer_id'])
@@ -96,16 +91,44 @@ class Materijal extends Model
         }
 
         if (!empty($filteri['skolska_godina'])) {
-            if (!preg_match('/^\d{4}\/\d{2}$/', $filteri['skolska_godina'])) {
-                throw new \InvalidArgumentException("Format školske godine nije validan (očekivan: npr. 2023/2024).");
-            }
+            // Format koji frontend šalje i koji je u bazi: "2023-24" (crtica, 2 cifre).
+            // Tolerišemo i unos sa kosom crtom ("2023/24") radi sigurnosti.
             $skolskaGodina = str_replace('/', '-', $filteri['skolska_godina']);
+            if (!preg_match('/^\d{4}-\d{2}$/', $skolskaGodina)) {
+                throw new \InvalidArgumentException("Format školske godine nije validan (očekivan: npr. 2023-24).");
+            }
             $upit->where('skolska_godina', $skolskaGodina);
         }
 
         if (!empty($filteri['pretraga'])) {
             $upit->where('naziv', 'like', '%' . $filteri['pretraga'] . '%');
         }
+
+        return $upit;
+    }
+
+    // Vraća sve materijale koji odgovaraju filterima (bez paginacije) za eksport.
+    public static function zaEksport(array $filteri){
+        $upit = self::with([
+            'predmet.smer.departman',
+            'predmet.smer.nivoStudija',
+            'podtipMaterijala.tip',
+        ]);
+
+        self::primeniFiltere($upit, $filteri);
+
+        return $upit->orderByDesc('materijal_id')->get();
+    }
+
+    public static function filtriraj(array $filteri){
+        $upit = self::with([
+            'predmet.smer.departman',
+            'predmet.smer.nivoStudija',
+            'podtipMaterijala.tip',
+            'korisnik'
+        ]);
+
+        self::primeniFiltere($upit, $filteri);
 
         $kolonaSortiranja = $filteri['kolonaSortiranja'] ?? 'materijal_id';
         $pravacSortiranja = $filteri['pravacSortiranja'] ?? 'desc';

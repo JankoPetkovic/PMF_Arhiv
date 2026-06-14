@@ -48,6 +48,7 @@ Route::resource('tipovi-materijala', KontrolerTipaMaterijala::class);
 //Kontroler Podtipova materijala
 Route::resource('podtipovi-materijala', KontrolerPodtipovaMaterijala::class);
 Route::resource('smerovi', KontrolerSmerova::class)->only(['show']);
+Route::get('materijali/eksport', [KontrolerMaterijala::class, 'eksportujMaterijale'])->name('materijali.eksport');
 Route::resource('materijali', KontrolerMaterijala::class)->only(['index']);
 
 // Kratak link za deljenje materijala

@@ -64,6 +64,84 @@ class KontrolerMaterijala extends Controller
     }
 
 
+    // Pomoćna: očisti segment putanje/naziva za bezbedan unos u ZIP.
+    private function ocistiZaPutanju(string $tekst): string
+    {
+        $tekst = str_replace(['/', '\\'], '-', $tekst);
+        return trim($tekst) ?: 'nepoznato';
+    }
+
+    /**
+     * Eksport SVIH materijala koji odgovaraju filterima kao ZIP arhiva.
+     */
+    public function eksportujMaterijale(Request $zahtev)
+    {
+        $validiraniPodaci = $zahtev->validate([
+            'podtip_materijala_id' => 'sometimes',
+            'tip_materijala_id'    => 'sometimes',
+            'predmet_id'           => 'sometimes',
+            'smer_id'              => 'sometimes',
+            'godina'               => 'sometimes',
+            'korisnik_id'          => 'sometimes',
+            'skolska_godina'       => 'sometimes|string|max:20',
+            'pretraga'             => 'sometimes|string|max:255',
+        ]);
+
+        if (!\class_exists(\ZipArchive::class)) {
+            return response()->json(['message' => 'ZIP nije podržan na serveru (php-zip ekstenzija).'], 500);
+        }
+
+        try {
+            $materijali = Materijal::zaEksport($validiraniPodaci);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+
+        if ($materijali->isEmpty()) {
+            return response()->json(['message' => 'Nema materijala za izabrane filtere.'], 404);
+        }
+
+        set_time_limit(300);
+
+        $tmp = tempnam(sys_get_temp_dir(), 'mat_zip_');
+        $zip = new \ZipArchive();
+        if ($zip->open($tmp, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
+            @unlink($tmp);
+            return response()->json(['message' => 'Greška pri kreiranju arhive.'], 500);
+        }
+
+        $dodato = 0;
+        foreach ($materijali as $m) {
+            $putanja = $m->vratiPutanju();
+            if (!Storage::disk('public')->exists($putanja)) {
+                continue;
+            }
+
+            $predmet = $this->ocistiZaPutanju($m->predmet->naziv ?? 'Bez predmeta');
+            $tip     = $this->ocistiZaPutanju($m->podtipMaterijala->tip->naziv ?? 'Ostalo');
+            $podtip  = $this->ocistiZaPutanju($m->podtipMaterijala->naziv ?? '');
+
+            $folder  = $predmet . '/' . $tip . ($podtip !== 'nepoznato' ? ' - ' . $podtip : '');
+            $imeUZipu = $folder . '/' . $m->materijal_id . '_' . $m->naziv;
+
+            $zip->addFile(Storage::disk('public')->path($putanja), $imeUZipu);
+            $dodato++;
+        }
+
+        $zip->close();
+
+        if ($dodato === 0) {
+            @unlink($tmp);
+            return response()->json(['message' => 'Nijedan fajl nije dostupan za eksport.'], 404);
+        }
+
+        $imeArhive = 'materijali_' . date('Ymd_His') . '.zip';
+
+        return response()->download($tmp, $imeArhive, [
+            'Content-Type' => 'application/zip',
+        ])->deleteFileAfterSend(true);
+    }
+
     /**
      * Show the form for creating a new resource.
      */
@@ -302,29 +380,4 @@ class KontrolerMaterijala extends Controller
         }
     }
 
-    /**
-     * Kratak link za deljenje materijala — servira fajl bez otkrivanja
-     * cele putanje u arhivu. URL ostaje oblika /m/{id}/{naziv-predmeta}.
-     */
-    public function deli(string $id)
-    {
-        $materijal = Materijal::with([
-            'predmet.smer.departman',
-            'predmet.smer.nivoStudija',
-            'podtipMaterijala.tip',
-        ])->find($id);
-
-        if (!$materijal) {
-            abort(404);
-        }
-
-        $putanja = $materijal->vratiPutanju();
-
-        if (!Storage::disk('public')->exists($putanja)) {
-            abort(404);
-        }
-
-        // Default disposition je 'inline' — fajl se otvara u browseru kao i ranije.
-        return Storage::disk('public')->response($putanja, $materijal->naziv);
-    }
 }

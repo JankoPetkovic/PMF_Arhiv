@@ -30,9 +30,10 @@ export default function KarticaMaterijala({materijal}){
     const klaseIkonica = "cursor-pointer hover:scale-110 transition-transform duration-200";
 
     useEffect(()=>{
-        if(ulogovanKorisnik && (ulogovanKorisnik?.uloga != "Gost" || ulogovanKorisnik?.korisnicki_email == materijal.korisnik))
-            podesiVisiPristup(true);
-    }, [])
+        const dozvoljeno = !!ulogovanKorisnik &&
+            (ulogovanKorisnik?.uloga != "Gost" || ulogovanKorisnik?.korisnicki_email == materijal.korisnik);
+        podesiVisiPristup(dozvoljeno);
+    }, [ulogovanKorisnik])
 
     const preuzmiMaterijal = (putanjaFajla, nazivFajla) => {
         const link = document.createElement('a');

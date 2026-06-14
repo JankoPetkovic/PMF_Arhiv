@@ -76,7 +76,7 @@ export default function Registracija({podesiPrikaziDialog}) {
   };
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-md w-96">
+    <div className="bg-white p-6 rounded-xl shadow-md w-full sm:w-96">
       <InputPoljeSaGreskom 
         labela="Ime"
         vrednost={podaci.ime}
