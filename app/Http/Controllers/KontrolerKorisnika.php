@@ -298,7 +298,7 @@ class KontrolerKorisnika extends Controller
 
         DB::table('password_reset_tokens')->where('email', $zahtev->email)->delete();
 
-        $korisnik->zabeleziAkcijuKorisnika('ResetSifre', 'Korisnik je resetovao šifru.');
+        $korisnik->zabeleziAkcijuKorisnika('Reset šifre', 'Korisnik je resetovao šifru.');
 
         return response()->json(['message' => 'Šifra je uspešno promenjena.'], 200);
     }

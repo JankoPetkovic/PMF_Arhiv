@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 use App\Models\Predmet;
 use App\Models\Smer;
@@ -85,6 +86,8 @@ class KontrolerPredmeta extends Controller
             'smer_id' => $smer->smer_id,
             'godina' => $validacija['godina']['vrednost'],
         ]);
+
+        Auth::user()?->zabeleziAkcijuKorisnika('Kreiranje', "Kreiran predmet: {$predmet->naziv}");
 
         return response()->json([
             'message' => 'Predmet je uspešno kreiran.',

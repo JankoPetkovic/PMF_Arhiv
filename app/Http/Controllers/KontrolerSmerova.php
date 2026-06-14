@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 use App\Models\Smer;
@@ -94,6 +95,8 @@ class KontrolerSmerova extends Controller
             'departman_id' => $departman->departman_id,
             'nivo_studija_id' => $nivoStudija->nivo_studija_id,
         ]);
+
+        Auth::user()?->zabeleziAkcijuKorisnika('Kreiranje', "Kreiran smer: {$smer->naziv_smera}");
 
         return response()->json([
             'message' => 'Smer je uspešno kreiran.',

@@ -86,7 +86,7 @@ class KontrolerAdminKorisnika extends Controller
 
         /** @var \App\Models\Korisnik $admin */
         $admin = Auth::user();
-        $admin->zabeleziAkcijuKorisnika('Uloga', "Dodeljena uloga {$korisnik->tipUloge->naziv} korisniku {$korisnik->korisnik_id}");
+        $admin->zabeleziAkcijuKorisnika('Dodela uloge', "Dodeljena uloga {$korisnik->tipUloge->naziv} korisniku {$korisnik->korisnik_id}");
 
         return response()->json([
             'message' => 'Uloga ažurirana',

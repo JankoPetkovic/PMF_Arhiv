@@ -25,7 +25,7 @@ export default function Navbar()
     const [prikazDialogaPrijave, podesiPrikazDialogaPrijave] = useState(false);
     const [prikazDialogaRegistracije, podesiPrikazDialogaRegistracije] = useState(false);
     const [ekranPrijave, podesiEkranPrijave] = useState('prijava'); // 'prijava' | 'reset-sifre'
-    const { ulogovanKorisnik } = usePage().props;
+    const { ulogovanKorisnik, prikaziParlament } = usePage().props;
     const { url } = usePage();
     const naKorisnickojStranici = /^\/korisnik\/\d+$/.test(url);
 
@@ -96,14 +96,16 @@ export default function Navbar()
                         )
                 )}
 
-                <Tooltip title="Objave parlamenta" arrow>
-                    <div
-                        className='border-2 rounded-lg p-2 border-amber-500 cursor-pointer hover:scale-110 transition-transform duration-200'
-                        onClick={() => router.visit('/parlament')}
-                    >
-                        <FaBullhorn className='text-amber-500' size={30} />
-                    </div>
-                </Tooltip>
+                {prikaziParlament && (
+                    <Tooltip title="Objave parlamenta" arrow>
+                        <div
+                            className='border-2 rounded-lg p-2 border-amber-500 cursor-pointer hover:scale-110 transition-transform duration-200'
+                            onClick={() => router.visit('/parlament')}
+                        >
+                            <FaBullhorn className='text-amber-500' size={30} />
+                        </div>
+                    </Tooltip>
+                )}
 
                 {ulogovanKorisnik?.uloga === 'Admin' && (
                     <Tooltip title="Drive import" arrow>

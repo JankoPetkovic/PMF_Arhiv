@@ -60,8 +60,10 @@ Route::resource('predmeti', KontrolerPredmeta::class)->except(['store']);
 //Kontroler Nivoa studija
 Route::resource('nivo-studija', KontrolerNivoaStudija::class);
 
-// Objave parlamenta — javni pregled (carousel vodi ovde)
-Route::get('/parlament', [KontrolerParlamentObjava::class, 'index'])->name('parlament.index');
+// Objave parlamenta — javni pregled (carousel vodi ovde). Ceo feature iza flag-a.
+if (config('parlament.prikazi')) {
+    Route::get('/parlament', [KontrolerParlamentObjava::class, 'index'])->name('parlament.index');
+}
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('korisnik', KontrolerKorisnika::class)->except(['create', 'store']);
@@ -82,9 +84,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/admin/korisnici/{id}/uloga', [KontrolerAdminKorisnika::class, 'dodeliUlogu']);
 
     // Objave parlamenta — upravljanje (samo predstavnik, provera u kontroleru)
-    Route::post('/parlament', [KontrolerParlamentObjava::class, 'store']);
-    Route::post('/parlament/{id}', [KontrolerParlamentObjava::class, 'update']); // POST zbog multipart (slika)
-    Route::delete('/parlament/{id}', [KontrolerParlamentObjava::class, 'destroy']);
+    if (config('parlament.prikazi')) {
+        Route::post('/parlament', [KontrolerParlamentObjava::class, 'store']);
+        Route::post('/parlament/{id}', [KontrolerParlamentObjava::class, 'update']); // POST zbog multipart (slika)
+        Route::delete('/parlament/{id}', [KontrolerParlamentObjava::class, 'destroy']);
+    }
 
     //Kontroler departmana
     Route::resource('departmani', KontrolerDepartmana::class)->only(['store']);

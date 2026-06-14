@@ -19,6 +19,9 @@ class TipKorisnickeAkcijeSeeder extends Seeder
             ['id' => 6, 'naziv' => 'Prijavljivanje'],
             ['id' => 7, 'naziv' => 'Odjavljivanje'],
             ['id' => 8, 'naziv' => 'Eksport'],
+            ['id' => 9, 'naziv' => 'Import'],
+            ['id' => 10, 'naziv' => 'Reset šifre'],
+            ['id' => 11, 'naziv' => 'Dodela uloge'],
         ]);
     }
 }

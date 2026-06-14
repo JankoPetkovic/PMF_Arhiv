@@ -10,7 +10,7 @@ import { usePage } from '@inertiajs/react';
 
 export default function Home({ smerovi, flash, dostupniDepartmani, dostupniNivoiStudija, dostupniTipoviMaterijala, dostupniMaterijali, najnovijeObjave = []}){
   const {podesiPodatke} = koristiGlobalniKontekst();
-  const { ulogovanKorisnik } = usePage().props;
+  const { ulogovanKorisnik, prikaziParlament } = usePage().props;
   const [tekstMaterijala, podesiTekstMaterijal] = useState('Najnoviji materijali: ')
 
   
@@ -44,7 +44,7 @@ export default function Home({ smerovi, flash, dostupniDepartmani, dostupniNivoi
         </div>
       </div>
       <div className="mt-6 max-w-[90vw] mx-auto">
-        <CarouselParlamenta objave={najnovijeObjave} />
+        {prikaziParlament && <CarouselParlamenta objave={najnovijeObjave} />}
         <PrikazMaterijala materijali={dostupniMaterijali.data} tekst={tekstMaterijala} />
       </div>
     </div>

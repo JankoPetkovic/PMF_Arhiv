@@ -65,7 +65,7 @@ class KontrolerParlamentObjava extends Controller
             'korisnik_id' => $korisnik->korisnik_id,
         ]);
 
-        $korisnik->zabeleziAkcijuKorisnika('Objava', "Kreirana objava parlamenta: {$objava->parlament_objava_id}");
+        $korisnik->zabeleziAkcijuKorisnika('Kreiranje', "Kreirana objava parlamenta: {$objava->parlament_objava_id}");
 
         return response()->json(['message' => 'Objava kreirana', 'objava' => $objava->fresh()->zaPrikaz()], 201);
     }
@@ -105,6 +105,10 @@ class KontrolerParlamentObjava extends Controller
         }
 
         $objava->save();
+
+        /** @var \App\Models\Korisnik $korisnik */
+        $korisnik = Auth::user();
+        $korisnik->zabeleziAkcijuKorisnika('Ažuriranje', "Izmenjena objava parlamenta: {$objava->parlament_objava_id}");
 
         return response()->json(['message' => 'Objava ažurirana', 'objava' => $objava->fresh()->zaPrikaz()], 200);
     }

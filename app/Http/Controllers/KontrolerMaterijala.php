@@ -292,6 +292,8 @@ class KontrolerMaterijala extends Controller
 
             $materijal->save();
 
+            $prijavljenKorisnik->zabeleziAkcijuKorisnika('Ažuriranje', "Izmenjen materijal: {$materijal->materijal_id}");
+
             return response()->json([
                 'message' => 'Uspešno ažurirano.',
                 'materijal' => $materijal

@@ -187,6 +187,12 @@ class Materijal extends Model
 
         $materijal->save();
 
+        // Beleženje kreiranja (pokriva i običan upload i Drive import).
+        Korisnik::find($korisnikId)?->zabeleziAkcijuKorisnika(
+            'Kreiranje',
+            "Kreiran materijal: {$materijal->materijal_id}"
+        );
+
         return $materijal->vratiPutanju();
     }
 

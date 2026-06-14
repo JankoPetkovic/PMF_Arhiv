@@ -60,11 +60,13 @@ class KontrolerPocetneStranice extends Controller
 
         $materijali = Materijal::filtriraj($filteri);
 
-        $najnovijeObjave = ParlamentObjava::with('autor')
-            ->orderByDesc('datum_objave')
-            ->limit(10)
-            ->get()
-            ->map(fn($o) => $o->zaPrikaz());
+        $najnovijeObjave = config('parlament.prikazi')
+            ? ParlamentObjava::with('autor')
+                ->orderByDesc('datum_objave')
+                ->limit(10)
+                ->get()
+                ->map(fn($o) => $o->zaPrikaz())
+            : [];
 
         return Inertia::render('Home', [
             'smerovi' => $podaci,

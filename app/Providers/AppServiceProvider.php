@@ -42,9 +42,10 @@ class AppServiceProvider extends ServiceProvider
                 $prijavljenKorisnik = Auth::user();
                 if($prijavljenKorisnik)
                     return $prijavljenKorisnik->prikaziKorisnika();
-                else 
+                else
                     return null;
             },
+            'prikaziParlament' => fn() => config('parlament.prikazi'),
         ]);
     }
 }
