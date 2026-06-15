@@ -31,7 +31,7 @@ export default function PrikazMaterijala({ materijali: inicijalniMaterijali, tek
                 </div>
             )}
 
-            <div className="flex flex-wrap gap-4 p-4 h-[80vh] overflow-auto justify-center lg:justify-start">
+            <div className="flex flex-wrap content-start items-start gap-4 p-4 h-[80vh] overflow-auto justify-center lg:justify-start">
                 {Array.isArray(materijali) && materijali.length !== 0 ? (
                     materijali.map((m) => (
                         <KarticaMaterijala materijal={m} key={m.materijal_id} />
