@@ -286,12 +286,19 @@ class KontrolerMaterijala extends Controller
                 ], 403);
             }
 
+            // Putanja fajla pre izmene (zavisi od predmeta, podtipa, naziva i školske godine).
+            $staraPutanja = $materijal->vratiPutanju();
+
             $materijal->naziv               = $validiraniPodaci['naziv'];
             $materijal->predmet_id          = $validiraniPodaci['predmet_id'];
             $materijal->podtip_materijala_id = $validiraniPodaci['podtipMaterijala']['podtip_materijala_id'];
             $materijal->skolska_godina      = $validiraniPodaci['skolskaGodina'];
 
             $materijal->save();
+
+            // Posle izmene metapodataka fajl mora da pređe na novu lokaciju koja
+            // odgovara novom predmetu/podtipu/nazivu, da bi se poklapao sa vratiPutanju().
+            $materijal->premestiFajlNaNovuPutanju($staraPutanja);
 
             $prijavljenKorisnik->zabeleziAkcijuKorisnika('Ažuriranje', "Izmenjen materijal: {$materijal->materijal_id}");
 

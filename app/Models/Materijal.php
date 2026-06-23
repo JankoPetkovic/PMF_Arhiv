@@ -60,6 +60,41 @@ class Materijal extends Model
         return $putanja;
     }
 
+    /**
+     * Premesti fizički fajl sa stare putanje na trenutnu (vratiPutanju()).
+     * Poziva se posle izmene metapodataka (predmet, podtip, naziv, školska godina)
+     * da bi lokacija fajla na disku odgovarala novim vrednostima.
+     */
+    public function premestiFajlNaNovuPutanju(string $staraPutanja): void
+    {
+        // Osveži relacije da bi nova putanja koristila novousnimljene predmet/podtip.
+        $this->load([
+            'predmet.smer.departman',
+            'predmet.smer.nivoStudija',
+            'podtipMaterijala.tip',
+        ]);
+
+        $novaPutanja = $this->vratiPutanju();
+
+        if ($staraPutanja === $novaPutanja) {
+            return;
+        }
+
+        $disk = Storage::disk('public');
+
+        // Ako original ne postoji, nema šta da se premešta.
+        if (!$disk->exists($staraPutanja)) {
+            return;
+        }
+
+        $noviDirektorijum = dirname($novaPutanja);
+        if (!$disk->exists($noviDirektorijum)) {
+            $disk->makeDirectory($noviDirektorijum);
+        }
+
+        $disk->move($staraPutanja, $novaPutanja);
+    }
+
     // Primena zajedničkih WHERE filtera (koristi i filtriraj i zaEksport).
     private static function primeniFiltere($upit, array $filteri){
         if (!empty($filteri['smer_id'])) {
