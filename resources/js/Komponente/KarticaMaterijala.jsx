@@ -96,6 +96,7 @@ export default function KarticaMaterijala({materijal}){
         pdf: 'pdf',
         doc: 'doc', docx: 'docx',
         ppt: 'ppt', pptx: 'pptx',
+        xls: 'xls', xlsx: 'xlsx',
         txt: 'txt',
         odt: 'odt',
         zip: 'zip', rar: 'zip',

@@ -35,7 +35,7 @@ export default function FajlUploader({ onFajloviDodati }) {
         multiple
         ref={inputRef}
         onChange={obradiPromenu}
-        accept=".pdf,.doc,.docx,.ppt,.pptx,.zip,.txt,.odt,.png,.jpg,.jpeg"
+        accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.txt,.odt,.png,.jpg,.jpeg"
         style={{ display: 'none' }}
       />
       <FaUpload size={36} className="mx-auto mb-3 text-gray-400" />
@@ -44,7 +44,7 @@ export default function FajlUploader({ onFajloviDodati }) {
         ili <span className="text-blue-500 underline">klikni da odabereš</span>
       </p>
       <p className="text-xs text-gray-400 mt-3">
-        PDF, DOC, PPT, ZIP, TXT, ODT, PNG, JPG · maks. 50MB po fajlu
+        PDF, DOC, PPT, XLS, ZIP, TXT, ODT, PNG, JPG · maks. 50MB po fajlu
       </p>
     </div>
   );
